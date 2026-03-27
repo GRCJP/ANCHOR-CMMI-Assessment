@@ -382,27 +382,118 @@
   <div class="notification" id="notif" role="alert" aria-live="polite"></div>
 
   <!-- JavaScript modules -->
-  <script type="module" src="src/js/agency-assessment.js"></script>
-  <script type="module" src="src/js/navigation.js"></script>
-  <script type="module" src="src/js/data.js"></script>
+  <script src="src/js/agency-assessment.js"></script>
+  <script src="src/js/navigation.js"></script>
+  <script src="src/js/data.js"></script>
   
-  <!-- Legacy compatibility script -->
+  <!-- Navigation functionality script -->
   <script>
     function showSection(id, el) {
-      if (window.cyberAssessApp) {
-        window.cyberAssessApp.showSection(id, el);
+      console.log('Agency showSection called with:', id, el);
+      
+      // Hide all sections
+      document.querySelectorAll('.section').forEach(section => {
+        section.classList.remove('active');
+        section.setAttribute('aria-hidden', 'true');
+      });
+
+      // Remove active state from all nav items
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+        item.setAttribute('aria-expanded', 'false');
+      });
+
+      // Show selected section
+      const targetSection = document.getElementById(id);
+      if (targetSection) {
+        targetSection.classList.add('active');
+        targetSection.setAttribute('aria-hidden', 'false');
+        console.log('Agency section activated:', id);
+      }
+
+      // Update nav item
+      if (el) {
+        el.classList.add('active');
+        el.setAttribute('aria-expanded', 'true');
+        console.log('Agency nav item activated');
+      }
+
+      // Update page title
+      updateSectionTitle(id);
+      
+      // Initialize section-specific functionality
+      if (window.agencyAssessment) {
+        window.agencyAssessment.initializeSection(id);
+      }
+    }
+    
+    function updateSectionTitle(sectionId) {
+      const titles = {
+        overview: 'Assessment Dashboard',
+        questionnaire: 'Pre-Assessment Questionnaire',
+        intake: 'Intake & Scoping',
+        mapping: 'NIST CSF Mapping',
+        evidence: 'Evidence Collection',
+        risk: 'Risk & CMMI Scoring',
+        poam: 'POA&M Remediation',
+        sar: 'SAR Dashboard'
+      };
+
+      const title = titles[sectionId] || 'Assessment';
+      const titleElement = document.getElementById('topbar-title');
+      if (titleElement) {
+        titleElement.innerHTML = `${title} - Maryland Dept. of Transportation (MDOT)<span>Current Stage: Evidence Collection</span>`;
       }
     }
     
     function notify(msg) {
-      if (window.cyberAssessApp) {
-        window.cyberAssessApp.announce(msg);
+      console.log('Agency notification:', msg);
+      const notif = document.getElementById('notif');
+      if (notif) {
+        notif.textContent = msg;
+        notif.style.display = 'block';
+        setTimeout(() => {
+          notif.style.display = 'none';
+        }, 3000);
       }
     }
     
     function goToMasterTracker() {
+      console.log('Going to master tracker');
       window.location.href = 'index-master.html';
     }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('Agency DOM loaded, initializing...');
+      
+      // Set up click handlers for all nav items
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+          e.preventDefault();
+          console.log('Agency nav item clicked:', this);
+          
+          // Get the section ID from onclick attribute
+          const onclick = this.getAttribute('onclick');
+          if (onclick) {
+            const match = onclick.match(/showSection\('([^']+)'/);
+            if (match) {
+              showSection(match[1], this);
+            }
+          }
+        });
+        
+        // Set up keyboard navigation
+        item.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            this.click();
+          }
+        });
+      });
+
+      console.log('Agency initialization complete');
+    });
   </script>
 </body>
 </html>
