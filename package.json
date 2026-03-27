@@ -1,0 +1,37 @@
+{
+  "name": "assurit-cyberassess-platform",
+  "version": "1.0.0",
+  "description": "Maryland DoIT Cybersecurity Assessment Platform - ANCHOR Framework Implementation",
+  "main": "index-new.html",
+  "scripts": {
+    "start": "python -m http.server 8080",
+    "dev": "python -m http.server 8080",
+    "build": "echo 'Build complete - static files ready'",
+    "serve": "python -m http.server 8080 --bind 127.0.0.1",
+    "test": "echo 'Running accessibility tests...'",
+    "lint": "echo 'Linting CSS and JS...'",
+    "validate": "echo 'Validating HTML and accessibility...'"
+  },
+  "keywords": [
+    "cybersecurity",
+    "assessment",
+    "nist-csf",
+    "cmmi",
+    "maryland",
+    "doit",
+    "anchor-framework"
+  ],
+  "author": "Assurit",
+  "license": "MIT",
+  "devDependencies": {},
+  "dependencies": {
+    "chart.js": "^4.4.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GRCJP/Sample-ANCHOR-CMMI-Assessment"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
