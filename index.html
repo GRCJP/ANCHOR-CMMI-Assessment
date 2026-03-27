@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Assurit CyberAssess | Maryland DoIT Cybersecurity Assessment Platform</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 <style>
   :root {
     --primary: #1a3a5c;
@@ -387,6 +390,44 @@
   .srtm-field.full { grid-column:1/-1; }
   .srtm-methods { display:flex; gap:6px; margin-top:8px; flex-wrap:wrap; }
   .srtm-method-tag { font-size:.65rem; padding:2px 8px; border-radius:10px; background:#f0f2f5; color:var(--text-muted); }
+  /* Quick-click button groups */
+  .srtm-btn-group { display:flex; flex-wrap:wrap; gap:5px; }
+  .srtm-btn { padding:5px 11px; border-radius:6px; border:1.5px solid var(--border); background:#fff; font-size:.72rem; font-weight:700; cursor:pointer; transition:all .12s; color:var(--text); user-select:none; }
+  .srtm-btn:hover { border-color:var(--primary-light); background:#f0f4ff; }
+  .srtm-btn.sel { color:#fff; border-color:transparent; }
+  .srtm-btn.sel-met { background:#16a34a; border-color:#16a34a; color:#fff; }
+  .srtm-btn.sel-notmet { background:#dc2626; border-color:#dc2626; color:#fff; }
+  .srtm-btn.sel-na { background:#6b7280; border-color:#6b7280; color:#fff; }
+  .srtm-btn.sel-impl { background:#2563a8; border-color:#2563a8; color:#fff; }
+  .srtm-btn.sel-partial { background:#d97706; border-color:#d97706; color:#fff; }
+  .srtm-btn.sel-plan { background:#7c3aed; border-color:#7c3aed; color:#fff; }
+  .srtm-btn.sel-notimpl { background:#dc2626; border-color:#dc2626; color:#fff; }
+  .srtm-btn.sel-inherited { background:#0d9488; border-color:#0d9488; color:#fff; }
+  .srtm-btn.sel-cmmi { color:#fff; }
+  .srtm-btn.sel-cmmi0 { background:#6b7280; border-color:#6b7280; }
+  .srtm-btn.sel-cmmi1 { background:#dc2626; border-color:#dc2626; }
+  .srtm-btn.sel-cmmi2 { background:#ea580c; border-color:#ea580c; }
+  .srtm-btn.sel-cmmi3 { background:#d97706; border-color:#d97706; }
+  .srtm-btn.sel-cmmi4 { background:#16a34a; border-color:#16a34a; }
+  .srtm-btn.sel-cmmi5 { background:#0d9488; border-color:#0d9488; }
+  .srtm-auto-bar { display:flex; gap:14px; align-items:center; flex-wrap:wrap; background:#f0f2f5; border-radius:8px; padding:10px 14px; margin-bottom:14px; border:1px solid var(--border); }
+  .srtm-auto-item { display:flex; align-items:center; gap:6px; }
+  .srtm-auto-label { font-size:.68rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.3px; }
+  .srtm-auto-badge { font-size:.72rem; font-weight:700; padding:3px 10px; border-radius:6px; }
+  .srtm-auto-unscored { background:#e5e7eb; color:#6b7280; }
+  .srtm-auto-met { background:#d4f4e2; color:#065f46; }
+  .srtm-auto-notmet { background:#fee2e2; color:#7f1d1d; }
+  .srtm-auto-na { background:#f1f3f7; color:#6b7280; }
+  .srtm-auto-cmmi0 { background:#6b7280; color:#fff; }
+  .srtm-auto-cmmi1 { background:#dc2626; color:#fff; }
+  .srtm-auto-cmmi2 { background:#ea580c; color:#fff; }
+  .srtm-auto-cmmi3 { background:#d97706; color:#fff; }
+  .srtm-auto-cmmi4 { background:#16a34a; color:#fff; }
+  .srtm-auto-cmmi5 { background:#0d9488; color:#fff; }
+  .srtm-auto-progress { font-size:.72rem; font-weight:600; color:var(--text-muted); }
+  .srtm-save-btn { margin-top:12px; padding:7px 22px; border-radius:6px; border:none; background:var(--primary); color:#fff; font-size:.78rem; font-weight:700; cursor:pointer; transition:all .15s; }
+  .srtm-save-btn:hover { background:var(--primary-light); }
+  .srtm-save-btn.saved { background:#16a34a; }
   .srtm-score-sidebar { position:sticky; top:70px; }
   .srtm-fn-score-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
   .srtm-fn-label { font-size:.72rem; font-weight:700; width:80px; flex-shrink:0; }
@@ -1006,8 +1047,9 @@
         </table>
       </div>
       <div class="btn-row">
-        <button class="btn btn-primary btn-sm" onclick="notify('📥 Assessment scoring exported: MDOT_CSF_SRTM_Scoring.xlsx')">📥 Export Full SRTM</button>
-        <button class="btn btn-outline btn-sm" onclick="notify('📋 Scoring briefed to Lead Assessor')">📋 Brief Assessor</button>
+        <button class="btn btn-primary btn-sm" onclick="exportSrtmExcel()">📥 Export Full SRTM (Excel)</button>
+        <button class="btn btn-accent btn-sm" onclick="generateSarPdf()">📄 Generate SAR PDF</button>
+        <button class="btn btn-outline btn-sm" onclick="exportSarExcel()">📊 Export SAR Excel</button>
         <button class="btn btn-outline btn-sm" onclick="notify('🔗 Synced to ServiceNow GRC Module')">🔗 Sync to GRC</button>
       </div>
     </div>
@@ -1341,8 +1383,9 @@
         </table>
       </div>
       <div class="btn-row">
-        <button class="btn btn-primary" onclick="notify('📄 SAR PDF generated: MDOT_SAR_2026_Final.pdf')">📄 Generate SAR PDF</button>
-        <button class="btn btn-outline" onclick="notify('📊 Executive briefing deck exported to PowerPoint')">📊 Export to PowerPoint</button>
+        <button class="btn btn-primary" onclick="generateSarPdf()">📄 Generate SAR PDF</button>
+        <button class="btn btn-accent" onclick="exportSarExcel()">📊 Export SAR Excel</button>
+        <button class="btn btn-outline" onclick="exportSrtmExcel()">📥 Export SRTM Excel</button>
         <button class="btn btn-outline" onclick="notify('🔗 SAR published to ServiceNow GRC portal')">🔗 Publish to ServiceNow</button>
       </div>
     </div>
@@ -1399,7 +1442,8 @@
         D. Evidence Log
       </div>
       <div class="btn-row">
-        <button class="btn btn-primary" onclick="notify('📄 Full SAR document generated: MDOT_SAR_2026_FINAL.pdf (42 pages)')">📄 Generate Full SAR PDF</button>
+        <button class="btn btn-primary" onclick="generateSarPdf()">📄 Generate Full SAR PDF</button>
+        <button class="btn btn-accent" onclick="exportSarExcel()">📊 Export SAR Excel</button>
         <button class="btn btn-outline" onclick="notify('📋 SAR submitted to DoIT portal')">📋 Submit to DoIT</button>
       </div>
     </div>
@@ -2470,7 +2514,10 @@ function initSrtm() {
 
 function buildSrtmCtrl(ctrl, fn) {
   const m = FN_META[fn];
-  const procHtml = ctrl.procs.map(p => `
+  const safe = ctrl.id.replace(/\./g,'-');
+  const procHtml = ctrl.procs.map(p => {
+    const ps = p.id.replace(/\./g,'-');
+    return `
     <div class="srtm-proc">
       <div class="srtm-proc-head">
         <div class="srtm-proc-id">${p.id}</div>
@@ -2484,24 +2531,22 @@ function buildSrtmCtrl(ctrl, fn) {
       <div class="srtm-proc-fields" style="margin-top:10px;">
         <div class="srtm-field">
           <label>Implementation Status</label>
-          <select onchange="updateProcState('${ctrl.id}','${p.id}','impl',this.value)">
-            <option value="">— Select —</option>
-            <option value="Implemented">Implemented</option>
-            <option value="Partially Implemented">Partially Implemented</option>
-            <option value="Planned">Planned</option>
-            <option value="Not Implemented">Not Implemented</option>
-            <option value="Not Applicable">Not Applicable</option>
-            <option value="Inherited">Inherited</option>
-          </select>
+          <div class="srtm-btn-group" id="bg-impl-${ps}">
+            <div class="srtm-btn" onclick="pickBtn(this,'impl','${ctrl.id}','${p.id}','Implemented','sel-impl')">Implemented</div>
+            <div class="srtm-btn" onclick="pickBtn(this,'impl','${ctrl.id}','${p.id}','Partially Implemented','sel-partial')">Partial</div>
+            <div class="srtm-btn" onclick="pickBtn(this,'impl','${ctrl.id}','${p.id}','Planned','sel-plan')">Planned</div>
+            <div class="srtm-btn" onclick="pickBtn(this,'impl','${ctrl.id}','${p.id}','Not Implemented','sel-notimpl')">Not Impl</div>
+            <div class="srtm-btn" onclick="pickBtn(this,'impl','${ctrl.id}','${p.id}','Not Applicable','sel-na')">N/A</div>
+            <div class="srtm-btn" onclick="pickBtn(this,'impl','${ctrl.id}','${p.id}','Inherited','sel-inherited')">Inherited</div>
+          </div>
         </div>
         <div class="srtm-field">
           <label>Assessment Result</label>
-          <select onchange="updateProcState('${ctrl.id}','${p.id}','result',this.value)">
-            <option value="">— Select —</option>
-            <option value="MET">MET</option>
-            <option value="NOT MET">NOT MET</option>
-            <option value="N/A">N/A</option>
-          </select>
+          <div class="srtm-btn-group" id="bg-result-${ps}">
+            <div class="srtm-btn" onclick="pickBtn(this,'result','${ctrl.id}','${p.id}','MET','sel-met')" style="min-width:60px;text-align:center;">✓ MET</div>
+            <div class="srtm-btn" onclick="pickBtn(this,'result','${ctrl.id}','${p.id}','NOT MET','sel-notmet')" style="min-width:60px;text-align:center;">✗ NOT MET</div>
+            <div class="srtm-btn" onclick="pickBtn(this,'result','${ctrl.id}','${p.id}','N/A','sel-na')" style="min-width:60px;text-align:center;">N/A</div>
+          </div>
         </div>
         <div class="srtm-field full">
           <label>Observation Statement</label>
@@ -2512,44 +2557,28 @@ function buildSrtmCtrl(ctrl, fn) {
           <input type="text" placeholder="e.g., Agency_SSP_v1.1.docx, Scan_Report_Q1.pdf" onchange="updateProcState('${ctrl.id}','${p.id}','evidence',this.value)">
         </div>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 
   return `
-  <div class="srtm-ctrl unscored" id="srtm-${ctrl.id.replace(/\./g,'-')}">
+  <div class="srtm-ctrl unscored" id="srtm-${safe}">
     <div class="srtm-ctrl-head" onclick="toggleSrtmCtrl('${ctrl.id}')">
       <div class="srtm-ctrl-id" style="background:${m.bg};color:${m.color};">${ctrl.id}</div>
       <div class="srtm-ctrl-name">${ctrl.name}<div style="font-size:.7rem;color:var(--text-muted);font-weight:400;margin-top:2px;">${ctrl.cat} · ${ctrl.procs.length} procedure(s)</div></div>
       <div class="srtm-ctrl-pills">
-        <div class="srtm-pill srtm-pill-unscored" id="spill-${ctrl.id.replace(/\./g,'-')}">Unscored</div>
+        <div class="srtm-pill srtm-pill-unscored" id="spill-${safe}">Unscored</div>
       </div>
       <div class="srtm-expand">▶</div>
     </div>
-    <div class="srtm-ctrl-body" id="sbody-${ctrl.id.replace(/\./g,'-')}">
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;">
-        <div class="srtm-field">
-          <label>Overall Assessment Result</label>
-          <select onchange="updateCtrlResult('${ctrl.id}',this.value)">
-            <option value="">— Select —</option>
-            <option value="MET">MET</option>
-            <option value="NOT MET">NOT MET</option>
-            <option value="N/A">N/A</option>
-          </select>
-        </div>
-        <div class="srtm-field">
-          <label>CMMI Maturity Level (0–5)</label>
-          <select onchange="updateCtrlCmmi('${ctrl.id}',this.value)">
-            <option value="">— Select —</option>
-            <option value="0">0 — Nonexistent</option>
-            <option value="1">1 — Performed</option>
-            <option value="2">2 — Managed</option>
-            <option value="3">3 — Defined</option>
-            <option value="4">4 — Measured</option>
-            <option value="5">5 — Optimized</option>
-          </select>
-        </div>
+    <div class="srtm-ctrl-body" id="sbody-${safe}">
+      <div class="srtm-auto-bar" id="autobar-${safe}">
+        <div class="srtm-auto-item"><span class="srtm-auto-label">Result</span><span class="srtm-auto-badge srtm-auto-unscored" id="auto-result-${safe}">— Score procedures below —</span></div>
+        <div class="srtm-auto-item"><span class="srtm-auto-label">CMMI</span><span class="srtm-auto-badge srtm-auto-unscored" id="auto-cmmi-${safe}">—</span></div>
+        <div class="srtm-auto-item"><span class="srtm-auto-label">Progress</span><span class="srtm-auto-progress" id="auto-prog-${safe}">0 / ${ctrl.procs.length} procedures</span></div>
       </div>
       <div style="font-size:.75rem; font-weight:700; color:var(--primary); margin-bottom:8px;">Assessment Procedures (${ctrl.procs.length})</div>
       ${procHtml}
+      <button class="srtm-save-btn" id="savebtn-${safe}" onclick="saveCtrl('${ctrl.id}')">💾 Save Assessment</button>
     </div>
   </div>`;
 }
@@ -2573,7 +2602,7 @@ function updateProcState(ctrlId, procId, field, value) {
   if(!srtmState[ctrlId]) srtmState[ctrlId] = {result:'',impl:'',cmmi:'',procs:{}};
   if(!srtmState[ctrlId].procs[procId]) srtmState[ctrlId].procs[procId] = {};
   srtmState[ctrlId].procs[procId][field] = value;
-  updateSrtmScoring();
+  recomputeCtrl(ctrlId);
 }
 
 function updateCtrlResult(ctrlId, value) {
@@ -2591,6 +2620,98 @@ function updateCtrlCmmi(ctrlId, value) {
   if(!srtmState[ctrlId]) srtmState[ctrlId] = {result:'',impl:'',cmmi:'',procs:{}};
   srtmState[ctrlId].cmmi = value===''?'':parseInt(value);
   updateSrtmScoring();
+}
+
+// ---- QUICK-CLICK BUTTON HANDLERS ----
+function pickBtn(el, field, ctrlId, procId, value, cls) {
+  el.parentElement.querySelectorAll('.srtm-btn').forEach(b => {
+    b.className = 'srtm-btn';
+  });
+  el.classList.add(cls);
+  updateProcState(ctrlId, procId, field, value);
+  recomputeCtrl(ctrlId);
+}
+
+// ---- AUTO-COMPUTE CONTROL RESULT + CMMI ----
+function recomputeCtrl(ctrlId) {
+  const st = srtmState[ctrlId];
+  if(!st || !st.procs) return;
+  // Find matching control definition
+  let ctrlDef = null;
+  for(const d of SRTM_DATA) { for(const c of d.controls) { if(c.id===ctrlId) { ctrlDef=c; break; } } if(ctrlDef) break; }
+  if(!ctrlDef) return;
+  const totalProcs = ctrlDef.procs.length;
+  let metCnt=0, notMetCnt=0, naCnt=0, scoredCnt=0;
+  let implCount=0, partialCount=0, inheritedCount=0;
+  let hasEvidence=0, hasObs=0;
+  ctrlDef.procs.forEach(p => {
+    const ps = st.procs[p.id];
+    if(!ps) return;
+    if(ps.result==='MET') { metCnt++; scoredCnt++; }
+    else if(ps.result==='NOT MET') { notMetCnt++; scoredCnt++; }
+    else if(ps.result==='N/A') { naCnt++; scoredCnt++; }
+    if(ps.impl==='Implemented') implCount++;
+    else if(ps.impl==='Partially Implemented') partialCount++;
+    else if(ps.impl==='Inherited') inheritedCount++;
+    if(ps.evidence && ps.evidence.trim()) hasEvidence++;
+    if(ps.obs && ps.obs.trim()) hasObs++;
+  });
+  const safe = ctrlId.replace(/\./g,'-');
+  // Progress
+  const progEl = document.getElementById('auto-prog-'+safe);
+  if(progEl) progEl.textContent = scoredCnt + ' / ' + totalProcs + ' procedures';
+  // Auto-derive overall result
+  let result = '';
+  if(scoredCnt === 0) { result = ''; }
+  else if(naCnt === totalProcs) { result = 'N/A'; }
+  else if(notMetCnt > 0) { result = 'NOT MET'; }
+  else if(metCnt + naCnt === totalProcs) { result = 'MET'; }
+  else if(scoredCnt < totalProcs) { result = ''; }
+  // Update result in state + UI
+  st.result = result;
+  updateCtrlResult(ctrlId, result);
+  const resultEl = document.getElementById('auto-result-'+safe);
+  if(resultEl) {
+    resultEl.className = 'srtm-auto-badge ' + (result==='MET'?'srtm-auto-met':result==='NOT MET'?'srtm-auto-notmet':result==='N/A'?'srtm-auto-na':'srtm-auto-unscored');
+    resultEl.textContent = result ? (result==='MET'?'✓ MET':result==='NOT MET'?'✗ NOT MET':'N/A') : (scoredCnt>0 ? scoredCnt+'/'+totalProcs+' scored' : '— Score procedures below —');
+  }
+  // Auto-derive CMMI level
+  let cmmi = '';
+  if(scoredCnt === totalProcs && scoredCnt > 0) {
+    const applicableProcs = totalProcs - naCnt;
+    if(applicableProcs === 0) { cmmi = ''; }
+    else {
+      const metPct = applicableProcs > 0 ? metCnt / applicableProcs : 0;
+      const fullyImpl = implCount + inheritedCount;
+      if(metPct === 0) { cmmi = 0; }
+      else if(metPct < 0.5) { cmmi = 1; }
+      else if(metPct < 1) { cmmi = 2; }
+      else if(fullyImpl < applicableProcs) { cmmi = 2; }
+      else if(hasEvidence < applicableProcs) { cmmi = 3; }
+      else if(hasObs < applicableProcs) { cmmi = 4; }
+      else { cmmi = 5; }
+    }
+  }
+  st.cmmi = cmmi;
+  const cmmiEl = document.getElementById('auto-cmmi-'+safe);
+  const cmmiNames = ['ML0 Nonexistent','ML1 Performed','ML2 Managed','ML3 Defined','ML4 Measured','ML5 Optimized'];
+  if(cmmiEl) {
+    if(cmmi === '' || cmmi === undefined) {
+      cmmiEl.className = 'srtm-auto-badge srtm-auto-unscored';
+      cmmiEl.textContent = scoredCnt < totalProcs ? 'Complete all procedures' : '—';
+    } else {
+      cmmiEl.className = 'srtm-auto-badge srtm-auto-cmmi'+cmmi;
+      cmmiEl.textContent = cmmiNames[cmmi];
+    }
+  }
+  updateSrtmScoring();
+}
+
+function saveCtrl(ctrlId) {
+  const safe = ctrlId.replace(/\./g,'-');
+  const btn = document.getElementById('savebtn-'+safe);
+  if(btn) { btn.classList.add('saved'); btn.textContent = '✓ Saved'; setTimeout(()=>{ btn.classList.remove('saved'); btn.textContent = '💾 Save Assessment'; }, 2000); }
+  notify('✓ ' + ctrlId + ' assessment saved.');
 }
 
 function updateSrtmScoring() {
@@ -2694,8 +2815,527 @@ function buildXwalk() {
   tb.innerHTML = rows.join('');
 }
 
-function exportSrtm() {
-  notify('📥 SRTM exported: MDOT_NIST_CSF_SRTM_Assessment.xlsx — All controls, procedures, observations, and evidence included.');
+function exportSrtm() { exportSrtmExcel(); }
+
+function getAgencyName() {
+  const params = new URLSearchParams(window.location.search);
+  const agency = params.get('agency');
+  return (agency && AGENCY_LABELS[agency]) ? AGENCY_LABELS[agency] : 'Maryland Dept. of Transportation (MDOT)';
+}
+
+function getAssessmentId() {
+  const params = new URLSearchParams(window.location.search);
+  const agency = params.get('agency') || 'mdot';
+  return 'MD-' + agency.toUpperCase() + '-2026-041';
+}
+
+// ---- EXCEL EXPORT (SRTM format matching sample) ----
+function exportSrtmExcel() {
+  if(typeof XLSX === 'undefined') { notify('❌ SheetJS library not loaded'); return; }
+  const wb = XLSX.utils.book_new();
+  const agency = getAgencyName();
+  const assessId = getAssessmentId();
+  const today = new Date().toLocaleDateString('en-US',{year:'numeric',month:'2-digit',day:'2-digit'});
+
+  // Per-function domain sheets (matching sample: Control Name, Control ID, Procedure ID, Assessment Objective, EXAMINE, INTERVIEW, TEST, Observation, Impl Status, Assessment Result, Evidence)
+  SRTM_DATA.forEach(domain => {
+    const rows = [];
+    domain.controls.forEach(ctrl => {
+      ctrl.procs.forEach(p => {
+        const st = srtmState[ctrl.id];
+        const ps = (st && st.procs && st.procs[p.id]) || {};
+        rows.push({
+          'Control Name': ctrl.name,
+          'Control ID': ctrl.id,
+          'Procedure ID': p.id,
+          'Assessment Objective/Determine if:': p.obj,
+          'EXAMINE': 'Examine: [SELECT FROM: ' + p.examine + ']',
+          'INTERVIEW': 'Interview: [SELECT FROM: ' + p.interview + ']',
+          'TEST': 'Test: [SELECT FROM: ' + p.test + ']',
+          'Observation Statement': ps.obs || (st ? 'Assessment in progress' : ''),
+          'Implementation Status': ps.impl || (st ? st.impl : '') || '',
+          'Assessment Result': ps.result || (st ? st.result : '') || '',
+          'Evidence/Artifacts': ps.evidence || ''
+        });
+      });
+    });
+    const ws = XLSX.utils.json_to_sheet(rows);
+    ws['!cols'] = [{wch:24},{wch:14},{wch:14},{wch:50},{wch:40},{wch:40},{wch:40},{wch:50},{wch:20},{wch:16},{wch:40}];
+    XLSX.utils.book_append_sheet(wb, ws, FN_META[domain.fn].abbr);
+  });
+
+  // Control Summary sheet
+  const summaryRows = [];
+  SRTM_DATA.forEach(domain => {
+    domain.controls.forEach(ctrl => {
+      const st = srtmState[ctrl.id];
+      const result = st ? st.result : '';
+      const cmmi = (st && st.cmmi !== '' && st.cmmi !== undefined) ? st.cmmi : '';
+      const metProcs = ctrl.procs.filter(p => {
+        const ps = (st && st.procs && st.procs[p.id]) || {};
+        return ps.result === 'MET';
+      }).length;
+      summaryRows.push({
+        'Domain': domain.fn,
+        'Control ID': ctrl.id,
+        'Control Name': ctrl.name,
+        'Category': ctrl.cat,
+        'NIST 800-53': ctrl.n53 || '',
+        'CIS Controls': ctrl.cis || '',
+        'Total Procedures': ctrl.procs.length,
+        'Procedures MET': metProcs,
+        'Implementation Status': st ? st.impl || '' : '',
+        'Assessment Result': result,
+        'CMMI Level': cmmi,
+        'Deductible Points': result === 'NOT MET' ? (ctrl.procs.length >= 2 ? 5 : 3) : 0,
+        'Practice Scoring': result === 'MET' ? 'PASS' : (result === 'NOT MET' ? 'FAIL' : (result === 'N/A' ? 'N/A' : ''))
+      });
+    });
+  });
+  const wsSum = XLSX.utils.json_to_sheet(summaryRows);
+  wsSum['!cols'] = [{wch:12},{wch:14},{wch:28},{wch:22},{wch:20},{wch:16},{wch:16},{wch:14},{wch:22},{wch:16},{wch:12},{wch:16},{wch:14}];
+  XLSX.utils.book_append_sheet(wb, wsSum, 'Control Summary');
+
+  // Interview Questionnaire sheet
+  const iqRows = SRTM_IQ.map(q => ({
+    '#': q.id,
+    'Domain': q.fn,
+    'Interview Question': q.q,
+    'Designated Role': q.role,
+    'Response': iqState[q.id] || ''
+  }));
+  const wsIQ = XLSX.utils.json_to_sheet(iqRows);
+  wsIQ['!cols'] = [{wch:5},{wch:12},{wch:70},{wch:30},{wch:60}];
+  XLSX.utils.book_append_sheet(wb, wsIQ, 'Interview Questionnaire');
+
+  // Findings Summary sheet
+  const findingsRows = [];
+  SRTM_DATA.forEach(domain => {
+    domain.controls.forEach(ctrl => {
+      const st = srtmState[ctrl.id];
+      if(st && st.result === 'NOT MET') {
+        const obs = st.procs ? Object.values(st.procs).map(p => p.obs || '').filter(Boolean).join('; ') : '';
+        findingsRows.push({
+          'Assessment ID': assessId,
+          'Domain': domain.fn,
+          'Control ID': ctrl.id,
+          'Control Name': ctrl.name,
+          'Observation/Reason for Failure': obs || 'Gap identified — requires remediation',
+          'CMMI Level': (st.cmmi !== '' && st.cmmi !== undefined) ? st.cmmi : '',
+          'Reconciled': 'No'
+        });
+      }
+    });
+  });
+  if(findingsRows.length === 0) findingsRows.push({'Assessment ID': assessId, 'Domain':'', 'Control ID':'', 'Control Name':'No findings recorded', 'Observation/Reason for Failure':'', 'CMMI Level':'', 'Reconciled':''});
+  const wsFnd = XLSX.utils.json_to_sheet(findingsRows);
+  wsFnd['!cols'] = [{wch:20},{wch:12},{wch:14},{wch:28},{wch:60},{wch:12},{wch:12}];
+  XLSX.utils.book_append_sheet(wb, wsFnd, 'Findings Summary');
+
+  // Assessment Info cover sheet
+  const coverRows = [
+    {Field:'Report Title', Value:'NIST CSF 2.0 System Assessment — Security Requirements Traceability Matrix (SRTM)'},
+    {Field:'Agency', Value: agency},
+    {Field:'Assessment ID', Value: assessId},
+    {Field:'Date Generated', Value: today},
+    {Field:'Prepared By', Value:'Assurit Consulting Group'},
+    {Field:'Framework', Value:'NIST Cybersecurity Framework (CSF) 2.0'},
+    {Field:'Crosswalk', Value:'NIST SP 800-53 Rev 5 / CIS Controls v8'},
+    {Field:'Maturity Model', Value:'CMMI 0–5 Scale'},
+    {Field:'Classification', Value:'CONFIDENTIAL'}
+  ];
+  const wsCover = XLSX.utils.json_to_sheet(coverRows);
+  wsCover['!cols'] = [{wch:22},{wch:80}];
+  XLSX.utils.book_append_sheet(wb, wsCover, 'Assessment Info');
+
+  const filename = agency.replace(/[^a-zA-Z0-9]/g,'_') + '_CSF_SRTM_' + today.replace(/\//g,'-') + '.xlsx';
+  XLSX.writeFile(wb, filename);
+  notify('📥 SRTM Excel exported: ' + filename + ' — ' + (SRTM_DATA.length + 4) + ' sheets generated.');
+}
+
+// ---- SAR PDF EXPORT ----
+function generateSarPdf() {
+  if(typeof jspdf === 'undefined' && typeof window.jspdf === 'undefined') { notify('❌ jsPDF library not loaded'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF('p','mm','letter');
+  const agency = getAgencyName();
+  const assessId = getAssessmentId();
+  const today = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
+  let y = 0;
+
+  function addHeader() {
+    doc.setFillColor(26,58,92);
+    doc.rect(0,0,pageW,18,  'F');
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(9);
+    doc.setTextColor(255,255,255);
+    doc.text('Assurit CyberAssess — System Assessment Report',14,11);
+    doc.setFontSize(7);
+    doc.text('CONFIDENTIAL',pageW-14,11,{align:'right'});
+    doc.setTextColor(0,0,0);
+  }
+
+  function addFooter(pg) {
+    doc.setFontSize(7);
+    doc.setTextColor(120,120,120);
+    doc.text(agency + ' — ' + assessId, 14, pageH - 8);
+    doc.text('Page ' + pg, pageW - 14, pageH - 8, {align:'right'});
+    doc.setTextColor(0,0,0);
+  }
+
+  function newPage() {
+    doc.addPage();
+    addHeader();
+    y = 26;
+  }
+
+  function checkPage(needed) {
+    if(y + needed > pageH - 18) { newPage(); }
+  }
+
+  // ========= COVER PAGE =========
+  doc.setFillColor(26,58,92);
+  doc.rect(0,0,pageW,pageH,'F');
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(28);
+  doc.text('SYSTEM ASSESSMENT', pageW/2, 80, {align:'center'});
+  doc.text('REPORT (SAR)', pageW/2, 95, {align:'center'});
+  doc.setFontSize(11);
+  doc.setFont('helvetica','normal');
+  doc.text(agency, pageW/2, 115, {align:'center'});
+  doc.setFontSize(9);
+  doc.text('Assessment ID: ' + assessId, pageW/2, 128, {align:'center'});
+  doc.text('Date: ' + today, pageW/2, 136, {align:'center'});
+  doc.setDrawColor(232,160,32);
+  doc.setLineWidth(1.5);
+  doc.line(pageW/2-50, 148, pageW/2+50, 148);
+  doc.setFontSize(10);
+  doc.text('Prepared by: Assurit Consulting Group', pageW/2, 162, {align:'center'});
+  doc.text('Maryland DoIT Cybersecurity Assessment Program', pageW/2, 172, {align:'center'});
+  doc.setFontSize(8);
+  doc.text('CONFIDENTIAL — For Official Use Only', pageW/2, 220, {align:'center'});
+  doc.text('Framework: NIST CSF 2.0 | Crosswalk: NIST SP 800-53 Rev 5 | Maturity: CMMI 0–5', pageW/2, 230, {align:'center'});
+  addFooter(1);
+
+  // ========= PAGE 2: EXECUTIVE SUMMARY =========
+  let pg = 2;
+  newPage();
+
+  // Compute live scores
+  let totalCtrls=0, metCnt=0, notMetCnt=0, naCnt=0, cmmiSum=0, cmmiCnt=0;
+  const fnStats = {};
+  SRTM_DATA.forEach(d => {
+    fnStats[d.fn] = {total:0,met:0,notmet:0,cmmiSum:0,cmmiCnt:0};
+    d.controls.forEach(c => {
+      totalCtrls++; fnStats[d.fn].total++;
+      const st = srtmState[c.id];
+      if(st) {
+        if(st.result==='MET') { metCnt++; fnStats[d.fn].met++; }
+        else if(st.result==='NOT MET') { notMetCnt++; fnStats[d.fn].notmet++; }
+        else if(st.result==='N/A') { naCnt++; }
+        if(st.cmmi!==''&&st.cmmi!==undefined) { cmmiSum+=st.cmmi; cmmiCnt++; fnStats[d.fn].cmmiSum+=st.cmmi; fnStats[d.fn].cmmiCnt++; }
+      }
+    });
+  });
+  const avgCmmi = cmmiCnt>0 ? (cmmiSum/cmmiCnt).toFixed(1) : '2.5';
+  const cmmiNames = ['Nonexistent','Performed','Managed','Defined','Measured','Optimized'];
+  const ml = Math.min(5, Math.floor(parseFloat(avgCmmi)));
+
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(16);
+  doc.setTextColor(26,58,92);
+  doc.text('1. Executive Summary', 14, y); y += 10;
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9);
+  doc.setTextColor(40,40,40);
+  const execText = 'Assurit Consulting Group conducted a comprehensive cybersecurity assessment of ' + agency + '\'s enterprise IT environment. The assessment applied the NIST Cybersecurity Framework (CSF) 2.0 as the primary evaluation framework, with controls mapped to NIST SP 800-53 Rev 5. Maturity scoring utilized the CMMI 0-5 scale.';
+  const execLines = doc.splitTextToSize(execText, pageW - 28);
+  doc.text(execLines, 14, y); y += execLines.length * 4.5 + 4;
+
+  const summText = agency + ' achieved an overall maturity score of ' + avgCmmi + ' / 5.0, indicating a ' + cmmiNames[ml] + ' maturity level. ' + notMetCnt + ' control(s) were assessed as NOT MET, requiring remediation. ' + metCnt + ' control(s) MET requirements. ' + totalCtrls + ' total controls assessed across 6 CSF functions.';
+  const summLines = doc.splitTextToSize(summText, pageW - 28);
+  doc.text(summLines, 14, y); y += summLines.length * 4.5 + 8;
+
+  // Stat boxes
+  doc.setFillColor(240,242,245);
+  doc.roundedRect(14, y, 42, 22, 3, 3, 'F');
+  doc.roundedRect(62, y, 42, 22, 3, 3, 'F');
+  doc.roundedRect(110, y, 42, 22, 3, 3, 'F');
+  doc.roundedRect(158, y, 42, 22, 3, 3, 'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(14); doc.setTextColor(26,58,92);
+  doc.text(avgCmmi, 35, y+10, {align:'center'});
+  doc.text(String(totalCtrls), 83, y+10, {align:'center'});
+  doc.text(String(metCnt), 131, y+10, {align:'center'});
+  doc.text(String(notMetCnt), 179, y+10, {align:'center'});
+  doc.setFontSize(6.5); doc.setTextColor(100,100,100); doc.setFont('helvetica','normal');
+  doc.text('CMMI Score', 35, y+17, {align:'center'});
+  doc.text('Total Controls', 83, y+17, {align:'center'});
+  doc.text('Controls MET', 131, y+17, {align:'center'});
+  doc.text('Controls NOT MET', 179, y+17, {align:'center'});
+  y += 30;
+
+  // ========= SCOPE =========
+  doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.setTextColor(26,58,92);
+  doc.text('2. Scope & Methodology', 14, y); y += 10;
+  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(40,40,40);
+  const scopeText = 'The assessment evaluated ' + agency + ' systems against all NIST CSF 2.0 functions: Govern, Identify, Protect, Detect, Respond, and Recover. Evidence was collected through documentation review, stakeholder interviews (' + Object.values(iqState).filter(v=>v&&v.trim()).length + ' responses recorded), automated scanning, and technical testing. All ' + totalCtrls + ' controls and their assessment procedures were evaluated using the EXAMINE / INTERVIEW / TEST methodology aligned with the SRTM format.';
+  const scopeLines = doc.splitTextToSize(scopeText, pageW - 28);
+  doc.text(scopeLines, 14, y); y += scopeLines.length * 4.5 + 8;
+
+  // ========= MATURITY BY FUNCTION TABLE =========
+  doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.setTextColor(26,58,92);
+  doc.text('3. Maturity by CSF Function', 14, y); y += 8;
+  const fnTableData = Object.keys(fnStats).map(fn => {
+    const s = fnStats[fn];
+    const avg = s.cmmiCnt>0 ? (s.cmmiSum/s.cmmiCnt).toFixed(1) : '—';
+    const pct = s.total>0 ? Math.round(s.met/s.total*100) : 0;
+    return [fn, String(s.total), String(s.met), String(s.notmet), avg, pct+'%'];
+  });
+  doc.autoTable({
+    startY: y,
+    head: [['Function','Controls','MET','NOT MET','Avg CMMI','Score %']],
+    body: fnTableData,
+    theme: 'grid',
+    headStyles: {fillColor:[26,58,92], fontSize:8, fontStyle:'bold'},
+    bodyStyles: {fontSize:8},
+    margin: {left:14, right:14},
+    styles: {cellPadding:3}
+  });
+  y = doc.lastAutoTable.finalY + 10;
+  addFooter(pg++);
+
+  // ========= FINDINGS DETAIL =========
+  checkPage(30);
+  doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.setTextColor(26,58,92);
+  doc.text('4. Findings Detail', 14, y); y += 8;
+  const findingsData = [];
+  SRTM_DATA.forEach(d => {
+    d.controls.forEach(c => {
+      const st = srtmState[c.id];
+      if(st && st.result==='NOT MET') {
+        const obs = st.procs ? Object.values(st.procs).map(p=>p.obs||'').filter(Boolean).join('; ') : '';
+        findingsData.push([c.id, c.name, d.fn, (st.cmmi!==''&&st.cmmi!==undefined)?'ML'+st.cmmi:'—', obs||'Gap identified']);
+      }
+    });
+  });
+  // Also add the hardcoded findings from the SAR dashboard for demo
+  if(findingsData.length === 0) {
+    findingsData.push(['DE.CM-01','Network Monitoring','DETECT','ML1','No centralized log management or SIEM in place']);
+    findingsData.push(['PR.AA-01','Identity & Credential Mgmt','PROTECT','ML1','MFA not enforced on privileged accounts']);
+    findingsData.push(['ID.AM-01','Hardware Asset Inventory','IDENTIFY','ML2','Asset inventory estimated 40% incomplete']);
+    findingsData.push(['RS.MA-01','Incident Response Execution','RESPOND','ML2','IRP not updated or tested since 2022']);
+    findingsData.push(['PR.PS-02','Software Maintenance','PROTECT','ML2','Patch cycle averages 97 days for critical CVEs']);
+    findingsData.push(['GV.SC-01','Supply Chain Risk Mgmt','GOVERN','ML1','No formal TPRM program']);
+  }
+  doc.autoTable({
+    startY: y,
+    head: [['Control ID','Control Name','Function','CMMI','Observation']],
+    body: findingsData,
+    theme: 'grid',
+    headStyles: {fillColor:[26,58,92], fontSize:7.5, fontStyle:'bold'},
+    bodyStyles: {fontSize:7.5},
+    columnStyles: {0:{cellWidth:22},1:{cellWidth:32},2:{cellWidth:20},3:{cellWidth:14},4:{cellWidth:82}},
+    margin: {left:14, right:14},
+    styles: {cellPadding:2.5, overflow:'linebreak'}
+  });
+  y = doc.lastAutoTable.finalY + 10;
+  addFooter(pg++);
+
+  // ========= FULL CONTROL ASSESSMENT =========
+  checkPage(30);
+  doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.setTextColor(26,58,92);
+  doc.text('5. Full Control Assessment Results', 14, y); y += 8;
+  const allCtrlData = [];
+  SRTM_DATA.forEach(d => {
+    d.controls.forEach(c => {
+      const st = srtmState[c.id];
+      const result = st ? (st.result || 'Unscored') : 'Unscored';
+      const cmmi = (st && st.cmmi !== '' && st.cmmi !== undefined) ? 'ML'+st.cmmi : '—';
+      allCtrlData.push([d.fn, c.id, c.name, c.cat, result, cmmi]);
+    });
+  });
+  doc.autoTable({
+    startY: y,
+    head: [['Function','ID','Control','Category','Result','CMMI']],
+    body: allCtrlData,
+    theme: 'grid',
+    headStyles: {fillColor:[26,58,92], fontSize:7, fontStyle:'bold'},
+    bodyStyles: {fontSize:7},
+    columnStyles: {0:{cellWidth:18},1:{cellWidth:20},2:{cellWidth:38},3:{cellWidth:30},4:{cellWidth:18},5:{cellWidth:14}},
+    margin: {left:14, right:14},
+    styles: {cellPadding:2},
+    didDrawPage: function(data) { addHeader(); addFooter(pg++); }
+  });
+  y = doc.lastAutoTable.finalY + 10;
+
+  // ========= POA&M =========
+  checkPage(30);
+  doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.setTextColor(26,58,92);
+  doc.text('6. Plan of Action & Milestones (POA&M)', 14, y); y += 8;
+  const poamExport = typeof poamData !== 'undefined' ? poamData : [];
+  if(poamExport.length > 0) {
+    doc.autoTable({
+      startY: y,
+      head: [['ID','Finding','Control','Priority','Action','Owner','Due','Status']],
+      body: poamExport.map(r => [r.id, r.finding, r.ctrl, r.priority, r.action, r.owner, r.due, r.status]),
+      theme: 'grid',
+      headStyles: {fillColor:[26,58,92], fontSize:7, fontStyle:'bold'},
+      bodyStyles: {fontSize:6.5},
+      margin: {left:14, right:14},
+      styles: {cellPadding:2, overflow:'linebreak'},
+      didDrawPage: function(data) { addHeader(); addFooter(pg++); }
+    });
+    y = doc.lastAutoTable.finalY + 10;
+  }
+
+  // ========= RECOMMENDATIONS =========
+  checkPage(40);
+  doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.setTextColor(26,58,92);
+  doc.text('7. Recommendations', 14, y); y += 8;
+  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(40,40,40);
+  const recs = [
+    'IMMEDIATE (0–30 days): Address all CRITICAL findings — deploy SIEM, enforce MFA, complete asset inventory.',
+    'SHORT-TERM (30–90 days): Update and test incident response plan; reduce patch cadence to <30 days for critical CVEs.',
+    'MEDIUM-TERM (90–180 days): Implement formal third-party risk management; complete security awareness training for all staff.',
+    'ONGOING: Establish continuous monitoring program; conduct quarterly vulnerability assessments; track POA&M progress monthly.'
+  ];
+  recs.forEach(r => {
+    const lines = doc.splitTextToSize('• ' + r, pageW - 32);
+    checkPage(lines.length * 4.5 + 2);
+    doc.text(lines, 16, y); y += lines.length * 4.5 + 3;
+  });
+  y += 5;
+  doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.setTextColor(26,58,92);
+  checkPage(20);
+  doc.text('8. Attachments', 14, y); y += 8;
+  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(40,40,40);
+  doc.text('A. NIST CSF 2.0 Full Control Mapping (SRTM)', 18, y); y += 5;
+  doc.text('B. Risk Register', 18, y); y += 5;
+  doc.text('C. Plan of Action & Milestones (POA&M)', 18, y); y += 5;
+  doc.text('D. Evidence Log', 18, y); y += 5;
+  doc.text('E. Interview Questionnaire Responses', 18, y); y += 5;
+  addFooter(pg);
+
+  const filename = agency.replace(/[^a-zA-Z0-9]/g,'_') + '_SAR_' + new Date().toISOString().slice(0,10) + '.pdf';
+  doc.save(filename);
+  notify('📄 SAR PDF generated: ' + filename + ' — ' + pg + ' pages.');
+}
+
+// ---- EXCEL SAR EXPORT (workbook with all tabs) ----
+function exportSarExcel() {
+  if(typeof XLSX === 'undefined') { notify('❌ SheetJS library not loaded'); return; }
+  const wb = XLSX.utils.book_new();
+  const agency = getAgencyName();
+  const assessId = getAssessmentId();
+  const today = new Date().toLocaleDateString('en-US');
+
+  // Executive Summary sheet
+  const execRows = [
+    {Section:'Assessment Overview', Detail: ''},
+    {Section:'Agency', Detail: agency},
+    {Section:'Assessment ID', Detail: assessId},
+    {Section:'Date', Detail: today},
+    {Section:'Framework', Detail:'NIST CSF 2.0'},
+    {Section:'Maturity Model', Detail:'CMMI 0-5'},
+    {Section:'', Detail:''},
+    {Section:'Key Findings', Detail:''}
+  ];
+  const findingsFromSar = [
+    {Section:'CRITICAL', Detail:'No continuous monitoring/SIEM deployed'},
+    {Section:'CRITICAL', Detail:'MFA not enforced for privileged accounts'},
+    {Section:'CRITICAL', Detail:'Incomplete asset inventory (est. 40% gap)'},
+    {Section:'CRITICAL', Detail:'Incident response plan not tested in 3+ years'},
+    {Section:'HIGH', Detail:'Patch cadence exceeds 90 days for critical systems'},
+    {Section:'HIGH', Detail:'No formal third-party risk management program'}
+  ];
+  SRTM_DATA.forEach(d => {
+    d.controls.forEach(c => {
+      const st = srtmState[c.id];
+      if(st && st.result==='NOT MET') {
+        const obs = st.procs ? Object.values(st.procs).map(p=>p.obs||'').filter(Boolean).join('; ') : 'Gap identified';
+        execRows.push({Section:d.fn, Detail: c.id + ' — ' + c.name + ': ' + obs});
+      }
+    });
+  });
+  if(execRows.length <= 8) findingsFromSar.forEach(f => execRows.push(f));
+  const wsExec = XLSX.utils.json_to_sheet(execRows);
+  wsExec['!cols'] = [{wch:22},{wch:80}];
+  XLSX.utils.book_append_sheet(wb, wsExec, 'Executive Summary');
+
+  // Maturity Scores sheet
+  const matRows = [];
+  SRTM_DATA.forEach(d => {
+    let met=0,notmet=0,na=0,cmmiS=0,cmmiC=0;
+    d.controls.forEach(c => {
+      const st=srtmState[c.id];
+      if(st){
+        if(st.result==='MET') met++;
+        if(st.result==='NOT MET') notmet++;
+        if(st.result==='N/A') na++;
+        if(st.cmmi!==''&&st.cmmi!==undefined){cmmiS+=st.cmmi;cmmiC++;}
+      }
+    });
+    matRows.push({Function:d.fn, Controls:d.controls.length, MET:met, 'NOT MET':notmet, 'N/A':na, 'Avg CMMI': cmmiC>0?(cmmiS/cmmiC).toFixed(1):'—', 'Score %': d.controls.length>0?Math.round(met/d.controls.length*100)+'%':'0%'});
+  });
+  const wsMat = XLSX.utils.json_to_sheet(matRows);
+  wsMat['!cols'] = [{wch:14},{wch:10},{wch:8},{wch:10},{wch:8},{wch:12},{wch:10}];
+  XLSX.utils.book_append_sheet(wb, wsMat, 'Maturity Scores');
+
+  // Evidence Log sheet
+  if(typeof evidenceData !== 'undefined') {
+    const wsEv = XLSX.utils.json_to_sheet(evidenceData.map(e => ({
+      'Evidence ID': e.id,
+      'Item': e.item,
+      'Function': e.fn,
+      'Category': e.cat,
+      'Source': e.src,
+      'Status': e.status,
+      'Collected By': e.by,
+      'Notes': e.note
+    })));
+    wsEv['!cols'] = [{wch:10},{wch:40},{wch:12},{wch:12},{wch:14},{wch:14},{wch:14},{wch:40}];
+    XLSX.utils.book_append_sheet(wb, wsEv, 'Evidence Log');
+  }
+
+  // Risk Register sheet
+  if(typeof riskData !== 'undefined') {
+    const wsRisk = XLSX.utils.json_to_sheet(riskData.map(r => ({
+      'Risk ID': r.id,
+      'Finding': r.finding,
+      'Function': r.fn,
+      'Likelihood': r.likelihood,
+      'Impact': r.impact,
+      'Risk Score': r.score,
+      'Business Impact': r.business,
+      'Priority': r.priority
+    })));
+    wsRisk['!cols'] = [{wch:10},{wch:40},{wch:12},{wch:14},{wch:12},{wch:12},{wch:50},{wch:12}];
+    XLSX.utils.book_append_sheet(wb, wsRisk, 'Risk Register');
+  }
+
+  // POA&M sheet
+  if(typeof poamData !== 'undefined') {
+    const wsPm = XLSX.utils.json_to_sheet(poamData.map(r => ({
+      'POA&M ID': r.id,
+      'Finding': r.finding,
+      'Control Ref': r.ctrl,
+      'Priority': r.priority,
+      'Corrective Action': r.action,
+      'Owner': r.owner,
+      'Due Date': r.due,
+      'Status': r.status,
+      'Completion %': r.pct
+    })));
+    wsPm['!cols'] = [{wch:10},{wch:36},{wch:14},{wch:12},{wch:60},{wch:16},{wch:14},{wch:14},{wch:14}];
+    XLSX.utils.book_append_sheet(wb, wsPm, 'POA&M');
+  }
+
+  const filename = agency.replace(/[^a-zA-Z0-9]/g,'_') + '_SAR_Report_' + today.replace(/\//g,'-') + '.xlsx';
+  XLSX.writeFile(wb, filename);
+  notify('📥 SAR Excel exported: ' + filename);
 }
 
 let s2SummaryInit = false;
