@@ -1,0 +1,2861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assurit CyberAssess | Maryland DoIT Cybersecurity Assessment Platform</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --primary: #1a3a5c;
+    --primary-light: #2563a8;
+    --accent: #e8a020;
+    --accent2: #27ae60;
+    --danger: #c0392b;
+    --warn: #e67e22;
+    --bg: #f0f2f5;
+    --sidebar-w: 260px;
+    --card-bg: #fff;
+    --border: #dde3ec;
+    --text: #1a2332;
+    --text-muted: #6b7a90;
+    --step-active: #1a3a5c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
+
+  /* SIDEBAR */
+  #sidebar {
+    width: var(--sidebar-w); background: var(--primary); color: #fff;
+    display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100;
+    box-shadow: 2px 0 12px rgba(0,0,0,.18);
+  }
+  .sidebar-logo {
+    padding: 22px 20px 16px; border-bottom: 1px solid rgba(255,255,255,.12);
+  }
+  .sidebar-logo .brand { font-size: 1.25rem; font-weight: 700; letter-spacing: .3px; }
+  .sidebar-logo .sub { font-size: .72rem; opacity: .7; margin-top: 2px; text-transform: uppercase; letter-spacing: .8px; }
+  .sidebar-logo .badge-md {
+    display: inline-block; background: var(--accent); color: #fff;
+    font-size: .6rem; padding: 2px 7px; border-radius: 10px;
+    margin-top: 6px; font-weight: 700; letter-spacing: .5px;
+  }
+  .nav-section { padding: 14px 16px 4px; font-size: .65rem; text-transform: uppercase; letter-spacing: 1px; opacity: .5; font-weight: 600; }
+  .nav-item {
+    display: flex; align-items: center; gap: 11px; padding: 10px 18px;
+    cursor: pointer; transition: background .15s; border-left: 3px solid transparent;
+    font-size: .875rem; opacity: .82;
+  }
+  .nav-item:hover { background: rgba(255,255,255,.09); opacity: 1; }
+  .nav-item.active { background: rgba(255,255,255,.14); border-left-color: var(--accent); opacity: 1; font-weight: 600; }
+  .nav-item .step-num {
+    width: 22px; height: 22px; border-radius: 50%; background: rgba(255,255,255,.15);
+    display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: 700; flex-shrink: 0;
+  }
+  .nav-item.active .step-num { background: var(--accent); }
+  .nav-item .dot-done { width: 8px; height: 8px; border-radius: 50%; background: var(--accent2); flex-shrink: 0; margin-left: auto; }
+  .sidebar-bottom { margin-top: auto; padding: 16px; border-top: 1px solid rgba(255,255,255,.1); font-size: .72rem; opacity: .55; }
+
+  /* MAIN */
+  #main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+  .topbar {
+    background: #fff; border-bottom: 1px solid var(--border); padding: 0 28px;
+    display: flex; align-items: center; justify-content: space-between; height: 60px;
+    position: sticky; top: 0; z-index: 50; box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  }
+  .topbar-title { font-size: 1.05rem; font-weight: 600; color: var(--primary); }
+  .topbar-title span { color: var(--text-muted); font-weight: 400; font-size: .85rem; margin-left: 8px; }
+  .topbar-right { display: flex; align-items: center; gap: 14px; }
+  .badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 12px; font-size: .72rem; font-weight: 600; }
+  .badge-green { background: #d4f4e2; color: #1a7a45; }
+  .badge-blue { background: #dbeafe; color: #1e4f9a; }
+  .badge-orange { background: #fef3cd; color: #92600a; }
+  .badge-red { background: #fee2e2; color: #991b1b; }
+  .badge-gray { background: #f1f3f7; color: #4b5563; }
+  .avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 700; }
+
+  /* CONTENT */
+  .content { padding: 28px; flex: 1; }
+  .section { display: none; }
+  .section.active { display: block; }
+  .page-header { margin-bottom: 22px; }
+  .page-header h1 { font-size: 1.45rem; font-weight: 700; color: var(--primary); }
+  .page-header p { color: var(--text-muted); font-size: .88rem; margin-top: 4px; }
+  .step-tag { display: inline-flex; align-items: center; gap: 6px; background: var(--accent); color: #fff; padding: 3px 10px; border-radius: 20px; font-size: .7rem; font-weight: 700; margin-bottom: 8px; }
+
+  /* CARDS */
+  .card { background: var(--card-bg); border-radius: 10px; border: 1px solid var(--border); padding: 22px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.05); }
+  .card-title { font-size: .95rem; font-weight: 700; color: var(--primary); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .card-title .icon { font-size: 1.1rem; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
+
+  /* STAT CARDS */
+  .stat-card { background: var(--card-bg); border-radius: 10px; border: 1px solid var(--border); padding: 18px 20px; box-shadow: 0 1px 4px rgba(0,0,0,.05); }
+  .stat-card .stat-label { font-size: .75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; font-weight: 600; }
+  .stat-card .stat-value { font-size: 2rem; font-weight: 800; color: var(--primary); margin: 4px 0 2px; }
+  .stat-card .stat-sub { font-size: .75rem; color: var(--text-muted); }
+  .stat-card.accent .stat-value { color: var(--accent); }
+  .stat-card.green .stat-value { color: var(--accent2); }
+  .stat-card.red .stat-value { color: var(--danger); }
+
+  /* FORMS */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group label { font-size: .8rem; font-weight: 600; color: var(--text); }
+  .form-group input, .form-group select, .form-group textarea {
+    border: 1px solid var(--border); border-radius: 7px; padding: 9px 12px;
+    font-size: .875rem; font-family: inherit; color: var(--text);
+    transition: border-color .15s; outline: none;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--primary-light); box-shadow: 0 0 0 3px rgba(37,99,168,.1); }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-section-title { grid-column: 1 / -1; font-size: .8rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: .5px; padding-top: 8px; border-top: 1px solid var(--border); margin-top: 4px; }
+
+  /* BUTTONS */
+  .btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 18px; border-radius: 7px; font-size: .85rem; font-weight: 600; cursor: pointer; border: none; transition: all .15s; font-family: inherit; }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-light); }
+  .btn-accent { background: var(--accent); color: #fff; }
+  .btn-accent:hover { background: #c98a18; }
+  .btn-outline { background: transparent; color: var(--primary); border: 1.5px solid var(--border); }
+  .btn-outline:hover { border-color: var(--primary); background: #f5f7fb; }
+  .btn-sm { padding: 5px 12px; font-size: .78rem; }
+  .btn-green { background: var(--accent2); color: #fff; }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-row { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+
+  /* TABLES */
+  .table-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+  thead th { background: #f5f7fb; padding: 10px 14px; text-align: left; font-size: .75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .4px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  tbody td { padding: 10px 14px; border-bottom: 1px solid #f0f2f5; vertical-align: top; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: #fafbfd; }
+
+  /* MATURITY / CMMI */
+  .maturity-bar { display: flex; gap: 3px; align-items: center; }
+  .ml-block { width: 28px; height: 12px; border-radius: 3px; background: #e5e7eb; transition: background .2s; }
+  .ml-block.filled-1 { background: #dc2626; }
+  .ml-block.filled-2 { background: #ea580c; }
+  .ml-block.filled-3 { background: #d97706; }
+  .ml-block.filled-4 { background: #16a34a; }
+  .ml-block.filled-5 { background: #0d9488; }
+  .ml-label { font-size: .7rem; color: var(--text-muted); margin-left: 6px; }
+
+  /* RISK SCORE */
+  .risk-score { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 24px; border-radius: 5px; font-size: .75rem; font-weight: 800; }
+  .risk-critical { background: #fee2e2; color: #991b1b; }
+  .risk-high { background: #ffedd5; color: #92400e; }
+  .risk-medium { background: #fef3cd; color: #92600a; }
+  .risk-low { background: #d4f4e2; color: #1a7a45; }
+
+  /* PROGRESS */
+  .progress-bar-wrap { background: #e5e7eb; border-radius: 20px; height: 8px; overflow: hidden; }
+  .progress-bar { height: 100%; border-radius: 20px; transition: width .6s ease; }
+  .pb-blue { background: var(--primary-light); }
+  .pb-green { background: var(--accent2); }
+  .pb-orange { background: var(--warn); }
+  .pb-red { background: var(--danger); }
+
+  /* TABS */
+  .tab-bar { display: flex; gap: 4px; border-bottom: 2px solid var(--border); margin-bottom: 20px; }
+  .tab { padding: 9px 18px; cursor: pointer; font-size: .84rem; font-weight: 600; color: var(--text-muted); border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all .15s; }
+  .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+  .tab:hover { color: var(--primary); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* CMMI MATRIX */
+  .cmmi-matrix { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; font-size: .72rem; }
+  .cmmi-header { background: var(--primary); color: #fff; padding: 8px; text-align: center; font-weight: 700; border-radius: 4px; }
+  .cmmi-cell { padding: 10px 8px; border-radius: 4px; text-align: center; border: 1px solid var(--border); }
+  .cmmi-cell.level-1 { background: #fef2f2; }
+  .cmmi-cell.level-2 { background: #fff7ed; }
+  .cmmi-cell.level-3 { background: #fffbeb; }
+  .cmmi-cell.level-4 { background: #f0fdf4; }
+  .cmmi-cell.level-5 { background: #f0fdfa; }
+  .cmmi-label { font-weight: 700; font-size: .7rem; }
+
+  /* TIMELINE */
+  .timeline { position: relative; padding-left: 28px; }
+  .timeline::before { content: ''; position: absolute; left: 10px; top: 0; bottom: 0; width: 2px; background: var(--border); }
+  .tl-item { position: relative; margin-bottom: 18px; }
+  .tl-item::before { content: ''; position: absolute; left: -22px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--primary-light); border: 2px solid #fff; box-shadow: 0 0 0 2px var(--primary-light); }
+  .tl-item.done::before { background: var(--accent2); box-shadow: 0 0 0 2px var(--accent2); }
+  .tl-date { font-size: .72rem; color: var(--text-muted); }
+  .tl-text { font-size: .84rem; font-weight: 600; margin-top: 2px; }
+  .tl-sub { font-size: .78rem; color: var(--text-muted); margin-top: 2px; }
+
+  /* NIST FUNCTION COLORS */
+  .fn-govern { background: #7c3aed20; color: #7c3aed; border: 1px solid #7c3aed40; }
+  .fn-identify { background: #2563a820; color: #2563a8; border: 1px solid #2563a840; }
+  .fn-protect { background: #16a34a20; color: #16a34a; border: 1px solid #16a34a40; }
+  .fn-detect { background: #d9770620; color: #d97706; border: 1px solid #d9770640; }
+  .fn-respond { background: #dc262620; color: #dc2626; border: 1px solid #dc262640; }
+  .fn-recover { background: #0d948820; color: #0d9488; border: 1px solid #0d948840; }
+  .fn-tag { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: .68rem; font-weight: 700; white-space: nowrap; }
+
+  /* CHARTS */
+  .chart-wrap { position: relative; height: 260px; }
+  .chart-wrap-sm { position: relative; height: 200px; }
+
+  /* AGENCY STATUS DOT */
+  .status-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+  .dot-complete { background: var(--accent2); }
+  .dot-active { background: var(--primary-light); }
+  .dot-pending { background: var(--warn); }
+  .dot-not-started { background: #cbd5e0; }
+
+  /* MISC */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+  .info-box { background: #dbeafe; border-left: 4px solid var(--primary-light); border-radius: 6px; padding: 12px 16px; font-size: .83rem; color: #1e3a6a; margin-bottom: 16px; }
+  .warn-box { background: #fef3cd; border-left: 4px solid var(--accent); border-radius: 6px; padding: 12px 16px; font-size: .83rem; color: #7a4e0a; margin-bottom: 16px; }
+  .success-box { background: #d4f4e2; border-left: 4px solid var(--accent2); border-radius: 6px; padding: 12px 16px; font-size: .83rem; color: #155a35; margin-bottom: 16px; }
+  .section-desc { font-size: .83rem; color: var(--text-muted); margin-bottom: 18px; line-height: 1.6; }
+
+  .notification { position: fixed; bottom: 24px; right: 24px; background: var(--primary); color: #fff; padding: 14px 20px; border-radius: 10px; font-size: .85rem; box-shadow: 0 4px 16px rgba(0,0,0,.2); z-index: 9999; display: none; animation: slideUp .3s ease; }
+  @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+  .score-ring { display: flex; align-items: center; justify-content: center; flex-direction: column; width: 100px; height: 100px; border-radius: 50%; border: 6px solid var(--border); background: #fff; font-size: 1.6rem; font-weight: 800; color: var(--primary); }
+  .score-ring.good { border-color: var(--accent2); color: var(--accent2); }
+  .score-ring.warn { border-color: var(--warn); color: var(--warn); }
+  .score-ring.bad { border-color: var(--danger); color: var(--danger); }
+
+  @media print { #sidebar { display: none; } #main { margin-left: 0; } }
+
+  /* UPLOAD ZONE */
+  .upload-zone { border: 2px dashed var(--border); border-radius: 10px; padding: 32px; text-align: center; cursor: pointer; transition: all .2s; background: #fafbfd; }
+  .upload-zone:hover, .upload-zone.drag-over { border-color: var(--primary-light); background: #dbeafe40; }
+  .upload-zone .upload-icon { font-size: 2.5rem; margin-bottom: 10px; }
+  .upload-zone .upload-label { font-size: .9rem; font-weight: 600; color: var(--primary); }
+  .upload-zone .upload-sub { font-size: .78rem; color: var(--text-muted); margin-top: 4px; }
+  .upload-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; background: #f5f7fb; border: 1px solid var(--border); margin-bottom: 8px; }
+  .upload-item .fi-icon { font-size: 1.3rem; }
+  .upload-item .fi-name { font-size: .84rem; font-weight: 600; flex: 1; }
+  .upload-item .fi-size { font-size: .75rem; color: var(--text-muted); }
+  .upload-item .fi-status { font-size: .75rem; }
+
+  /* WORKFLOW TEMPLATES */
+  .wf-card { border: 1px solid var(--border); border-radius: 10px; padding: 18px; background: #fff; cursor: pointer; transition: all .2s; position: relative; }
+  .wf-card:hover { border-color: var(--primary-light); box-shadow: 0 2px 12px rgba(37,99,168,.12); transform: translateY(-1px); }
+  .wf-card.selected { border-color: var(--primary-light); background: #dbeafe20; }
+  .wf-card .wf-badge { position: absolute; top: 12px; right: 12px; }
+  .wf-card .wf-title { font-size: .95rem; font-weight: 700; color: var(--primary); margin-bottom: 4px; }
+  .wf-card .wf-desc { font-size: .78rem; color: var(--text-muted); margin-bottom: 10px; line-height: 1.5; }
+  .wf-card .wf-stages { display: flex; gap: 4px; flex-wrap: wrap; }
+  .wf-stage { font-size: .68rem; background: #f0f2f5; border-radius: 10px; padding: 2px 8px; color: var(--text-muted); }
+  .wf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+
+  /* ANCHOR PHASE BADGES */
+  .anchor-phase { display: inline-block; font-size: .6rem; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; padding: 2px 7px; border-radius: 10px; margin-right: 5px; }
+  .ap-assess { background: #dbeafe; color: #1e40af; }
+  .ap-normalize { background: #ede9fe; color: #5b21b6; }
+  .ap-consolidate { background: #fef3cd; color: #92600a; }
+  .ap-harmonize { background: #d1fae5; color: #065f46; }
+  .ap-optimize { background: #ffedd5; color: #9a3412; }
+  .ap-report { background: #fee2e2; color: #991b1b; }
+  .anchor-banner { background: var(--primary); color: #fff; border-radius: 8px; padding: 10px 16px; margin-bottom: 18px; display: flex; align-items: center; gap: 10px; font-size: .82rem; }
+  .anchor-banner strong { font-size: .9rem; }
+  .anchor-steps { display: flex; gap: 0; margin-bottom: 20px; }
+  .anchor-step { flex: 1; padding: 10px 8px; text-align: center; font-size: .72rem; font-weight: 700; border-top: 3px solid transparent; cursor: default; }
+  .anchor-step.active { border-top-color: var(--accent); background: #fff; border-radius: 0 0 6px 6px; }
+  .anchor-step span { display: block; font-size: .62rem; font-weight: 400; color: var(--text-muted); margin-top: 2px; }
+
+  /* PIPELINE / WAVE VIEW */
+  .wave-row { display: flex; align-items: center; gap: 0; margin-bottom: 6px; }
+  .wave-label { width: 200px; font-size: .78rem; font-weight: 600; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .wave-bar-wrap { flex: 1; position: relative; height: 26px; background: #f0f2f5; border-radius: 5px; overflow: hidden; }
+  .wave-bar { position: absolute; top: 3px; bottom: 3px; border-radius: 4px; display: flex; align-items: center; padding: 0 6px; font-size: .68rem; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; }
+  .wave-assess { background: #2563a8; }
+  .wave-normalize { background: #7c3aed; }
+  .wave-report { background: #16a34a; }
+  .wave-pending { background: #cbd5e0; color: #4b5563; }
+  .wave-month-header { display: flex; margin-bottom: 4px; }
+  .wave-month-label-spacer { width: 200px; flex-shrink: 0; }
+  .wave-month { flex: 1; font-size: .65rem; color: var(--text-muted); text-align: center; border-left: 1px solid var(--border); padding: 2px 0; }
+
+  /* QUESTIONNAIRE */
+  .q-section { background: #f8f9fb; border: 1px solid var(--border); border-radius: 8px; padding: 18px; margin-bottom: 16px; }
+  .q-section-title { font-size: .82rem; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .q-item { margin-bottom: 14px; }
+  .q-item label { font-size: .82rem; font-weight: 600; display: block; margin-bottom: 5px; }
+  .q-item .q-sub { font-size: .75rem; color: var(--text-muted); margin-bottom: 5px; }
+  .q-item input, .q-item select, .q-item textarea { width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 8px 11px; font-size: .84rem; font-family: inherit; }
+  .q-item .radio-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .q-item .radio-opt { display: flex; align-items: center; gap: 5px; font-size: .82rem; cursor: pointer; padding: 5px 12px; border: 1px solid var(--border); border-radius: 6px; background: #fff; transition: all .15s; }
+  .q-item .radio-opt:hover { border-color: var(--primary-light); background: #dbeafe20; }
+  .q-item .radio-opt.selected { border-color: var(--primary-light); background: #dbeafe40; font-weight: 600; }
+  .score-preview { background: var(--primary); color: #fff; border-radius: 8px; padding: 16px 20px; }
+  .score-preview .sp-label { font-size: .72rem; opacity: .75; text-transform: uppercase; letter-spacing: .5px; }
+  .score-preview .sp-val { font-size: 2rem; font-weight: 800; }
+  .score-preview .sp-desc { font-size: .78rem; opacity: .8; margin-top: 2px; }
+
+  /* FINDING RESPONSE CARD */
+  .finding-card { border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; margin-bottom: 10px; }
+  .finding-card.critical { border-left: 4px solid var(--danger); }
+  .finding-card.high { border-left: 4px solid var(--warn); }
+  .finding-card.medium { border-left: 4px solid var(--accent); }
+  .finding-card .fc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .finding-card .fc-title { font-size: .87rem; font-weight: 700; }
+  .finding-card .fc-body { font-size: .8rem; color: var(--text-muted); margin-bottom: 10px; }
+  .finding-card .fc-response { width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; font-size: .82rem; font-family: inherit; resize: vertical; }
+
+  /* CSF INTAKE PORTAL */
+  .csf-fn-tab-bar { display:flex; gap:0; border-bottom:2px solid var(--border); margin-bottom:20px; overflow-x:auto; }
+  .csf-fn-tab { padding:10px 16px; cursor:pointer; font-size:.78rem; font-weight:700; border-bottom:3px solid transparent; margin-bottom:-2px; white-space:nowrap; transition:all .15s; color:var(--text-muted); }
+  .csf-fn-tab.active { color:var(--primary); border-bottom-color:var(--primary); }
+  .csf-fn-tab .fn-count { font-size:.65rem; font-weight:400; margin-left:4px; }
+  .csf-fn-content { display:none; }
+  .csf-fn-content.active { display:block; }
+
+  /* CONTROL ROW */
+  .ctrl-row { border:1px solid var(--border); border-radius:10px; margin-bottom:12px; overflow:hidden; background:#fff; }
+  .ctrl-row.answered { border-left:4px solid var(--accent2); }
+  .ctrl-row.partial  { border-left:4px solid var(--accent); }
+  .ctrl-row.gap      { border-left:4px solid var(--danger); }
+  .ctrl-row.pending  { border-left:4px solid #cbd5e0; }
+  .ctrl-header { display:flex; align-items:flex-start; gap:12px; padding:14px 16px; }
+  .ctrl-nist-id { font-size:.72rem; font-weight:800; font-family:monospace; padding:3px 8px; border-radius:5px; white-space:nowrap; flex-shrink:0; margin-top:2px; }
+  .ctrl-meta { flex:1; }
+  .ctrl-title { font-size:.87rem; font-weight:700; margin-bottom:3px; }
+  .ctrl-desc  { font-size:.78rem; color:var(--text-muted); line-height:1.5; }
+  .ctrl-cmmi-impact { font-size:.7rem; color:var(--text-muted); margin-top:4px; }
+  .ctrl-score-pill { font-size:.68rem; font-weight:800; padding:2px 8px; border-radius:10px; white-space:nowrap; flex-shrink:0; }
+  .ctrl-body { border-top:1px solid #f0f2f5; padding:14px 16px; display:grid; grid-template-columns:1fr 1fr; gap:16px; background:#fafbfd; }
+  .ctrl-q { }
+  .ctrl-q-label { font-size:.78rem; font-weight:700; margin-bottom:8px; color:var(--primary); }
+  .ctrl-opts { display:flex; flex-wrap:wrap; gap:6px; }
+  .ctrl-opt { padding:5px 12px; border:1px solid var(--border); border-radius:6px; font-size:.78rem; cursor:pointer; background:#fff; transition:all .15s; }
+  .ctrl-opt:hover { border-color:var(--primary-light); }
+  .ctrl-opt.sel-yes  { background:#d4f4e2; border-color:#16a34a; color:#065f46; font-weight:700; }
+  .ctrl-opt.sel-part { background:#fef3cd; border-color:#d97706; color:#78350f; font-weight:700; }
+  .ctrl-opt.sel-no   { background:#fee2e2; border-color:#dc2626; color:#7f1d1d; font-weight:700; }
+  .ctrl-upload { }
+  .ctrl-upload-label { font-size:.78rem; font-weight:700; margin-bottom:8px; color:var(--primary); }
+  .ctrl-upload-items { display:flex; flex-direction:column; gap:6px; }
+  .ctrl-upload-item { display:flex; align-items:center; gap:8px; padding:7px 10px; border:1px solid var(--border); border-radius:6px; background:#fff; font-size:.78rem; cursor:pointer; transition:all .15s; }
+  .ctrl-upload-item:hover { border-color:var(--primary-light); background:#dbeafe10; }
+  .ctrl-upload-item.uploaded { border-color:#16a34a; background:#d4f4e220; }
+  .ctrl-upload-item .ui-icon { font-size:1rem; flex-shrink:0; }
+  .ctrl-upload-item .ui-name { flex:1; }
+  .ctrl-upload-item .ui-status { font-size:.68rem; font-weight:700; white-space:nowrap; }
+
+  /* LIVE SCORE PANEL */
+  .live-score-panel { position:sticky; top:70px; }
+  .lsp-ring-wrap { display:flex; align-items:center; gap:16px; margin-bottom:16px; }
+  .lsp-ring { width:80px; height:80px; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:1.4rem; font-weight:800; border:5px solid var(--border); flex-shrink:0; }
+  .lsp-fn-row { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+  .lsp-fn-label { font-size:.75rem; width:90px; font-weight:600; flex-shrink:0; }
+  .lsp-fn-bar-wrap { flex:1; background:#e5e7eb; border-radius:10px; height:8px; overflow:hidden; }
+  .lsp-fn-bar { height:100%; border-radius:10px; transition:width .5s ease; }
+  .lsp-fn-val { font-size:.72rem; font-weight:700; width:28px; text-align:right; flex-shrink:0; }
+  .completion-ring { width:60px; height:60px; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <div class="brand">Assurit CyberAssess</div>
+    <div class="sub">Maryland DoIT Assessment Platform</div>
+    <div class="badge-md">BPM052516</div>
+  </div>
+  <div class="nav-section">ANCHOR Framework — MDOT Demo</div>
+  <div class="nav-item active" onclick="showSection('sq',this)">
+    <div class="step-num" style="background:#1e40af">Q</div>
+    <div><div style="font-size:.65rem; opacity:.6; font-weight:400;">PRE-ASSESS</div>Agency Questionnaire</div>
+  </div>
+  <div class="nav-item" onclick="showSection('s1',this)">
+    <div class="step-num">1</div>
+    <div><div style="font-size:.65rem; opacity:.6; font-weight:400;">① ASSESS</div>Intake &amp; Scoping</div>
+    <div class="dot-done"></div>
+  </div>
+  <div class="nav-item" onclick="showSection('s2',this)">
+    <div class="step-num">2</div>
+    <div><div style="font-size:.65rem; opacity:.6; font-weight:400;">① ASSESS</div>NIST CSF Mapping</div>
+    <div class="dot-done"></div>
+  </div>
+  <div class="nav-item" onclick="showSection('s3',this)">
+    <div class="step-num">3</div>
+    <div><div style="font-size:.65rem; opacity:.6; font-weight:400;">② NORMALIZE</div>Evidence Collection</div>
+    <div class="dot-done"></div>
+  </div>
+  <div class="nav-item" onclick="showSection('s4',this)">
+    <div class="step-num">4</div>
+    <div><div style="font-size:.65rem; opacity:.6; font-weight:400;">③ CONSOLIDATE</div>CMMI Scoring &amp; Risk</div>
+  </div>
+  <div class="nav-item" onclick="showSection('s5',this)">
+    <div class="step-num">5</div>
+    <div><div style="font-size:.65rem; opacity:.6; font-weight:400;">④ HARMONIZE · FRTA</div>POA&amp;M &amp; QA Gate</div>
+  </div>
+  <div class="nav-item" onclick="showSection('s6',this)">
+    <div class="step-num">6</div>
+    <div><div style="font-size:.65rem; opacity:.6; font-weight:400;">⑥ REPORT</div>SAR Dashboard</div>
+  </div>
+  <div class="nav-item" onclick="showSection('s7',this)">
+    <div class="step-num">7</div>
+    <div><div style="font-size:.65rem; opacity:.6; font-weight:400;">⑤ OPTIMIZE</div>Agency Master Tracker</div>
+  </div>
+  <div class="nav-section">Capabilities</div>
+  <div class="nav-item" onclick="showSection('sai',this)">
+    <div class="step-num" style="background:#065f46">📋</div>
+    <div><div style="font-size:.65rem; opacity:.6; font-weight:400;">AGENCY-FACING</div>CSF Intake &amp; Upload</div>
+  </div>
+  <div class="nav-item" onclick="showSection('sp',this)">
+    <div class="step-num" style="background:rgba(255,255,255,.1)">📅</div> 2-Year Pipeline
+  </div>
+  <div class="nav-item" onclick="showSection('sa',this)">
+    <div class="step-num" style="background:rgba(255,255,255,.1)">🏛</div> Agency Portal
+  </div>
+  <div class="nav-item" onclick="showSection('sw',this)">
+    <div class="step-num" style="background:rgba(255,255,255,.1)">⚡</div> Workflow Templates
+  </div>
+  <div class="nav-section">System</div>
+  <div class="nav-item" onclick="showSection('settings',this)">
+    <div class="step-num" style="background:rgba(255,255,255,.1)">⚙</div> Settings &amp; Integration
+  </div>
+  <div class="sidebar-bottom">
+    Maryland DGS / DoIT &nbsp;|&nbsp; Assessor: J. Williams<br>
+    Platform v2.4.1 &nbsp;|&nbsp; Secure Environment
+  </div>
+</nav>
+
+<!-- TOPBAR -->
+<div id="main">
+<div class="topbar">
+  <div class="topbar-title" id="topbar-title">
+    Pre-Assessment Questionnaire
+    <span>Maryland Dept. of Transportation (MDOT)</span>
+  </div>
+  <div class="topbar-right">
+    <span class="badge badge-blue">🔒 NIST CSF 2.0</span>
+    <span class="badge badge-orange">CMMI Active</span>
+    <span class="badge badge-green">● Live Demo</span>
+    <div class="avatar">JW</div>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ============================================================ QUESTIONNAIRE -->
+<div class="section active" id="sq">
+  <div class="page-header">
+    <div class="step-tag" style="background:#1e40af;">⬛ PRE-ASSESS &nbsp;|&nbsp; ANCHOR Phase 0</div>
+    <h1>Pre-Assessment Security Questionnaire</h1>
+    <p>Agencies complete this intake questionnaire before kick-off. Responses drive pod sizing, template selection, and assessment scheduling — ensuring consistent scoping across all 90 agencies.</p>
+  </div>
+
+  <div class="anchor-banner">
+    <div>🔗</div>
+    <div><strong>ANCHOR Framework — Pre-Assess Phase:</strong> Questionnaire responses are automatically scored to determine agency complexity tier, IT risk profile, and pod assignment. Data feeds directly into the assessment plan and master schedule.</div>
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <div class="q-section">
+        <div class="q-section-title">🏛 Section 1 — Agency Profile</div>
+        <div class="q-item">
+          <label>Agency Name</label>
+          <input type="text" value="Maryland Department of Transportation (MDOT)">
+        </div>
+        <div class="q-item">
+          <label>Primary IT/Security Contact</label>
+          <input type="text" value="Lisa Harmon, CISO — l.harmon@mdot.maryland.gov">
+        </div>
+        <div class="q-item">
+          <label>Is this agency an Executive Branch agency?</label>
+          <div class="radio-group">
+            <div class="radio-opt selected" onclick="selectOpt(this)">✅ Yes</div>
+            <div class="radio-opt" onclick="selectOpt(this)">No</div>
+          </div>
+        </div>
+        <div class="q-item">
+          <label>Is this agency a DoIT Enterprise Agency?</label>
+          <div class="radio-group">
+            <div class="radio-opt selected" onclick="selectOpt(this)">✅ Yes</div>
+            <div class="radio-opt" onclick="selectOpt(this)">No</div>
+          </div>
+        </div>
+        <div class="q-item">
+          <label>Agency Size Tier</label>
+          <div class="radio-group">
+            <div class="radio-opt" onclick="selectOpt(this)">Small (&lt;100 FTEs)</div>
+            <div class="radio-opt" onclick="selectOpt(this)">Medium (100–499)</div>
+            <div class="radio-opt selected" onclick="selectOpt(this)">✅ Large (500+)</div>
+          </div>
+        </div>
+        <div class="q-item">
+          <label>Approximate number of IT-managed systems/applications</label>
+          <div class="radio-group">
+            <div class="radio-opt" onclick="selectOpt(this)">&lt;10</div>
+            <div class="radio-opt" onclick="selectOpt(this)">10–24</div>
+            <div class="radio-opt selected" onclick="selectOpt(this)">✅ 25–49</div>
+            <div class="radio-opt" onclick="selectOpt(this)">50+</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="q-section">
+        <div class="q-section-title">☁️ Section 2 — IT Environment</div>
+        <div class="q-item">
+          <label>IT Complexity Tier</label>
+          <div class="radio-group">
+            <div class="radio-opt" onclick="selectOpt(this)">Simple (single on-prem)</div>
+            <div class="radio-opt" onclick="selectOpt(this)">Moderate (hybrid)</div>
+            <div class="radio-opt selected" onclick="selectOpt(this)">✅ Complex (multi-site + cloud)</div>
+          </div>
+        </div>
+        <div class="q-item">
+          <label>Cloud environments in use (select all that apply)</label>
+          <div class="radio-group">
+            <div class="radio-opt selected" onclick="selectOpt(this)">✅ AWS GovCloud</div>
+            <div class="radio-opt selected" onclick="selectOpt(this)">✅ Azure Government</div>
+            <div class="radio-opt" onclick="selectOpt(this)">Google Cloud</div>
+            <div class="radio-opt" onclick="selectOpt(this)">None</div>
+          </div>
+        </div>
+        <div class="q-item">
+          <label>Does the agency operate OT/ICS systems?</label>
+          <div class="radio-group">
+            <div class="radio-opt selected" onclick="selectOpt(this)">✅ Yes — limited interfaces</div>
+            <div class="radio-opt" onclick="selectOpt(this)">Yes — full OT environment</div>
+            <div class="radio-opt" onclick="selectOpt(this)">No</div>
+          </div>
+        </div>
+        <div class="q-item">
+          <label>Does the agency handle sensitive data? (select all)</label>
+          <div class="radio-group">
+            <div class="radio-opt selected" onclick="selectOpt(this)">✅ PII</div>
+            <div class="radio-opt selected" onclick="selectOpt(this)">✅ Financial</div>
+            <div class="radio-opt" onclick="selectOpt(this)">CJI</div>
+            <div class="radio-opt" onclick="selectOpt(this)">PHI/HIPAA</div>
+            <div class="radio-opt" onclick="selectOpt(this)">FTI (IRS Pub 1075)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="q-section">
+        <div class="q-section-title">🔐 Section 3 — Current Security Posture</div>
+        <div class="q-item">
+          <label>Has the agency had a cybersecurity assessment in the past 2 years?</label>
+          <div class="radio-group">
+            <div class="radio-opt" onclick="selectOpt(this)">Yes — within 12 months</div>
+            <div class="radio-opt selected" onclick="selectOpt(this)">✅ Yes — 1–2 years ago</div>
+            <div class="radio-opt" onclick="selectOpt(this)">No</div>
+          </div>
+        </div>
+        <div class="q-item">
+          <label>Is a formal Information Security Policy in place?</label>
+          <div class="radio-group">
+            <div class="radio-opt selected" onclick="selectOpt(this)">✅ Yes — current (&lt;2 yrs)</div>
+            <div class="radio-opt" onclick="selectOpt(this)">Yes — outdated (&gt;2 yrs)</div>
+            <div class="radio-opt" onclick="selectOpt(this)">In progress</div>
+            <div class="radio-opt" onclick="selectOpt(this)">No</div>
+          </div>
+        </div>
+        <div class="q-item">
+          <label>Is Multi-Factor Authentication (MFA) enforced agency-wide?</label>
+          <div class="radio-group">
+            <div class="radio-opt" onclick="selectOpt(this)">Yes — all users</div>
+            <div class="radio-opt selected" onclick="selectOpt(this)">✅ Partial — some users</div>
+            <div class="radio-opt" onclick="selectOpt(this)">No</div>
+          </div>
+        </div>
+        <div class="q-item">
+          <label>Does the agency have a Security Operations Center (SOC) or SIEM?</label>
+          <div class="radio-group">
+            <div class="radio-opt" onclick="selectOpt(this)">Yes — dedicated SOC + SIEM</div>
+            <div class="radio-opt" onclick="selectOpt(this)">Shared/outsourced SOC</div>
+            <div class="radio-opt selected" onclick="selectOpt(this)">✅ No SIEM deployed</div>
+          </div>
+        </div>
+        <div class="q-item">
+          <label>Is there a tested Incident Response Plan (IRP)?</label>
+          <div class="radio-group">
+            <div class="radio-opt" onclick="selectOpt(this)">Yes — tested in past year</div>
+            <div class="radio-opt selected" onclick="selectOpt(this)">✅ Plan exists, not recently tested</div>
+            <div class="radio-opt" onclick="selectOpt(this)">No plan</div>
+          </div>
+        </div>
+        <div class="q-item">
+          <label>How would you estimate your current CMMI maturity level? (self-assessed)</label>
+          <div class="radio-group">
+            <div class="radio-opt" onclick="selectOpt(this)">0 — Nonexistent</div>
+            <div class="radio-opt" onclick="selectOpt(this)">1 — Performed</div>
+            <div class="radio-opt selected" onclick="selectOpt(this)">✅ 2 — Managed</div>
+            <div class="radio-opt" onclick="selectOpt(this)">3 — Defined</div>
+            <div class="radio-opt" onclick="selectOpt(this)">4 — Measured</div>
+            <div class="radio-opt" onclick="selectOpt(this)">5 — Optimized</div>
+          </div>
+        </div>
+        <div class="q-item">
+          <label>Top cybersecurity concerns (select up to 3)</label>
+          <div class="radio-group">
+            <div class="radio-opt selected" onclick="selectOpt(this)">✅ Ransomware</div>
+            <div class="radio-opt selected" onclick="selectOpt(this)">✅ Phishing</div>
+            <div class="radio-opt" onclick="selectOpt(this)">Insider threats</div>
+            <div class="radio-opt selected" onclick="selectOpt(this)">✅ Supply chain risk</div>
+            <div class="radio-opt" onclick="selectOpt(this)">Data exfiltration</div>
+          </div>
+        </div>
+        <div class="q-item">
+          <label>Additional context or known constraints</label>
+          <textarea rows="3">Limited documentation on legacy field office systems. No dedicated security team — CISO function shared with IT Director. OT interfaces at 3 transportation facilities are poorly documented.</textarea>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="calcScore()">⚡ Calculate Pod Assignment &amp; Score</button>
+        <button class="btn btn-outline" onclick="notify('📧 Questionnaire link sent to l.harmon@mdot.maryland.gov')">📧 Send to Agency</button>
+        <button class="btn btn-outline btn-sm" onclick="notify('📥 Questionnaire exported: MDOT_PreAssess_Q.pdf')">📥 Export</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="card" id="score-card">
+        <div class="card-title">⚡ Automated Scoring Engine</div>
+        <div class="score-preview" style="margin-bottom:16px;">
+          <div class="sp-label">Recommended Pod Size</div>
+          <div class="sp-val" id="pod-val">Large Pod</div>
+          <div class="sp-desc" id="pod-desc">6 assessors · 63-day engagement · 92 evidence items</div>
+        </div>
+        <div class="table-wrap" style="margin-bottom:14px;">
+          <table>
+            <thead><tr><th>Scoring Dimension</th><th>Value</th><th>Weight</th><th>Score</th></tr></thead>
+            <tbody>
+              <tr><td>Agency Size</td><td>Large (500+)</td><td>High</td><td><span class="badge badge-orange">+8</span></td></tr>
+              <tr><td>IT Complexity</td><td>Complex (multi-site + cloud)</td><td>High</td><td><span class="badge badge-red">+10</span></td></tr>
+              <tr><td>Sensitive Data</td><td>PII + Financial</td><td>High</td><td><span class="badge badge-orange">+7</span></td></tr>
+              <tr><td>OT/ICS Present</td><td>Yes — limited</td><td>Medium</td><td><span class="badge badge-orange">+5</span></td></tr>
+              <tr><td>No SIEM</td><td>Gap identified</td><td>High</td><td><span class="badge badge-red">+8</span></td></tr>
+              <tr><td>IRP Not Tested</td><td>Gap identified</td><td>Medium</td><td><span class="badge badge-orange">+5</span></td></tr>
+              <tr><td>Self-Assessed CMMI</td><td>Level 2</td><td>Low</td><td><span class="badge badge-gray">+3</span></td></tr>
+              <tr style="font-weight:700;"><td colspan="3">Total Complexity Score</td><td><span class="badge badge-red">46 / 60</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="success-box">✅ <strong>Pod Assignment: LARGE</strong> — 6–8 assessors, standard enterprise template, 63-day target. Complexity score 46/60 exceeds Medium threshold (35).</div>
+        <hr class="divider">
+        <div class="card-title" style="margin-bottom:10px;">🗓 Suggested Schedule Placement</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Parameter</th><th>Value</th></tr></thead>
+            <tbody>
+              <tr><td>Assessment Wave</td><td>Wave 1 — Q1–Q2 2026</td></tr>
+              <tr><td>Pod Assignment</td><td>Pod Alpha (Lead: J. Williams)</td></tr>
+              <tr><td>Suggested Start</td><td>April 7, 2026</td></tr>
+              <tr><td>Estimated End</td><td>May 19, 2026 (42 days)</td></tr>
+              <tr><td>Template</td><td>Standard Enterprise IT (High-Risk variant)</td></tr>
+              <tr><td>Executive Branch</td><td>Yes</td></tr>
+              <tr><td>DoIT Enterprise</td><td>Yes</td></tr>
+              <tr><td>Maturity Group</td><td>Group B (Score 1.5–2.5)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary btn-sm" onclick="notify('✅ MDOT assigned to Wave 1, Pod Alpha. Pipeline updated.')">✅ Confirm Assignment</button>
+          <button class="btn btn-outline btn-sm" onclick="notify('📋 Pre-assessment summary sent to Lead Assessor J. Williams')">📋 Brief Assessor</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📊 CMMI Maturity Group Classification</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Maturity Group</th><th>Score Range</th><th>Description</th><th>Priority</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Group A</strong></td><td>0.0 – 1.4</td><td>Critical — foundational gaps, highest risk</td><td><span class="badge badge-red">Immediate</span></td></tr>
+              <tr style="background:#fef3cd20;"><td><strong>Group B</strong></td><td>1.5 – 2.5</td><td>Developing — basic controls, inconsistent application</td><td><span class="badge badge-orange">High</span></td></tr>
+              <tr><td><strong>Group C</strong></td><td>2.6 – 3.4</td><td>Established — defined processes, some measurement</td><td><span class="badge badge-blue">Medium</span></td></tr>
+              <tr><td><strong>Group D</strong></td><td>3.5 – 4.4</td><td>Advanced — quantitatively managed, data-driven</td><td><span class="badge badge-gray">Standard</span></td></tr>
+              <tr><td><strong>Group E</strong></td><td>4.5 – 5.0</td><td>Optimized — continuous improvement, automation</td><td><span class="badge badge-green">Maintenance</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="info-box" style="margin-top:12px; margin-bottom:0;">MDOT's self-assessed score of 2 places them in <strong>Group B</strong>. Assessor-validated scores are used for final classification and statewide dashboard filtering.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ STEP 1 -->
+<div class="section" id="s1">
+  <div class="page-header">
+    <div class="step-tag">🟢 Step 1 &nbsp;|&nbsp; New Agency Received</div>
+    <h1>Agency Intake &amp; Scope Definition</h1>
+    <p>Collect initial agency information, define assessment scope, and categorize system risk prior to assessment kick-off.</p>
+  </div>
+
+  <div class="info-box">
+    <strong>Demo Scenario:</strong> Maryland Department of Transportation (MDOT) has been assigned for a NIST CSF 2.0 cybersecurity assessment under the statewide initiative covering ~90 agencies.
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <div class="card">
+        <div class="card-title"><span class="icon">🏛</span> Agency Information</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Agency Name</label>
+            <input type="text" value="Maryland Department of Transportation (MDOT)">
+          </div>
+          <div class="form-group">
+            <label>Agency ID</label>
+            <input type="text" value="MD-MDOT-2026-041">
+          </div>
+          <div class="form-group">
+            <label>Primary Contact</label>
+            <input type="text" value="Lisa Harmon, CISO">
+          </div>
+          <div class="form-group">
+            <label>Contact Email</label>
+            <input type="text" value="l.harmon@mdot.maryland.gov">
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="text" value="(410) 545-0300">
+          </div>
+          <div class="form-group">
+            <label>Agency Size</label>
+            <select>
+              <option selected>Large (500+ employees)</option>
+              <option>Medium (100–499)</option>
+              <option>Small (&lt;100)</option>
+            </select>
+          </div>
+          <div class="form-section-title">System / Environment Details</div>
+          <div class="form-group">
+            <label>System Name</label>
+            <input type="text" value="MDOT Enterprise IT Infrastructure">
+          </div>
+          <div class="form-group">
+            <label>System Type</label>
+            <select>
+              <option selected>Enterprise IT (On-Prem + Cloud)</option>
+              <option>Cloud-Only (SaaS/IaaS)</option>
+              <option>OT/ICS</option>
+              <option>Network Infrastructure</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Data Classification</label>
+            <select>
+              <option selected>High – PII, Financial, CJI</option>
+              <option>Moderate – Internal Use</option>
+              <option>Low – Public</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>FIPS 199 Categorization</label>
+            <select>
+              <option selected>HIGH</option>
+              <option>MODERATE</option>
+              <option>LOW</option>
+            </select>
+          </div>
+          <div class="form-section-title">Assessment Parameters</div>
+          <div class="form-group">
+            <label>Assessment Framework</label>
+            <select>
+              <option selected>NIST CSF 2.0 + NIST SP 800-53 Rev 5</option>
+              <option>NIST CSF 1.1</option>
+              <option>CIS Controls v8</option>
+              <option>ISO 27001</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Maturity Model</label>
+            <select>
+              <option selected>CMMI (1–5 Scale)</option>
+              <option>Tier-Based (1–4)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Target Start Date</label>
+            <input type="date" value="2026-04-07">
+          </div>
+          <div class="form-group">
+            <label>Target Completion</label>
+            <input type="date" value="2026-05-19">
+          </div>
+          <div class="form-group full">
+            <label>Scope Description</label>
+            <textarea rows="3">All enterprise IT systems, network infrastructure, cloud environments (AWS GovCloud, Azure Government), OT interfaces at transportation facilities, and third-party integrations. Excludes classified federal systems.</textarea>
+          </div>
+          <div class="form-group full">
+            <label>Known Constraints / Notes</label>
+            <textarea rows="2">Limited documentation on legacy systems. Potential gaps in asset inventory for field offices. MDOT operates 24/7 — coordinate interview schedules carefully.</textarea>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="notify('✅ Intake form saved. Assessment ID MD-MDOT-2026-041 created.')">💾 Save Intake Record</button>
+          <button class="btn btn-outline" onclick="notify('📧 Kick-off packet sent to l.harmon@mdot.maryland.gov')">📧 Send Kick-off Packet</button>
+          <button class="btn btn-outline btn-sm">🖨 Export PDF</button>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="card-title"><span class="icon">🗓</span> Assessment Timeline</div>
+        <div class="timeline">
+          <div class="tl-item done">
+            <div class="tl-date">Apr 7, 2026</div>
+            <div class="tl-text">Assessment Kick-off</div>
+            <div class="tl-sub">Introductory meeting, scope confirmation, document request list issued</div>
+          </div>
+          <div class="tl-item done">
+            <div class="tl-date">Apr 7–14, 2026</div>
+            <div class="tl-text">Document Collection &amp; Review</div>
+            <div class="tl-sub">Policies, procedures, prior assessments, network diagrams, asset inventories</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-date">Apr 14–25, 2026</div>
+            <div class="tl-text">Stakeholder Interviews</div>
+            <div class="tl-sub">IT leadership, security team, system owners, help desk, HR</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-date">Apr 21–28, 2026</div>
+            <div class="tl-text">Technical Testing &amp; Tool Scans</div>
+            <div class="tl-sub">Nessus vulnerability scan, network mapping, log review</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-date">Apr 28 – May 5, 2026</div>
+            <div class="tl-text">Analysis &amp; Risk Scoring</div>
+            <div class="tl-sub">CMMI maturity scoring, gap analysis, risk register population</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-date">May 5–12, 2026</div>
+            <div class="tl-text">Findings Review &amp; POA&amp;M</div>
+            <div class="tl-sub">Agency review of draft findings, remediation prioritization</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-date">May 19, 2026</div>
+            <div class="tl-text">Final SAR Delivery</div>
+            <div class="tl-sub">System Assessment Report delivered; briefed to MDOT leadership &amp; DoIT</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon">📋</span> Scope Summary</div>
+        <table>
+          <thead><tr><th>Area</th><th>Included</th><th>Count</th></tr></thead>
+          <tbody>
+            <tr><td>Enterprise Systems</td><td><span class="badge badge-green">Yes</span></td><td>47 systems</td></tr>
+            <tr><td>Network Infrastructure</td><td><span class="badge badge-green">Yes</span></td><td>12 segments</td></tr>
+            <tr><td>Cloud Environments</td><td><span class="badge badge-green">Yes</span></td><td>AWS + Azure</td></tr>
+            <tr><td>Field Offices</td><td><span class="badge badge-orange">Partial</span></td><td>8 of 14</td></tr>
+            <tr><td>OT/ICS Systems</td><td><span class="badge badge-orange">Partial</span></td><td>3 interfaces</td></tr>
+            <tr><td>Third-party Vendors</td><td><span class="badge badge-blue">Review Only</span></td><td>6 vendors</td></tr>
+            <tr><td>Classified Systems</td><td><span class="badge badge-gray">Excluded</span></td><td>—</td></tr>
+          </tbody>
+        </table>
+        <hr class="divider">
+        <div class="grid-3" style="gap:12px; margin-top:4px;">
+          <div class="stat-card accent">
+            <div class="stat-label">Risk Level</div>
+            <div class="stat-value" style="font-size:1.3rem">HIGH</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Assessors Assigned</div>
+            <div class="stat-value">4</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Estimated Days</div>
+            <div class="stat-value">42</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ STEP 2 -->
+<div class="section" id="s2">
+  <div class="page-header">
+    <div class="step-tag">🟢 Step 2 &nbsp;|&nbsp; Control Mapping</div>
+    <h1>NIST CSF 2.0 Control Mapping</h1>
+    <p>Map agency systems and practices to NIST CSF 2.0 functions, categories, and subcategories. Crosswalk to NIST SP 800-53 Rev 5.</p>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab active" onclick="switchTab(this,'t2-map')">Control Mapping</div>
+    <div class="tab" onclick="switchTab(this,'t2-xwalk')">Framework Crosswalk</div>
+    <div class="tab" onclick="switchTab(this,'t2-cmmi')">CMMI Scoring Guide</div>
+  </div>
+
+  <div class="tab-content active" id="t2-map">
+    <div class="info-box">Mapping 106 NIST CSF 2.0 subcategories to MDOT's environment. Each control is scored on a CMMI 1–5 maturity scale based on evidence collected.</div>
+    <div class="card">
+      <div class="card-title">🗺 NIST CSF 2.0 Assessment Mapping — MDOT</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Function</th><th>Category</th><th>Subcategory ID</th><th>Control Description</th>
+              <th>Evidence Source</th><th>CMMI Level</th><th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="mapping-table"></tbody>
+        </table>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary btn-sm" onclick="notify('📥 Full mapping exported to MDOT_NIST_Mapping.xlsx')">📥 Export Mapping</button>
+        <button class="btn btn-outline btn-sm" onclick="notify('🔗 Synced to ServiceNow GRC Module')">🔗 Sync to ServiceNow</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="t2-xwalk">
+    <div class="card">
+      <div class="card-title">🔗 Framework Crosswalk — NIST CSF 2.0 ↔ NIST SP 800-53 Rev 5</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>CSF Subcategory</th><th>CSF Function</th><th>NIST 800-53 Controls</th><th>CIS Controls v8</th><th>Applicability</th></tr></thead>
+          <tbody>
+            <tr><td>GV.OC-01</td><td><span class="fn-tag fn-govern">GOVERN</span></td><td>PM-1, PM-9, PM-30</td><td>CIS 1, CIS 18</td><td><span class="badge badge-green">Applicable</span></td></tr>
+            <tr><td>ID.AM-01</td><td><span class="fn-tag fn-identify">IDENTIFY</span></td><td>CM-8, PM-5</td><td>CIS 1</td><td><span class="badge badge-green">Applicable</span></td></tr>
+            <tr><td>ID.AM-02</td><td><span class="fn-tag fn-identify">IDENTIFY</span></td><td>CM-8, PM-5</td><td>CIS 1, CIS 2</td><td><span class="badge badge-green">Applicable</span></td></tr>
+            <tr><td>PR.AA-01</td><td><span class="fn-tag fn-protect">PROTECT</span></td><td>AC-2, AC-3, AC-5, IA-2</td><td>CIS 5, CIS 6</td><td><span class="badge badge-green">Applicable</span></td></tr>
+            <tr><td>PR.DS-01</td><td><span class="fn-tag fn-protect">PROTECT</span></td><td>SC-28, SC-28(1), MP-6</td><td>CIS 3</td><td><span class="badge badge-green">Applicable</span></td></tr>
+            <tr><td>DE.CM-01</td><td><span class="fn-tag fn-detect">DETECT</span></td><td>SI-4, AU-6, IR-5</td><td>CIS 8, CIS 13</td><td><span class="badge badge-green">Applicable</span></td></tr>
+            <tr><td>RS.MA-01</td><td><span class="fn-tag fn-respond">RESPOND</span></td><td>IR-4, IR-5, IR-6</td><td>CIS 17</td><td><span class="badge badge-green">Applicable</span></td></tr>
+            <tr><td>RC.RP-01</td><td><span class="fn-tag fn-recover">RECOVER</span></td><td>CP-10, IR-4</td><td>CIS 11</td><td><span class="badge badge-green">Applicable</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="t2-cmmi">
+    <div class="card">
+      <div class="card-title">📊 CMMI Maturity Level Definitions</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Level</th><th>Name</th><th>Description</th><th>Evidence Required</th><th>Indicator</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>0</strong></td>
+              <td>Nonexistent</td>
+              <td>No recognizable cybersecurity processes. No documented policies or assigned responsibilities.</td>
+              <td>No documentation; no evidence of any controls</td>
+              <td><div class="maturity-bar"><div class="ml-block" style="background:#6b7280"></div><div class="ml-block"></div><div class="ml-block"></div><div class="ml-block"></div><div class="ml-block"></div><div class="ml-block"></div><span class="ml-label">ML0</span></div></td>
+            </tr>
+            <tr>
+              <td><strong>1</strong></td>
+              <td>Performed</td>
+              <td>Ad hoc or reactive processes. Security actions occur as needed but lack structure or documentation.</td>
+              <td>Verbal acknowledgement only; no formal policy</td>
+              <td><div class="maturity-bar"><div class="ml-block filled-1"></div><div class="ml-block"></div><div class="ml-block"></div><div class="ml-block"></div><div class="ml-block"></div><div class="ml-block"></div><span class="ml-label">ML1</span></div></td>
+            </tr>
+            <tr>
+              <td><strong>2</strong></td>
+              <td>Managed</td>
+              <td>Basic governance established. Policies exist; controls implemented inconsistently across systems.</td>
+              <td>Documented policies; some procedures exist; inconsistent application</td>
+              <td><div class="maturity-bar"><div class="ml-block filled-2"></div><div class="ml-block filled-2"></div><div class="ml-block"></div><div class="ml-block"></div><div class="ml-block"></div><div class="ml-block"></div><span class="ml-label">ML2</span></div></td>
+            </tr>
+            <tr>
+              <td><strong>3</strong></td>
+              <td>Defined</td>
+              <td>Standardized, documented processes. Organization maintains consistent cybersecurity procedures statewide.</td>
+              <td>Org-wide standards; training records; consistent implementation evidence</td>
+              <td><div class="maturity-bar"><div class="ml-block filled-3"></div><div class="ml-block filled-3"></div><div class="ml-block filled-3"></div><div class="ml-block"></div><div class="ml-block"></div><div class="ml-block"></div><span class="ml-label">ML3</span></div></td>
+            </tr>
+            <tr>
+              <td><strong>4</strong></td>
+              <td>Measured</td>
+              <td>Processes quantitatively managed. Metrics tracked; management decisions informed by trend data and performance indicators.</td>
+              <td>KPIs, dashboards, automated monitoring; statistical process control</td>
+              <td><div class="maturity-bar"><div class="ml-block filled-4"></div><div class="ml-block filled-4"></div><div class="ml-block filled-4"></div><div class="ml-block filled-4"></div><div class="ml-block"></div><div class="ml-block"></div><span class="ml-label">ML4</span></div></td>
+            </tr>
+            <tr>
+              <td><strong>5</strong></td>
+              <td>Optimized</td>
+              <td>Continuous improvement culture. Regular process evaluations, automation, and data-driven decision-making evident.</td>
+              <td>Continuous monitoring; automated remediation; lessons-learned integration; proactive threat intelligence</td>
+              <td><div class="maturity-bar"><div class="ml-block filled-5"></div><div class="ml-block filled-5"></div><div class="ml-block filled-5"></div><div class="ml-block filled-5"></div><div class="ml-block filled-5"></div><div class="ml-block filled-5"></div><span class="ml-label">ML5</span></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ STEP 3 -->
+<div class="section" id="s3">
+  <div class="page-header">
+    <div class="step-tag">🟢 Step 3 &nbsp;|&nbsp; Data Collection</div>
+    <h1>Evidence Collection Tracker</h1>
+    <p>Track all evidence collected from documentation, interviews, and automated tools. Validate accuracy and reconcile discrepancies.</p>
+  </div>
+
+  <div class="grid-4" style="margin-bottom:20px;">
+    <div class="stat-card"><div class="stat-label">Total Items</div><div class="stat-value">68</div><div class="stat-sub">Across all domains</div></div>
+    <div class="stat-card green"><div class="stat-label">Collected</div><div class="stat-value">49</div><div class="stat-sub">72% complete</div></div>
+    <div class="stat-card accent"><div class="stat-label">Pending</div><div class="stat-value">14</div><div class="stat-sub">Awaiting agency response</div></div>
+    <div class="stat-card red"><div class="stat-label">Not Available</div><div class="stat-value">5</div><div class="stat-sub">Flagged as gap</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📁 Evidence Tracker — MDOT</div>
+    <div style="display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap;">
+      <select style="padding:7px 12px; border-radius:7px; border:1px solid var(--border); font-size:.83rem;" onchange="filterEvidence(this.value)">
+        <option value="">All Categories</option>
+        <option value="Policy">Policy &amp; Procedure</option>
+        <option value="Interview">Interview</option>
+        <option value="Tool">Tool / Automated</option>
+        <option value="Technical">Technical Documentation</option>
+      </select>
+      <select style="padding:7px 12px; border-radius:7px; border:1px solid var(--border); font-size:.83rem;" onchange="filterEvidenceStatus(this.value)">
+        <option value="">All Statuses</option>
+        <option value="Collected">Collected</option>
+        <option value="Pending">Pending</option>
+        <option value="Not Available">Not Available</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>#</th><th>Evidence Item</th><th>NIST Function</th><th>Category</th><th>Source</th><th>Status</th><th>Collected By</th><th>Notes</th></tr>
+        </thead>
+        <tbody id="evidence-table"></tbody>
+      </table>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary btn-sm" onclick="notify('📧 Automated reminders sent to 14 pending evidence owners')">📧 Send Reminders</button>
+      <button class="btn btn-outline btn-sm" onclick="notify('📥 Evidence tracker exported to MDOT_Evidence_Log.xlsx')">📥 Export</button>
+      <button class="btn btn-outline btn-sm" onclick="notify('🔗 Evidence repository synced with ServiceNow GRC')">🔗 Sync to GRC</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🎙 Interview Schedule</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Date</th><th>Interviewee</th><th>Role</th><th>Topics Covered</th><th>Status</th><th>Assessor</th></tr></thead>
+        <tbody>
+          <tr><td>Apr 14</td><td>Lisa Harmon</td><td>CISO</td><td>Security strategy, governance, risk appetite</td><td><span class="badge badge-green">Complete</span></td><td>J. Williams</td></tr>
+          <tr><td>Apr 15</td><td>Marcus Webb</td><td>IT Director</td><td>Infrastructure, change management, patching</td><td><span class="badge badge-green">Complete</span></td><td>S. Patel</td></tr>
+          <tr><td>Apr 16</td><td>Dana Cruz</td><td>SOC Manager</td><td>Monitoring, incident response, log management</td><td><span class="badge badge-green">Complete</span></td><td>J. Williams</td></tr>
+          <tr><td>Apr 17</td><td>Tom Nguyen</td><td>Network Admin</td><td>Segmentation, firewall rules, VPN</td><td><span class="badge badge-green">Complete</span></td><td>R. Okafor</td></tr>
+          <tr><td>Apr 18</td><td>Amy Stockton</td><td>HR Director</td><td>Onboarding/offboarding, training, background checks</td><td><span class="badge badge-orange">Pending</span></td><td>S. Patel</td></tr>
+          <tr><td>Apr 21</td><td>Field Office Team</td><td>IT Staff</td><td>Local controls, physical security, remote access</td><td><span class="badge badge-orange">Pending</span></td><td>R. Okafor</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ STEP 4 -->
+<div class="section" id="s4">
+  <div class="page-header">
+    <div class="step-tag">🟢 Step 4 &nbsp;|&nbsp; Risk Identification</div>
+    <h1>Risk Register &amp; CMMI Maturity Scoring</h1>
+    <p>Identify, analyze, and prioritize risks. Apply CMMI maturity scores across NIST CSF functions. Map risks to business impact.</p>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:20px;">
+    <div class="card">
+      <div class="card-title">📊 Maturity by NIST CSF Function</div>
+      <div class="chart-wrap">
+        <canvas id="radarChart"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">⚠️ Risk Distribution</div>
+      <div class="chart-wrap">
+        <canvas id="riskChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📋 CMMI Maturity Summary by Domain</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>NIST CSF Function</th><th>Domain</th><th>CMMI Score</th><th>Maturity Level</th><th>Target Level</th><th>Gap</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="fn-tag fn-govern">GOVERN</span></td>
+            <td>Governance &amp; Risk Management</td>
+            <td><strong>2.4</strong></td>
+            <td><div class="maturity-bar"><div class="ml-block filled-2"></div><div class="ml-block filled-2"></div><div class="ml-block"></div><div class="ml-block"></div><div class="ml-block"></div><span class="ml-label">Managed</span></div></td>
+            <td>4</td>
+            <td><span class="badge badge-red">-1.6</span></td>
+          </tr>
+          <tr>
+            <td><span class="fn-tag fn-identify">IDENTIFY</span></td>
+            <td>Asset Management &amp; Risk Assessment</td>
+            <td><strong>2.8</strong></td>
+            <td><div class="maturity-bar"><div class="ml-block filled-2"></div><div class="ml-block filled-2"></div><div class="ml-block"></div><div class="ml-block"></div><div class="ml-block"></div><span class="ml-label">Managed</span></div></td>
+            <td>3</td>
+            <td><span class="badge badge-orange">-0.2</span></td>
+          </tr>
+          <tr>
+            <td><span class="fn-tag fn-protect">PROTECT</span></td>
+            <td>Access Control, Data Protection, Training</td>
+            <td><strong>3.1</strong></td>
+            <td><div class="maturity-bar"><div class="ml-block filled-3"></div><div class="ml-block filled-3"></div><div class="ml-block filled-3"></div><div class="ml-block"></div><div class="ml-block"></div><span class="ml-label">Defined</span></div></td>
+            <td>4</td>
+            <td><span class="badge badge-orange">-0.9</span></td>
+          </tr>
+          <tr>
+            <td><span class="fn-tag fn-detect">DETECT</span></td>
+            <td>Continuous Monitoring, Anomaly Detection</td>
+            <td><strong>2.2</strong></td>
+            <td><div class="maturity-bar"><div class="ml-block filled-2"></div><div class="ml-block filled-2"></div><div class="ml-block"></div><div class="ml-block"></div><div class="ml-block"></div><span class="ml-label">Managed</span></div></td>
+            <td>4</td>
+            <td><span class="badge badge-red">-1.8</span></td>
+          </tr>
+          <tr>
+            <td><span class="fn-tag fn-respond">RESPOND</span></td>
+            <td>Incident Response, Communication</td>
+            <td><strong>2.6</strong></td>
+            <td><div class="maturity-bar"><div class="ml-block filled-2"></div><div class="ml-block filled-2"></div><div class="ml-block"></div><div class="ml-block"></div><div class="ml-block"></div><span class="ml-label">Managed</span></div></td>
+            <td>3</td>
+            <td><span class="badge badge-orange">-0.4</span></td>
+          </tr>
+          <tr>
+            <td><span class="fn-tag fn-recover">RECOVER</span></td>
+            <td>Recovery Planning, Communications</td>
+            <td><strong>2.0</strong></td>
+            <td><div class="maturity-bar"><div class="ml-block filled-2"></div><div class="ml-block filled-2"></div><div class="ml-block"></div><div class="ml-block"></div><div class="ml-block"></div><span class="ml-label">Managed</span></div></td>
+            <td>3</td>
+            <td><span class="badge badge-red">-1.0</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">⚠️ Risk Register — MDOT</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Risk ID</th><th>Finding</th><th>NIST Function</th><th>Likelihood</th><th>Impact</th><th>Risk Score</th><th>Business Impact</th><th>Priority</th></tr>
+        </thead>
+        <tbody id="risk-table"></tbody>
+      </table>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary btn-sm" onclick="notify('📥 Risk register exported to MDOT_Risk_Register.xlsx')">📥 Export Risk Register</button>
+      <button class="btn btn-outline btn-sm" onclick="notify('🔗 Risks pushed to ServiceNow Risk Management module')">🔗 Sync to ServiceNow</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ STEP 5 -->
+<div class="section" id="s5">
+  <div class="page-header">
+    <div class="step-tag" style="background:#065f46;">④ HARMONIZE &nbsp;|&nbsp; FRTA Quality Gate</div>
+    <h1>POA&amp;M, QA Gate &amp; Remediation Tracking</h1>
+    <p>All findings pass through the mandatory <strong>Finalization Review and Technical Assurance (FRTA)</strong> gate before State delivery — ensuring ESG alignment, inter-assessor consistency, and ServiceNow GRC readiness. POA&amp;M items are developed, assigned, and tracked post-gate.</p>
+  </div>
+
+  <div class="success-box"><strong>✅ FRTA Gate Status — MDOT:</strong> Independent senior reviewer (not original assessor) has validated all 23 findings against ESG criteria. CMMI scores confirmed. Data formatted for ServiceNow GRC import. Approved for State delivery.</div>
+
+  <div class="grid-4" style="margin-bottom:20px;">
+    <div class="stat-card"><div class="stat-label">Total Items</div><div class="stat-value">23</div></div>
+    <div class="stat-card red"><div class="stat-label">Critical/High</div><div class="stat-value">8</div></div>
+    <div class="stat-card accent"><div class="stat-label">In Progress</div><div class="stat-value">11</div></div>
+    <div class="stat-card green"><div class="stat-label">Closed</div><div class="stat-value">4</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📋 POA&amp;M Tracker — MDOT</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>POA&amp;M ID</th><th>Finding</th><th>Control</th><th>Priority</th><th>Corrective Action</th><th>Owner</th><th>Due Date</th><th>Status</th><th>% Complete</th></tr>
+        </thead>
+        <tbody id="poam-table"></tbody>
+      </table>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary btn-sm" onclick="notify('💾 POA&M saved and version-controlled.')">💾 Save POA&amp;M</button>
+      <button class="btn btn-outline btn-sm" onclick="notify('📥 POA&M exported: MDOT_POAM_v1.2.xlsx')">📥 Export</button>
+      <button class="btn btn-outline btn-sm" onclick="notify('🔗 POA&M items synced to ServiceNow Task Management')">🔗 Sync to ServiceNow</button>
+      <button class="btn btn-outline btn-sm" onclick="notify('📧 Status reminders sent to all assigned owners')">📧 Send Reminders</button>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">📈 Remediation Progress</div>
+      <div class="chart-wrap-sm">
+        <canvas id="poamChart"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📅 Milestone Tracker</div>
+      <div class="timeline">
+        <div class="tl-item done"><div class="tl-date">May 5, 2026</div><div class="tl-text">POA&amp;M Draft Issued</div><div class="tl-sub">23 items identified, prioritized</div></div>
+        <div class="tl-item done"><div class="tl-date">May 12, 2026</div><div class="tl-text">Agency Review Complete</div><div class="tl-sub">MDOT accepted 21 items, disputed 2</div></div>
+        <div class="tl-item"><div class="tl-date">May 19, 2026</div><div class="tl-text">Final POA&amp;M Signed</div><div class="tl-sub">Submitted to DoIT with SAR</div></div>
+        <div class="tl-item"><div class="tl-date">Aug 2026</div><div class="tl-text">30-Day Critical Check</div><div class="tl-sub">Verify 8 critical items addressed</div></div>
+        <div class="tl-item"><div class="tl-date">Nov 2026</div><div class="tl-text">90-Day Status Review</div><div class="tl-sub">Mid-point remediation progress report</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ STEP 6 -->
+<div class="section" id="s6">
+  <div class="page-header">
+    <div class="step-tag">🟢 Step 6 &nbsp;|&nbsp; Reporting</div>
+    <h1>System Assessment Report (SAR) &amp; Dashboard</h1>
+    <p>Standardized and customizable reporting for executive and technical audiences. Real-time visibility into assessment outcomes.</p>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab active" onclick="switchTab(this,'t6-exec')">Executive View</div>
+    <div class="tab" onclick="switchTab(this,'t6-tech')">Technical View</div>
+    <div class="tab" onclick="switchTab(this,'t6-sar')">SAR Preview</div>
+  </div>
+
+  <div class="tab-content active" id="t6-exec">
+    <div class="grid-4" style="margin-bottom:20px;">
+      <div class="stat-card"><div class="stat-label">Overall Maturity</div><div class="stat-value accent">2.5 / 5</div><div class="stat-sub">Managed → Defined</div></div>
+      <div class="stat-card red"><div class="stat-label">Critical Findings</div><div class="stat-value">4</div><div class="stat-sub">Immediate action required</div></div>
+      <div class="stat-card accent"><div class="stat-label">High Findings</div><div class="stat-value">9</div><div class="stat-sub">30-day remediation</div></div>
+      <div class="stat-card green"><div class="stat-label">Controls Assessed</div><div class="stat-value">106</div><div class="stat-sub">NIST CSF 2.0 full coverage</div></div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">🎯 Overall Maturity Score</div>
+        <div style="display:flex; align-items:center; gap:28px; margin-top:8px;">
+          <div class="score-ring warn">2.5<div style="font-size:.6rem; font-weight:400; color:var(--text-muted)">of 5.0</div></div>
+          <div style="flex:1;">
+            <div style="font-size:.85rem; margin-bottom:12px;">Target: <strong>3.5</strong> by Dec 2026</div>
+            <div style="font-size:.8rem; color:var(--text-muted); margin-bottom:6px;">Govern</div>
+            <div class="progress-bar-wrap" style="margin-bottom:10px;"><div class="progress-bar pb-orange" style="width:48%"></div></div>
+            <div style="font-size:.8rem; color:var(--text-muted); margin-bottom:6px;">Identify</div>
+            <div class="progress-bar-wrap" style="margin-bottom:10px;"><div class="progress-bar pb-blue" style="width:56%"></div></div>
+            <div style="font-size:.8rem; color:var(--text-muted); margin-bottom:6px;">Protect</div>
+            <div class="progress-bar-wrap" style="margin-bottom:10px;"><div class="progress-bar pb-green" style="width:62%"></div></div>
+            <div style="font-size:.8rem; color:var(--text-muted); margin-bottom:6px;">Detect</div>
+            <div class="progress-bar-wrap" style="margin-bottom:10px;"><div class="progress-bar pb-red" style="width:44%"></div></div>
+            <div style="font-size:.8rem; color:var(--text-muted); margin-bottom:6px;">Respond</div>
+            <div class="progress-bar-wrap" style="margin-bottom:10px;"><div class="progress-bar pb-orange" style="width:52%"></div></div>
+            <div style="font-size:.8rem; color:var(--text-muted); margin-bottom:6px;">Recover</div>
+            <div class="progress-bar-wrap"><div class="progress-bar pb-red" style="width:40%"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📊 Findings by Category</div>
+        <div class="chart-wrap">
+          <canvas id="findingsChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔑 Executive Key Findings — MDOT</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Priority</th><th>Finding</th><th>Impact</th><th>Recommendation</th></tr></thead>
+          <tbody>
+            <tr><td><span class="badge badge-red">CRITICAL</span></td><td>No continuous monitoring/SIEM deployed</td><td>Inability to detect active threats in real time</td><td>Procure and deploy SIEM within 30 days</td></tr>
+            <tr><td><span class="badge badge-red">CRITICAL</span></td><td>MFA not enforced for privileged accounts</td><td>High risk of credential compromise</td><td>Enforce MFA for all admin accounts immediately</td></tr>
+            <tr><td><span class="badge badge-red">CRITICAL</span></td><td>Incomplete asset inventory (est. 40% gap)</td><td>Unknown attack surface</td><td>Deploy automated asset discovery tool</td></tr>
+            <tr><td><span class="badge badge-red">CRITICAL</span></td><td>Incident response plan not tested in 3+ years</td><td>Unproven recovery capability</td><td>Conduct tabletop exercise within 60 days</td></tr>
+            <tr><td><span class="badge badge-orange">HIGH</span></td><td>Patch cadence exceeds 90 days for critical systems</td><td>Prolonged exposure to known vulnerabilities</td><td>Implement automated patching pipeline</td></tr>
+            <tr><td><span class="badge badge-orange">HIGH</span></td><td>No formal third-party risk management program</td><td>Supply chain risk unquantified</td><td>Implement vendor risk assessment process</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="notify('📄 SAR PDF generated: MDOT_SAR_2026_Final.pdf')">📄 Generate SAR PDF</button>
+        <button class="btn btn-outline" onclick="notify('📊 Executive briefing deck exported to PowerPoint')">📊 Export to PowerPoint</button>
+        <button class="btn btn-outline" onclick="notify('🔗 SAR published to ServiceNow GRC portal')">🔗 Publish to ServiceNow</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="t6-tech">
+    <div class="success-box">Technical view shows full control-level findings, evidence references, and detailed remediation guidance for IT staff.</div>
+    <div class="card">
+      <div class="card-title">🔧 Technical Findings Detail</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Finding ID</th><th>Control Ref</th><th>Function</th><th>Description</th><th>Evidence</th><th>CMMI</th><th>Risk</th></tr></thead>
+          <tbody>
+            <tr><td>F-001</td><td>DE.CM-01</td><td><span class="fn-tag fn-detect">DETECT</span></td><td>No centralized log management or SIEM in place</td><td>Interview: SOC Mgr; Scan: no SIEM agents detected</td><td><div class="maturity-bar"><div class="ml-block filled-1"></div><div class="ml-block"></div><div class="ml-block"></div><div class="ml-block"></div><div class="ml-block"></div></div></td><td><span class="risk-score risk-critical">C</span></td></tr>
+            <tr><td>F-002</td><td>PR.AA-01</td><td><span class="fn-tag fn-protect">PROTECT</span></td><td>MFA not enforced on privileged and remote access accounts</td><td>AD review; IAM policy docs; IT Director interview</td><td><div class="maturity-bar"><div class="ml-block filled-1"></div><div class="ml-block"></div><div class="ml-block"></div><div class="ml-block"></div><div class="ml-block"></div></div></td><td><span class="risk-score risk-critical">C</span></td></tr>
+            <tr><td>F-003</td><td>ID.AM-01</td><td><span class="fn-tag fn-identify">IDENTIFY</span></td><td>Asset inventory estimated 40% incomplete; no automated discovery</td><td>CMDB audit; field office surveys; Nessus scan delta</td><td><div class="maturity-bar"><div class="ml-block filled-2"></div><div class="ml-block filled-2"></div><div class="ml-block"></div><div class="ml-block"></div><div class="ml-block"></div></div></td><td><span class="risk-score risk-critical">C</span></td></tr>
+            <tr><td>F-004</td><td>RS.MA-01</td><td><span class="fn-tag fn-respond">RESPOND</span></td><td>IRP not updated or tested since 2022</td><td>Policy docs dated 2022; no tabletop records</td><td><div class="maturity-bar"><div class="ml-block filled-2"></div><div class="ml-block filled-2"></div><div class="ml-block"></div><div class="ml-block"></div><div class="ml-block"></div></div></td><td><span class="risk-score risk-critical">C</span></td></tr>
+            <tr><td>F-005</td><td>PR.PS-02</td><td><span class="fn-tag fn-protect">PROTECT</span></td><td>Patch management cycle averages 97 days for critical CVEs</td><td>Patch logs; Nessus vulnerability scan results</td><td><div class="maturity-bar"><div class="ml-block filled-2"></div><div class="ml-block filled-2"></div><div class="ml-block"></div><div class="ml-block"></div><div class="ml-block"></div></div></td><td><span class="risk-score risk-high">H</span></td></tr>
+            <tr><td>F-006</td><td>GV.OC-01</td><td><span class="fn-tag fn-govern">GOVERN</span></td><td>No formal TPRM program; vendor security questionnaires not used</td><td>Procurement docs; CISO interview; vendor contracts</td><td><div class="maturity-bar"><div class="ml-block filled-1"></div><div class="ml-block"></div><div class="ml-block"></div><div class="ml-block"></div><div class="ml-block"></div></div></td><td><span class="risk-score risk-high">H</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="t6-sar">
+    <div class="card">
+      <div class="card-title">📄 System Assessment Report Preview</div>
+      <div style="background:#f8f9fb; border-radius:8px; padding:24px; border:1px solid var(--border); font-size:.85rem; line-height:1.8;">
+        <div style="text-align:center; margin-bottom:20px;">
+          <div style="font-size:1.1rem; font-weight:800; color:var(--primary);">SYSTEM ASSESSMENT REPORT</div>
+          <div style="color:var(--text-muted);">Maryland Department of Transportation (MDOT)</div>
+          <div style="color:var(--text-muted);">Assessment ID: MD-MDOT-2026-041 &nbsp;|&nbsp; May 19, 2026</div>
+          <div style="color:var(--text-muted);">Prepared by: Assurit Consulting Group &nbsp;|&nbsp; CONFIDENTIAL</div>
+        </div>
+        <hr class="divider">
+        <strong>1. Executive Summary</strong><br>
+        Assurit Consulting Group conducted a comprehensive cybersecurity assessment of MDOT's enterprise IT environment from April 7 – May 14, 2026. The assessment applied the NIST Cybersecurity Framework (CSF) 2.0 as the primary evaluation framework, with controls mapped to NIST SP 800-53 Rev 5. Maturity scoring utilized the CMMI 1–5 scale.<br><br>
+        MDOT achieved an overall maturity score of <strong>2.5 / 5.0</strong>, indicating a Managed level with significant opportunities to advance toward a Defined posture. Four (4) critical and nine (9) high-priority findings require immediate attention.<br><br>
+        <strong>2. Scope</strong><br>
+        47 enterprise systems, 12 network segments, AWS GovCloud and Azure Government environments, 8 field offices, and 3 OT interfaces were within scope.<br><br>
+        <strong>3. Methodology</strong><br>
+        Evidence was collected through documentation review, stakeholder interviews (6 conducted), automated scanning (Nessus, network mapping), and technical testing. All 106 NIST CSF 2.0 subcategories were assessed.<br><br>
+        <strong>4. Key Findings Summary</strong><br>
+        • 4 Critical | 9 High | 7 Medium | 3 Low findings identified<br>
+        • Lowest maturity: Detect (2.2), Recover (2.0)<br>
+        • Strongest area: Protect (3.1) — existing access controls and training programs<br><br>
+        <strong>5. Recommendations</strong><br>
+        Prioritized 23 POA&M items developed. Immediate actions (0–30 days) include SIEM deployment, MFA enforcement, and IR plan refresh.<br><br>
+        <strong>6. Attachments</strong><br>
+        A. NIST CSF 2.0 Full Control Mapping<br>
+        B. Risk Register<br>
+        C. POA&M<br>
+        D. Evidence Log
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="notify('📄 Full SAR document generated: MDOT_SAR_2026_FINAL.pdf (42 pages)')">📄 Generate Full SAR PDF</button>
+        <button class="btn btn-outline" onclick="notify('📋 SAR submitted to DoIT portal')">📋 Submit to DoIT</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ STEP 7 -->
+<div class="section" id="s7">
+  <div class="page-header">
+    <div class="step-tag">🟢 Step 7 &nbsp;|&nbsp; Scale Across 90 Agencies</div>
+    <h1>Agency Master Tracker — Statewide Dashboard</h1>
+    <p>Manage and monitor cybersecurity assessments across all ~90 Maryland state agencies. Statewide risk metrics and trend analysis.</p>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab active" onclick="switchTab(this,'t7-tracker')">Agency Tracker</div>
+    <div class="tab" onclick="switchTab(this,'t7-trends'); initChartsTrend()">Trends &amp; Analytics</div>
+  </div>
+
+  <div class="tab-content active" id="t7-tracker">
+    <div class="grid-4" style="margin-bottom:20px;">
+      <div class="stat-card green"><div class="stat-label">Assessments Complete</div><div class="stat-value">23</div><div class="stat-sub">of 90 agencies</div></div>
+      <div class="stat-card"><div class="stat-label">In Progress</div><div class="stat-value">31</div><div class="stat-sub">Active assessments</div></div>
+      <div class="stat-card accent"><div class="stat-label">Scheduled</div><div class="stat-value">28</div><div class="stat-sub">Kick-off pending</div></div>
+      <div class="stat-card red"><div class="stat-label">Unresponsive</div><div class="stat-value">8</div><div class="stat-sub">Escalation required</div></div>
+    </div>
+    <div class="grid-2" style="margin-bottom:20px;">
+      <div class="card">
+        <div class="card-title">📊 Statewide Maturity Distribution</div>
+        <div class="chart-wrap-sm"><canvas id="stateChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📈 Assessment Completion Progress</div>
+        <div style="margin-bottom:12px;">
+          <div style="display:flex; justify-content:space-between; font-size:.8rem; margin-bottom:4px;"><span>Overall Progress</span><span>54 / 90</span></div>
+          <div class="progress-bar-wrap"><div class="progress-bar pb-blue" style="width:60%"></div></div>
+        </div>
+        <div style="margin-bottom:12px;">
+          <div style="display:flex; justify-content:space-between; font-size:.8rem; margin-bottom:4px;"><span>Large Agencies (&gt;500)</span><span>8 / 14</span></div>
+          <div class="progress-bar-wrap"><div class="progress-bar pb-green" style="width:57%"></div></div>
+        </div>
+        <div style="margin-bottom:12px;">
+          <div style="display:flex; justify-content:space-between; font-size:.8rem; margin-bottom:4px;"><span>Medium Agencies (100–499)</span><span>22 / 38</span></div>
+          <div class="progress-bar-wrap"><div class="progress-bar pb-orange" style="width:58%"></div></div>
+        </div>
+        <div>
+          <div style="display:flex; justify-content:space-between; font-size:.8rem; margin-bottom:4px;"><span>Small Agencies (&lt;100)</span><span>24 / 38</span></div>
+          <div class="progress-bar-wrap"><div class="progress-bar pb-blue" style="width:63%"></div></div>
+        </div>
+        <hr class="divider">
+        <div class="warn-box" style="margin:0;">⚠️ <strong>8 agencies</strong> have not responded to intake requests. Escalation letters issued to agency heads. DoIT Program Manager notified.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🗂 Agency Master Tracker</div>
+      <div class="info-box" style="margin-bottom:10px; font-size:.78rem;">RFP §2.3.1(G) mandatory filters active. All tier definitions set by DoIT. Filters apply to tracker table and statewide analytics simultaneously.</div>
+      <div style="display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap; align-items:center;">
+        <strong style="font-size:.72rem; color:var(--primary); white-space:nowrap;">Required Filters:</strong>
+        <select style="padding:5px 9px; border-radius:6px; border:1.5px solid var(--primary-light); font-size:.75rem; background:#dbeafe20;">
+          <option>Executive Branch: All</option><option>Executive Branch: Yes</option><option>Executive Branch: No</option>
+        </select>
+        <select style="padding:5px 9px; border-radius:6px; border:1.5px solid var(--primary-light); font-size:.75rem; background:#dbeafe20;">
+          <option>DoIT Enterprise: All</option><option>DoIT Enterprise: Yes</option><option>DoIT Enterprise: No</option>
+        </select>
+        <select style="padding:5px 9px; border-radius:6px; border:1.5px solid var(--primary-light); font-size:.75rem; background:#dbeafe20;">
+          <option>Size Tier: All</option><option>Large (500+)</option><option>Medium (100–499)</option><option>Small (&lt;100)</option>
+        </select>
+        <select style="padding:5px 9px; border-radius:6px; border:1.5px solid var(--primary-light); font-size:.75rem; background:#dbeafe20;">
+          <option>IT Complexity: All</option><option>Complex</option><option>Moderate</option><option>Simple</option>
+        </select>
+        <select style="padding:5px 9px; border-radius:6px; border:1.5px solid var(--primary-light); font-size:.75rem; background:#dbeafe20;">
+          <option>Maturity Group: All</option><option>Group A (0.0–1.4)</option><option>Group B (1.5–2.5)</option><option>Group C (2.6–3.4)</option><option>Group D (3.5–4.4)</option><option>Group E (4.5–5.0)</option>
+        </select>
+      </div>
+      <div style="display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;">
+        <select style="padding:5px 9px; border-radius:6px; border:1px solid var(--border); font-size:.75rem;">
+          <option>Status: All</option><option>Complete</option><option>In Progress</option><option>Scheduled</option><option>Unresponsive</option>
+        </select>
+        <select style="padding:5px 9px; border-radius:6px; border:1px solid var(--border); font-size:.75rem;">
+          <option>Wave: All</option><option>Wave 1</option><option>Wave 2</option><option>Wave 3+</option>
+        </select>
+        <input type="text" placeholder="Search agency..." style="padding:5px 9px; border-radius:6px; border:1px solid var(--border); font-size:.75rem; flex:1;">
+        <button class="btn btn-primary btn-sm" onclick="notify('🔍 Filters applied — 23 agencies match')">🔍 Apply</button>
+        <button class="btn btn-outline btn-sm" onclick="notify('📥 Master tracker exported: MD_Statewide_Assessment_Tracker.xlsx')">📥 Export</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Agency</th><th>Size</th><th>Risk Level</th><th>Status</th><th>Lead Assessor</th><th>Start</th><th>Target End</th><th>Maturity</th><th>Critical Findings</th></tr>
+          </thead>
+          <tbody id="agency-table"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="t7-trends">
+    <div class="grid-4" style="margin-bottom:20px;">
+      <div class="stat-card"><div class="stat-label">Avg Statewide Maturity</div><div class="stat-value accent">2.9</div><div class="stat-sub">Up from 2.1 (Jan 2025)</div></div>
+      <div class="stat-card green"><div class="stat-label">Critical Findings Closed</div><div class="stat-value">38</div><div class="stat-sub">Across 23 completed agencies</div></div>
+      <div class="stat-card"><div class="stat-label">Avg Assessment Duration</div><div class="stat-value">41</div><div class="stat-sub">Days per agency</div></div>
+      <div class="stat-card accent"><div class="stat-label">POA&M Items Tracked</div><div class="stat-value">312</div><div class="stat-sub">Across all agencies</div></div>
+    </div>
+    <div class="grid-2" style="margin-bottom:20px;">
+      <div class="card">
+        <div class="card-title">📈 Statewide Average Maturity — Historical Trend</div>
+        <div class="chart-wrap"><canvas id="trendLineChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">🔴 Critical Findings Over Time</div>
+        <div class="chart-wrap"><canvas id="findingsTrendChart"></canvas></div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">📊 Maturity by NIST Function — Statewide Avg</div>
+        <div class="chart-wrap-sm"><canvas id="stateFunctionChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">🏆 Top Performing vs. At-Risk Agencies</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Category</th><th>Agency</th><th>Maturity</th><th>Trend</th></tr></thead>
+            <tbody>
+              <tr><td><span class="badge badge-green">Top</span></td><td>MD State Archives</td><td>3.9</td><td>↑ +0.4</td></tr>
+              <tr><td><span class="badge badge-green">Top</span></td><td>MD Dept. of Agriculture</td><td>3.7</td><td>↑ +0.6</td></tr>
+              <tr><td><span class="badge badge-green">Top</span></td><td>MD Dept. of Labor</td><td>3.4</td><td>↑ +0.5</td></tr>
+              <tr><td><span class="badge badge-red">At-Risk</span></td><td>MD Dept. of Environment</td><td>2.1</td><td>↔ +0.0</td></tr>
+              <tr><td><span class="badge badge-red">At-Risk</span></td><td>DPSCS</td><td>2.3</td><td>↑ +0.2</td></tr>
+              <tr><td><span class="badge badge-orange">Watch</span></td><td>MD State Police</td><td>2.6</td><td>↑ +0.3</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-outline btn-sm" onclick="notify('📊 Trend report exported: MD_Statewide_Trend_Report_Q1_2026.pdf')">📥 Export Trend Report</button>
+          <button class="btn btn-outline btn-sm" onclick="notify('📧 Executive summary sent to DoIT leadership')">📧 Send to DoIT</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ AGENCY PORTAL -->
+<div class="section" id="sa">
+  <div class="page-header">
+    <div class="step-tag">🏛 Collaboration &amp; Stakeholder Engagement</div>
+    <h1>Agency Portal — MDOT View</h1>
+    <p>Agency representatives can upload evidence, respond to findings, and track their assessment status in real time. Role-based access limits each agency to their own data.</p>
+  </div>
+
+  <div class="info-box">
+    <strong>Logged in as:</strong> Lisa Harmon, CISO — Maryland Department of Transportation (MDOT) &nbsp;|&nbsp; Role: Agency Representative &nbsp;|&nbsp; Assessment: MD-MDOT-2026-041
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab active" onclick="switchTab(this,'ta-status')">My Assessment Status</div>
+    <div class="tab" onclick="switchTab(this,'ta-upload')">Upload Evidence</div>
+    <div class="tab" onclick="switchTab(this,'ta-findings')">Respond to Findings</div>
+    <div class="tab" onclick="switchTab(this,'ta-notif')">Notifications</div>
+  </div>
+
+  <div class="tab-content active" id="ta-status">
+    <div class="grid-4" style="margin-bottom:20px;">
+      <div class="stat-card green"><div class="stat-label">Evidence Submitted</div><div class="stat-value">11</div><div class="stat-sub">of 14 requested</div></div>
+      <div class="stat-card accent"><div class="stat-label">Items Pending</div><div class="stat-value">3</div><div class="stat-sub">Action required</div></div>
+      <div class="stat-card"><div class="stat-label">Findings to Review</div><div class="stat-value">6</div><div class="stat-sub">Awaiting your response</div></div>
+      <div class="stat-card"><div class="stat-label">Assessment Progress</div><div class="stat-value">68%</div><div class="stat-sub">On track</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📋 Evidence Request Status</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Requested Item</th><th>Due Date</th><th>Status</th><th>Submitted</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td>Information Security Policy</td><td>Apr 14</td><td><span class="badge badge-green">Submitted</span></td><td>Apr 12 by L. Harmon</td><td><span class="badge badge-gray">Complete</span></td></tr>
+            <tr><td>Network Diagram (current)</td><td>Apr 14</td><td><span class="badge badge-green">Submitted</span></td><td>Apr 13 by M. Webb</td><td><span class="badge badge-gray">Complete</span></td></tr>
+            <tr><td>Patch Management Logs (90 days)</td><td>Apr 14</td><td><span class="badge badge-green">Submitted</span></td><td>Apr 14 by T. Nguyen</td><td><span class="badge badge-gray">Complete</span></td></tr>
+            <tr><td>Software Inventory</td><td>Apr 16</td><td><span class="badge badge-red">Overdue</span></td><td>—</td><td><button class="btn btn-accent btn-sm" onclick="notify('📤 Reminder escalated to IT Director M. Webb')">Upload Now</button></td></tr>
+            <tr><td>Security Awareness Training Records</td><td>Apr 18</td><td><span class="badge badge-orange">Pending</span></td><td>—</td><td><button class="btn btn-outline btn-sm" onclick="notify('📁 Upload panel opened for Training Records')">Upload</button></td></tr>
+            <tr><td>Third-Party Vendor Contracts</td><td>Apr 18</td><td><span class="badge badge-orange">Pending</span></td><td>—</td><td><button class="btn btn-outline btn-sm" onclick="notify('📁 Upload panel opened for Vendor Contracts')">Upload</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="ta-upload">
+    <div class="card">
+      <div class="card-title">📁 Upload Evidence — MDOT</div>
+      <div class="form-grid" style="margin-bottom:16px;">
+        <div class="form-group">
+          <label>Evidence Category</label>
+          <select>
+            <option>Software Inventory</option>
+            <option>Security Training Records</option>
+            <option>Third-Party Vendor Contracts</option>
+            <option>Other (specify below)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>NIST CSF Function</label>
+          <select><option>IDENTIFY — Asset Management</option><option>PROTECT — Training</option><option>GOVERN — Risk Management</option></select>
+        </div>
+        <div class="form-group full">
+          <label>Description / Notes</label>
+          <textarea rows="2" placeholder="Describe what this document covers and any caveats..."></textarea>
+        </div>
+      </div>
+      <div class="upload-zone" id="dropZone" onclick="simulateUpload()" ondragover="this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')">
+        <div class="upload-icon">📂</div>
+        <div class="upload-label">Click to browse or drag &amp; drop files here</div>
+        <div class="upload-sub">Supported: PDF, DOCX, XLSX, PNG, JPG &nbsp;|&nbsp; Max 50MB per file</div>
+      </div>
+      <div id="upload-list" style="margin-top:16px;"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="simulateUpload()">📤 Submit Evidence</button>
+        <button class="btn btn-outline" onclick="notify('💾 Draft saved. You can continue uploading later.')">Save Draft</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📂 Previously Submitted Files</div>
+      <div>
+        <div class="upload-item"><div class="fi-icon">📄</div><div class="fi-name">MDOT_InfoSec_Policy_2025.pdf</div><div class="fi-size">1.2 MB</div><span class="badge badge-green fi-status">Accepted</span></div>
+        <div class="upload-item"><div class="fi-icon">🗺</div><div class="fi-name">MDOT_Network_Diagram_v3.2.vsdx</div><div class="fi-size">4.7 MB</div><span class="badge badge-green fi-status">Accepted</span></div>
+        <div class="upload-item"><div class="fi-icon">📊</div><div class="fi-name">MDOT_Patch_Logs_Q1_2026.xlsx</div><div class="fi-size">892 KB</div><span class="badge badge-green fi-status">Accepted</span></div>
+        <div class="upload-item"><div class="fi-icon">📄</div><div class="fi-name">MDOT_Access_Control_Policy.pdf</div><div class="fi-size">540 KB</div><span class="badge badge-orange fi-status">Under Review</span></div>
+        <div class="upload-item"><div class="fi-icon">📋</div><div class="fi-name">MDOT_IRP_2022.pdf</div><div class="fi-size">2.1 MB</div><span class="badge badge-orange fi-status">Note Added</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="ta-findings">
+    <div class="warn-box">You have <strong>6 draft findings</strong> from Assurit's assessment team awaiting your formal response. Please review and provide your agency's position by <strong>May 12, 2026</strong>.</div>
+    <div class="finding-card critical">
+      <div class="fc-header">
+        <div class="fc-title">F-001 &nbsp;|&nbsp; No SIEM / Continuous Monitoring</div>
+        <span class="badge badge-red">CRITICAL</span>
+      </div>
+      <div class="fc-body">Assurit finding: No centralized SIEM or log aggregation platform is deployed. Network, endpoint, and application events are not correlated. Detection capability is severely limited.</div>
+      <textarea class="fc-response" rows="2" placeholder="Agency response / corrective action plan...">MDOT concurs. We have initiated a procurement process for Splunk Enterprise Security. Target deployment Q3 2026.</textarea>
+      <div class="btn-row" style="margin-top:8px;"><button class="btn btn-outline btn-sm" onclick="notify('✅ Response saved for F-001')">Save Response</button><select style="padding:5px 10px; border-radius:6px; border:1px solid var(--border); font-size:.78rem;"><option>Agency Concurs</option><option>Agency Disputes</option><option>Risk Accepted</option></select></div>
+    </div>
+    <div class="finding-card critical">
+      <div class="fc-header">
+        <div class="fc-title">F-002 &nbsp;|&nbsp; MFA Not Enforced for Privileged Accounts</div>
+        <span class="badge badge-red">CRITICAL</span>
+      </div>
+      <div class="fc-body">Assurit finding: Multi-factor authentication is not enforced for administrative and privileged accounts. Remote access via VPN also lacks MFA enforcement.</div>
+      <textarea class="fc-response" rows="2" placeholder="Agency response...">MDOT concurs. MFA rollout is 70% complete for admin accounts. Full enforcement expected by April 30, 2026.</textarea>
+      <div class="btn-row" style="margin-top:8px;"><button class="btn btn-outline btn-sm" onclick="notify('✅ Response saved for F-002')">Save Response</button><select style="padding:5px 10px; border-radius:6px; border:1px solid var(--border); font-size:.78rem;"><option>Agency Concurs</option><option>Agency Disputes</option><option>Risk Accepted</option></select></div>
+    </div>
+    <div class="finding-card high">
+      <div class="fc-header">
+        <div class="fc-title">F-005 &nbsp;|&nbsp; Patch Cycle Exceeds 90 Days</div>
+        <span class="badge badge-orange">HIGH</span>
+      </div>
+      <div class="fc-body">Assurit finding: Average remediation time for critical CVEs is 97 days, well above the recommended 30-day target.</div>
+      <textarea class="fc-response" rows="2" placeholder="Agency response..."></textarea>
+      <div class="btn-row" style="margin-top:8px;"><button class="btn btn-outline btn-sm" onclick="notify('✅ Response saved for F-005')">Save Response</button><select style="padding:5px 10px; border-radius:6px; border:1px solid var(--border); font-size:.78rem;"><option>Agency Concurs</option><option>Agency Disputes</option><option>Risk Accepted</option></select></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="notify('✅ All responses submitted to Assurit assessment team')">📤 Submit All Responses</button>
+      <button class="btn btn-outline" onclick="notify('💾 Draft responses saved')">Save Drafts</button>
+    </div>
+  </div>
+
+  <div class="tab-content" id="ta-notif">
+    <div class="card">
+      <div class="card-title">🔔 Notifications — MDOT</div>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div style="display:flex; gap:14px; padding:12px; border-radius:8px; background:#fef3cd; border:1px solid #f6cc6a;">
+          <div style="font-size:1.2rem;">⚠️</div>
+          <div><div style="font-size:.85rem; font-weight:700;">Evidence Overdue: Software Inventory</div><div style="font-size:.78rem; color:var(--text-muted); margin-top:2px;">Due Apr 16 — now 8 days overdue. Assessor J. Williams has been notified. Please submit immediately.</div><div style="font-size:.72rem; color:var(--text-muted); margin-top:4px;">Apr 24, 2026 • 8:05 AM</div></div>
+        </div>
+        <div style="display:flex; gap:14px; padding:12px; border-radius:8px; background:#dbeafe; border:1px solid #93c5fd;">
+          <div style="font-size:1.2rem;">📋</div>
+          <div><div style="font-size:.85rem; font-weight:700;">6 Draft Findings Ready for Your Review</div><div style="font-size:.78rem; color:var(--text-muted); margin-top:2px;">Assurit has shared preliminary findings for your agency. Please respond by May 12, 2026.</div><div style="font-size:.72rem; color:var(--text-muted); margin-top:4px;">Apr 28, 2026 • 2:30 PM</div></div>
+        </div>
+        <div style="display:flex; gap:14px; padding:12px; border-radius:8px; background:#d4f4e2; border:1px solid #6fcf97;">
+          <div style="font-size:1.2rem;">✅</div>
+          <div><div style="font-size:.85rem; font-weight:700;">Evidence Accepted: MDOT_InfoSec_Policy_2025.pdf</div><div style="font-size:.78rem; color:var(--text-muted); margin-top:2px;">Your submission has been reviewed and accepted by assessor S. Patel.</div><div style="font-size:.72rem; color:var(--text-muted); margin-top:4px;">Apr 15, 2026 • 11:14 AM</div></div>
+        </div>
+        <div style="display:flex; gap:14px; padding:12px; border-radius:8px; background:#f5f7fb; border:1px solid var(--border);">
+          <div style="font-size:1.2rem;">📅</div>
+          <div><div style="font-size:.85rem; font-weight:700;">Interview Scheduled: Security Awareness Training Review</div><div style="font-size:.78rem; color:var(--text-muted); margin-top:2px;">Your interview with assessor S. Patel is confirmed for Apr 18, 2026 at 10:00 AM via Google Meet.</div><div style="font-size:.72rem; color:var(--text-muted); margin-top:4px;">Apr 14, 2026 • 9:00 AM</div></div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-outline btn-sm" onclick="notify('🔕 Notification preferences updated')">⚙ Notification Settings</button>
+        <button class="btn btn-outline btn-sm" onclick="notify('✅ All notifications marked as read')">Mark All Read</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ CSF INTAKE & UPLOAD PORTAL -->
+<div class="section" id="sai">
+  <div class="page-header">
+    <div class="step-tag" style="background:#065f46;">📋 AGENCY-FACING &nbsp;|&nbsp; Self-Service Portal</div>
+    <h1>Agency CSF Intake &amp; Evidence Upload Portal</h1>
+    <p>Complete your NIST CSF 2.0 self-assessment and upload supporting evidence. Each response maps directly to CMMI maturity scoring — results flow live to your Assurit assessor's dashboard.</p>
+  </div>
+
+  <div class="anchor-banner">
+    <div>📋</div>
+    <div><strong>ANCHOR — ASSESS Phase:</strong> Agency representatives answer targeted questions for each NIST CSF 2.0 subcategory and attach supporting evidence. Answers automatically update the CMMI maturity baseline and drive assessor on-site scope. All data is encrypted in transit and validated during the FRTA quality gate.</div>
+  </div>
+
+  <!-- Agency Identity Bar -->
+  <div class="card" style="margin-bottom:16px; background:linear-gradient(135deg,#1a3a5c,#2563a8); color:#fff; padding:16px 22px;">
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+      <div style="display:flex; align-items:center; gap:14px;">
+        <div style="width:44px; height:44px; border-radius:50%; background:rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; font-size:1.1rem; font-weight:800; flex-shrink:0;">LH</div>
+        <div>
+          <div style="font-weight:700; font-size:.95rem;">Lisa Harmon</div>
+          <div style="font-size:.78rem; opacity:.8;">Chief Information Security Officer &nbsp;·&nbsp; Maryland Department of Transportation (MDOT)</div>
+          <div style="font-size:.72rem; opacity:.65; margin-top:2px;">Assessment ID: ACG-2026-MDOT-W1 &nbsp;·&nbsp; Pod Alpha (Large) &nbsp;·&nbsp; Wave 1</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <span style="background:rgba(39,174,96,.28); color:#9efcc9; padding:4px 10px; border-radius:12px; font-size:.72rem; font-weight:700;">🔒 Secure Session</span>
+        <span style="background:rgba(255,255,255,.15); color:#fff; padding:4px 10px; border-radius:12px; font-size:.72rem; font-weight:700;">Due: May 30, 2026</span>
+        <button class="btn" style="background:rgba(255,255,255,.2); color:#fff; border:1px solid rgba(255,255,255,.35); padding:5px 14px; font-size:.78rem;" onclick="notify('💾 Progress saved to Assurit secure platform. All responses are encrypted at rest.')">💾 Save Progress</button>
+        <button class="btn" style="background:rgba(255,255,255,.2); color:#fff; border:1px solid rgba(255,255,255,.35); padding:5px 14px; font-size:.78rem;" onclick="notify('❓ Help center opened. Contact your assessor: jpatel@assurit.com or call 1-800-ASSURIT.')">❓ Help</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress Stats -->
+  <div class="grid-4" style="margin-bottom:16px;">
+    <div class="stat-card green"><div class="stat-label">Answered</div><div class="stat-value" id="sai-stat-yes">0</div><div class="stat-sub">Controls fully addressed</div></div>
+    <div class="stat-card accent"><div class="stat-label">Partial</div><div class="stat-value" id="sai-stat-part">0</div><div class="stat-sub">In progress / planned</div></div>
+    <div class="stat-card" style="border-left:4px solid var(--danger);"><div class="stat-label">Gaps</div><div class="stat-value" style="color:var(--danger);" id="sai-stat-no">0</div><div class="stat-sub">Not implemented</div></div>
+    <div class="stat-card"><div class="stat-label">Completion</div><div class="stat-value" id="sai-stat-pct">0%</div><div class="stat-sub" id="sai-stat-sub">0 of 30 controls answered</div></div>
+  </div>
+
+  <!-- Two-column layout -->
+  <div style="display:grid; grid-template-columns:1fr 300px; gap:20px; align-items:start;">
+
+    <!-- LEFT: Tabs + Control Rows -->
+    <div>
+      <div class="card" style="padding:20px 20px 24px;">
+        <div class="csf-fn-tab-bar" id="sai-tab-bar"></div>
+        <div id="sai-fn-contents"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Live Score Panel -->
+    <div>
+      <div class="card live-score-panel" style="padding:20px;">
+        <div class="card-title" style="margin-bottom:14px;"><span class="icon">📊</span> Live CMMI Score</div>
+        <div class="lsp-ring-wrap">
+          <div class="lsp-ring" id="sai-ring" style="border-color:#e5e7eb;">
+            <div style="font-size:1.5rem; font-weight:800; line-height:1;" id="sai-ring-score">0.0</div>
+            <div style="font-size:.6rem; opacity:.6; margin-top:2px;">/ 5.0</div>
+          </div>
+          <div>
+            <div style="font-weight:700; font-size:.9rem;" id="sai-ring-label">Not Started</div>
+            <div style="font-size:.75rem; color:var(--text-muted); margin-top:3px;">Overall Maturity Level</div>
+            <div style="font-size:.7rem; color:var(--text-muted); margin-top:2px;" id="sai-ring-group">Group A (0.0–1.4)</div>
+          </div>
+        </div>
+        <div style="border-top:1px solid var(--border); padding-top:14px; margin-bottom:14px;">
+          <div style="font-size:.72rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:10px;">By CSF Function</div>
+          <div id="sai-fn-bars"></div>
+        </div>
+        <div style="border-top:1px solid var(--border); padding-top:14px;">
+          <div style="font-size:.72rem; color:var(--text-muted); margin-bottom:10px;">Evidence Uploads: <strong id="sai-upload-count">0</strong> of 60 files</div>
+          <button class="btn btn-primary" style="width:100%; margin-bottom:8px;" onclick="submitSaiIntake()">📤 Submit to Assessor</button>
+          <button class="btn btn-outline" style="width:100%; font-size:.78rem;" onclick="notify('📄 Draft baseline generated: MDOT_CSF_Baseline_Draft.pdf sent to your email.')">📄 Generate Baseline Draft</button>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px; padding:16px;">
+        <div class="card-title" style="font-size:.82rem; margin-bottom:10px;">CMMI Scale Reference</div>
+        <div style="display:flex; flex-direction:column; gap:5px; font-size:.75rem;">
+          <div style="display:flex;gap:8px;align-items:center;"><div style="width:10px;height:10px;border-radius:2px;background:#6b7280;flex-shrink:0;"></div><strong>ML0</strong> — Nonexistent</div>
+          <div style="display:flex;gap:8px;align-items:center;"><div style="width:10px;height:10px;border-radius:2px;background:#dc2626;flex-shrink:0;"></div><strong>ML1</strong> — Performed</div>
+          <div style="display:flex;gap:8px;align-items:center;"><div style="width:10px;height:10px;border-radius:2px;background:#ea580c;flex-shrink:0;"></div><strong>ML2</strong> — Managed</div>
+          <div style="display:flex;gap:8px;align-items:center;"><div style="width:10px;height:10px;border-radius:2px;background:#d97706;flex-shrink:0;"></div><strong>ML3</strong> — Defined</div>
+          <div style="display:flex;gap:8px;align-items:center;"><div style="width:10px;height:10px;border-radius:2px;background:#16a34a;flex-shrink:0;"></div><strong>ML4</strong> — Measured</div>
+          <div style="display:flex;gap:8px;align-items:center;"><div style="width:10px;height:10px;border-radius:2px;background:#0d9488;flex-shrink:0;"></div><strong>ML5</strong> — Optimized</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ 2-YEAR PIPELINE -->
+<div class="section" id="sp">
+  <div class="page-header">
+    <div class="step-tag" style="background:#0d9488;">📅 OPTIMIZE &nbsp;|&nbsp; Program Management</div>
+    <h1>90-Agency Assessment Pipeline — 24-Month Schedule</h1>
+    <p>Wave-based delivery across all Maryland state agencies. Each wave is sized to pod capacity and agency complexity. Real-time schedule tracking with escalation alerts.</p>
+  </div>
+
+  <div class="anchor-banner">
+    <div>📅</div>
+    <div><strong>ANCHOR — Optimize Phase:</strong> The pipeline view gives DoIT and Assurit's PMO real-time visibility into all 90 assessments across the 24-month program. Waves are sequenced by agency risk tier and pod availability.</div>
+  </div>
+
+  <div class="grid-4" style="margin-bottom:20px;">
+    <div class="stat-card green"><div class="stat-label">Total Agencies</div><div class="stat-value">90</div><div class="stat-sub">24-month program</div></div>
+    <div class="stat-card"><div class="stat-label">Assessment Waves</div><div class="stat-value">6</div><div class="stat-sub">~15 agencies/wave</div></div>
+    <div class="stat-card accent"><div class="stat-label">Active Pods</div><div class="stat-value">8</div><div class="stat-sub">Small, Med, Large</div></div>
+    <div class="stat-card green"><div class="stat-label">On-Schedule</div><div class="stat-value">94%</div><div class="stat-sub">SLA compliance</div></div>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab active" onclick="switchTab(this,'tp-gantt')">Pipeline Gantt</div>
+    <div class="tab" onclick="switchTab(this,'tp-waves')">Wave Details</div>
+    <div class="tab" onclick="switchTab(this,'tp-pods')">Pod Allocation</div>
+    <div class="tab" onclick="switchTab(this,'tp-kpi')">PMO KPIs</div>
+  </div>
+
+  <div class="tab-content active" id="tp-gantt">
+    <div class="card">
+      <div class="card-title">📅 24-Month Program Timeline — All 90 Agencies</div>
+      <div style="overflow-x:auto;">
+        <div class="wave-month-header" style="min-width:900px;">
+          <div class="wave-month-label-spacer"></div>
+          <div class="wave-month">Jan–Feb<br>2026</div>
+          <div class="wave-month">Mar–Apr<br>2026</div>
+          <div class="wave-month">May–Jun<br>2026</div>
+          <div class="wave-month">Jul–Aug<br>2026</div>
+          <div class="wave-month">Sep–Oct<br>2026</div>
+          <div class="wave-month">Nov–Dec<br>2026</div>
+          <div class="wave-month">Jan–Feb<br>2027</div>
+          <div class="wave-month">Mar–Apr<br>2027</div>
+          <div class="wave-month">May–Jun<br>2027</div>
+          <div class="wave-month">Jul–Aug<br>2027</div>
+        </div>
+        <div id="pipeline-gantt" style="min-width:900px;"></div>
+      </div>
+      <div style="display:flex; gap:16px; margin-top:12px; flex-wrap:wrap; font-size:.75rem;">
+        <div style="display:flex; align-items:center; gap:5px;"><div style="width:14px;height:14px;border-radius:3px;background:#2563a8;"></div> Assess &amp; Normalize</div>
+        <div style="display:flex; align-items:center; gap:5px;"><div style="width:14px;height:14px;border-radius:3px;background:#7c3aed;"></div> Consolidate &amp; Report</div>
+        <div style="display:flex; align-items:center; gap:5px;"><div style="width:14px;height:14px;border-radius:3px;background:#16a34a;"></div> Complete</div>
+        <div style="display:flex; align-items:center; gap:5px;"><div style="width:14px;height:14px;border-radius:3px;background:#cbd5e0;"></div> Scheduled</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tp-waves">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Wave</th><th>Period</th><th>Agencies</th><th>Agency Types</th><th>Pods Deployed</th><th>Status</th><th>Avg Maturity</th><th>Critical Findings</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Wave 1</strong></td>
+            <td>Jan–Jun 2026</td>
+            <td>15 agencies</td>
+            <td>Large + High-Risk</td>
+            <td>3 Large, 2 Medium</td>
+            <td><span class="badge badge-blue">In Progress</span></td>
+            <td>2.5</td>
+            <td>38</td>
+          </tr>
+          <tr>
+            <td><strong>Wave 2</strong></td>
+            <td>Apr–Sep 2026</td>
+            <td>15 agencies</td>
+            <td>Medium + Enterprise</td>
+            <td>2 Large, 3 Medium</td>
+            <td><span class="badge badge-blue">In Progress</span></td>
+            <td>—</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td><strong>Wave 3</strong></td>
+            <td>Jul–Dec 2026</td>
+            <td>15 agencies</td>
+            <td>Medium + Small (high-risk)</td>
+            <td>1 Large, 4 Medium</td>
+            <td><span class="badge badge-orange">Scheduled</span></td>
+            <td>—</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td><strong>Wave 4</strong></td>
+            <td>Oct 2026–Mar 2027</td>
+            <td>15 agencies</td>
+            <td>Small + OT/ICS-heavy</td>
+            <td>2 Large, 2 Medium, 2 Small</td>
+            <td><span class="badge badge-gray">Planned</span></td>
+            <td>—</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td><strong>Wave 5</strong></td>
+            <td>Jan–Jun 2027</td>
+            <td>15 agencies</td>
+            <td>Small agencies + reassessments</td>
+            <td>1 Large, 2 Medium, 4 Small</td>
+            <td><span class="badge badge-gray">Planned</span></td>
+            <td>—</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td><strong>Wave 6</strong></td>
+            <td>Apr–Dec 2027</td>
+            <td>15 agencies</td>
+            <td>Remaining + Year-2 reassessments</td>
+            <td>TBD based on capacity</td>
+            <td><span class="badge badge-gray">Planned</span></td>
+            <td>—</td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-outline btn-sm" onclick="notify('📥 Wave schedule exported: MD_Assessment_Wave_Plan_2026-2027.xlsx')">📥 Export Wave Plan</button>
+      <button class="btn btn-outline btn-sm" onclick="notify('🔗 Schedule synced to ServiceNow Project Management')">🔗 Sync to ServiceNow</button>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tp-pods">
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">🫛 Pod Roster — Current Active Pods</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Pod</th><th>Type</th><th>Lead</th><th>Staff</th><th>Current Agency</th><th>Utilization</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Pod Alpha</strong></td><td><span class="badge badge-red">Large</span></td><td>J. Williams</td><td>7</td><td>MDOT</td><td>100%</td></tr>
+              <tr><td><strong>Pod Beta</strong></td><td><span class="badge badge-red">Large</span></td><td>R. Okafor</td><td>6</td><td>DPSCS + MDH</td><td>100%</td></tr>
+              <tr><td><strong>Pod Gamma</strong></td><td><span class="badge badge-orange">Medium</span></td><td>S. Patel</td><td>4</td><td>MD Labor + MDE</td><td>100%</td></tr>
+              <tr><td><strong>Pod Delta</strong></td><td><span class="badge badge-orange">Medium</span></td><td>T. Adams</td><td>5</td><td>Agriculture + Commerce</td><td>80%</td></tr>
+              <tr><td><strong>Pod Epsilon</strong></td><td><span class="badge badge-gray">Small</span></td><td>K. Moore</td><td>3</td><td>MD Insurance Admin</td><td>100%</td></tr>
+              <tr><td><strong>Pod Zeta</strong></td><td><span class="badge badge-gray">Small</span></td><td>L. Torres</td><td>2</td><td>MD Archives</td><td>100%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📊 Pod Capacity vs. Demand</div>
+        <div class="chart-wrap-sm"><canvas id="podCapacityChart"></canvas></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📐 Pod Sizing Logic — Driven by Questionnaire Score</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Complexity Score</th><th>Pod Type</th><th>Team Size</th><th>Typical Duration</th><th>Evidence Items</th><th>CMMI Controls</th></tr></thead>
+          <tbody>
+            <tr><td>0 – 20</td><td><span class="badge badge-gray">Small</span></td><td>2–3 staff</td><td>~21 days</td><td>32</td><td>CSF Subset (52)</td></tr>
+            <tr><td>21 – 35</td><td><span class="badge badge-orange">Medium</span></td><td>4–5 staff</td><td>~42 days</td><td>58</td><td>Full CSF (106)</td></tr>
+            <tr style="background:#fee2e220;"><td>36 – 60</td><td><span class="badge badge-red">Large</span></td><td>6–8 staff</td><td>~63 days</td><td>92</td><td>CSF + 800-53 (180+)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="info-box" style="margin-top:12px; margin-bottom:0;">MDOT scored <strong>46/60</strong> on the pre-assessment questionnaire → <strong>Large Pod assigned</strong>. This sizing ensures no agency is under-resourced and no pod is overextended.</div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tp-kpi">
+    <div class="grid-4" style="margin-bottom:20px;">
+      <div class="stat-card green"><div class="stat-label">On-Time Delivery Rate</div><div class="stat-value">94%</div><div class="stat-sub">Target: ≥90%</div></div>
+      <div class="stat-card green"><div class="stat-label">QA Validation Pass Rate</div><div class="stat-value">98%</div><div class="stat-sub">Target: ≥95%</div></div>
+      <div class="stat-card"><div class="stat-label">Avg ISO Satisfaction</div><div class="stat-value">4.7</div><div class="stat-sub">of 5.0 — post-assessment survey</div></div>
+      <div class="stat-card accent"><div class="stat-label">Avg Days to SAR Delivery</div><div class="stat-value">41</div><div class="stat-sub">Large: 63, Med: 42, Small: 21</div></div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">📈 Monthly Assessment Throughput</div>
+        <div class="chart-wrap"><canvas id="throughputChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">🚨 Active Issues &amp; Escalations</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Issue</th><th>Agency</th><th>Severity</th><th>Days Open</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>Evidence overdue &gt;10 days</td><td>MDE</td><td><span class="badge badge-red">High</span></td><td>11</td><td>Escalated to Agency Head</td></tr>
+              <tr><td>Agency unresponsive</td><td>Governor's Office</td><td><span class="badge badge-red">High</span></td><td>18</td><td>DoIT PM notified</td></tr>
+              <tr><td>Schedule conflict — interviews</td><td>State Police</td><td><span class="badge badge-orange">Medium</span></td><td>3</td><td>Rescheduled Apr 28</td></tr>
+              <tr><td>Scope dispute — field offices</td><td>MDOT</td><td><span class="badge badge-orange">Medium</span></td><td>5</td><td>ISO adjudication pending</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-outline btn-sm" onclick="notify('📧 Escalation report sent to DoIT OSM')">📧 Report to OSM</button>
+          <button class="btn btn-outline btn-sm" onclick="notify('📋 All issues logged in PMO Risk Register')">📋 View Risk Register</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ WORKFLOW TEMPLATES -->
+<div class="section" id="sw">
+  <div class="page-header">
+    <div class="step-tag">⚡ Workflow &amp; Assessment Management</div>
+    <h1>Workflow Templates &amp; Configurability</h1>
+    <p>Select and customize assessment profiles by agency type, risk level, or system category. Templates vary requirements at each lifecycle stage.</p>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab active" onclick="switchTab(this,'tw-templates')">Assessment Templates</div>
+    <div class="tab" onclick="switchTab(this,'tw-lifecycle')">Lifecycle Configuration</div>
+    <div class="tab" onclick="switchTab(this,'tw-rules')">Workflow Rules</div>
+  </div>
+
+  <div class="tab-content active" id="tw-templates">
+    <div class="info-box">Select the appropriate assessment profile based on agency characteristics. Templates pre-configure scope, controls, evidence requirements, and scoring weights. Each can be customized before assignment.</div>
+    <div class="wf-grid" style="margin-bottom:20px;">
+      <div class="wf-card selected" onclick="selectTemplate(this,'Standard Enterprise')">
+        <span class="wf-badge badge badge-blue">Selected</span>
+        <div class="wf-title">🏛 Standard Enterprise IT</div>
+        <div class="wf-desc">Full NIST CSF 2.0 assessment for agencies with mixed on-prem/cloud infrastructure. Covers all 6 functions, 106 subcategories.</div>
+        <div class="wf-stages">
+          <span class="wf-stage">Intake</span><span class="wf-stage">Mapping</span><span class="wf-stage">Evidence</span><span class="wf-stage">Risk</span><span class="wf-stage">POA&M</span><span class="wf-stage">SAR</span>
+        </div>
+        <div style="margin-top:10px; font-size:.75rem; color:var(--text-muted);">~42 days &nbsp;|&nbsp; 4 assessors &nbsp;|&nbsp; 68 evidence items</div>
+      </div>
+      <div class="wf-card" onclick="selectTemplate(this,'Small Agency')">
+        <div class="wf-title">🏢 Small Agency Streamlined</div>
+        <div class="wf-desc">Abbreviated assessment for agencies with &lt;100 employees and low-risk profiles. Focused controls subset.</div>
+        <div class="wf-stages">
+          <span class="wf-stage">Intake</span><span class="wf-stage">Mapping</span><span class="wf-stage">Evidence</span><span class="wf-stage">Risk</span><span class="wf-stage">SAR</span>
+        </div>
+        <div style="margin-top:10px; font-size:.75rem; color:var(--text-muted);">~21 days &nbsp;|&nbsp; 2 assessors &nbsp;|&nbsp; 32 evidence items</div>
+      </div>
+      <div class="wf-card" onclick="selectTemplate(this,'OT/ICS')">
+        <div class="wf-title">⚙️ OT / ICS Systems</div>
+        <div class="wf-desc">Specialized profile for operational technology environments. Includes ICS-specific controls (NIST SP 800-82) alongside CSF.</div>
+        <div class="wf-stages">
+          <span class="wf-stage">OT Scoping</span><span class="wf-stage">CSF+800-82</span><span class="wf-stage">Evidence</span><span class="wf-stage">Risk</span><span class="wf-stage">POA&M</span><span class="wf-stage">SAR</span>
+        </div>
+        <div style="margin-top:10px; font-size:.75rem; color:var(--text-muted);">~56 days &nbsp;|&nbsp; 5 assessors &nbsp;|&nbsp; 84 evidence items</div>
+      </div>
+      <div class="wf-card" onclick="selectTemplate(this,'Cloud-Native')">
+        <div class="wf-title">☁️ Cloud-Native (SaaS/IaaS)</div>
+        <div class="wf-desc">Tailored for cloud-first agencies. Emphasizes cloud security controls, shared responsibility model, and FedRAMP alignment.</div>
+        <div class="wf-stages">
+          <span class="wf-stage">Cloud Scoping</span><span class="wf-stage">CSF+FedRAMP</span><span class="wf-stage">Evidence</span><span class="wf-stage">Risk</span><span class="wf-stage">SAR</span>
+        </div>
+        <div style="margin-top:10px; font-size:.75rem; color:var(--text-muted);">~28 days &nbsp;|&nbsp; 3 assessors &nbsp;|&nbsp; 45 evidence items</div>
+      </div>
+      <div class="wf-card" onclick="selectTemplate(this,'High-Risk')">
+        <div class="wf-title">🔴 High-Risk / Critical Agency</div>
+        <div class="wf-desc">Enhanced profile for agencies handling CJI, health records, or critical infrastructure. Deeper technical testing and interviews required.</div>
+        <div class="wf-stages">
+          <span class="wf-stage">Extended Intake</span><span class="wf-stage">Full CSF</span><span class="wf-stage">Tech Testing</span><span class="wf-stage">Risk</span><span class="wf-stage">POA&M</span><span class="wf-stage">SAR</span>
+        </div>
+        <div style="margin-top:10px; font-size:.75rem; color:var(--text-muted);">~63 days &nbsp;|&nbsp; 6 assessors &nbsp;|&nbsp; 92 evidence items</div>
+      </div>
+      <div class="wf-card" onclick="selectTemplate(this,'Reassessment')">
+        <div class="wf-title">🔄 Reassessment / Follow-up</div>
+        <div class="wf-desc">Focused reassessment for agencies completing POA&M remediation. Validates corrective actions against prior findings only.</div>
+        <div class="wf-stages">
+          <span class="wf-stage">POA&M Review</span><span class="wf-stage">Evidence</span><span class="wf-stage">Verification</span><span class="wf-stage">Update SAR</span>
+        </div>
+        <div style="margin-top:10px; font-size:.75rem; color:var(--text-muted);">~14 days &nbsp;|&nbsp; 2 assessors &nbsp;|&nbsp; 18 evidence items</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">⚙️ Template Customization — Standard Enterprise IT (Applied to MDOT)</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Evidence Collection Window</label><select><option>14 days</option><option selected>21 days</option><option>30 days</option></select></div>
+        <div class="form-group"><label>Interview Depth</label><select><option>Minimal (2 sessions)</option><option selected>Standard (4–6 sessions)</option><option>Extended (8+ sessions)</option></select></div>
+        <div class="form-group"><label>Technical Testing</label><select><option selected>Vulnerability Scan + Network Map</option><option>Vulnerability Scan Only</option><option>Full Pen Test</option></select></div>
+        <div class="form-group"><label>CMMI Scoring Weight</label><select><option>Equal weight all functions</option><option selected>Risk-weighted (Detect/Respond priority)</option></select></div>
+        <div class="form-group"><label>Include OT/ICS Controls</label><select><option selected>Partial (3 interface controls)</option><option>Full NIST 800-82</option><option>Exclude</option></select></div>
+        <div class="form-group"><label>SAR Audience</label><select><option selected>Executive + Technical (dual)</option><option>Executive Only</option><option>Technical Only</option></select></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="notify('✅ Template configuration saved for MDOT assessment MD-MDOT-2026-041')">💾 Save Configuration</button>
+        <button class="btn btn-outline" onclick="notify('📋 Template cloned as: Standard_Enterprise_MDOT_Custom.json')">📋 Clone Template</button>
+        <button class="btn btn-outline btn-sm" onclick="notify('📥 Template exported for reuse across similar agencies')">📥 Export Template</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tw-lifecycle">
+    <div class="card">
+      <div class="card-title">🔄 Assessment Lifecycle Stages — Standard Enterprise Template</div>
+      <p style="font-size:.83rem; color:var(--text-muted); margin-bottom:16px;">Configure which activities, approvals, and evidence requirements are enforced at each stage. Stages can be added, reordered, or made conditional.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Stage</th><th>Activities</th><th>Required Approvals</th><th>Entry Criteria</th><th>Exit Criteria</th><th>Configurable</th></tr></thead>
+          <tbody>
+            <tr><td><strong>1. Initiation</strong></td><td>Intake form, scope doc, kick-off meeting</td><td>Program Manager</td><td>Agency assignment confirmed</td><td>Signed scope document</td><td><span class="badge badge-green">Yes</span></td></tr>
+            <tr><td><strong>2. Planning</strong></td><td>Control mapping, template selection, schedule</td><td>Lead Assessor</td><td>Scope approved</td><td>Mapping complete &gt;80%</td><td><span class="badge badge-green">Yes</span></td></tr>
+            <tr><td><strong>3. Evidence Collection</strong></td><td>Doc requests, interviews, tool scans</td><td>Agency Rep acknowledgement</td><td>Planning complete</td><td>Evidence &gt;75% collected</td><td><span class="badge badge-green">Yes</span></td></tr>
+            <tr><td><strong>4. Analysis</strong></td><td>Gap analysis, CMMI scoring, risk register</td><td>Lead Assessor review</td><td>Evidence collection closed</td><td>All controls scored</td><td><span class="badge badge-orange">Partial</span></td></tr>
+            <tr><td><strong>5. Findings Review</strong></td><td>Draft findings shared, agency responds</td><td>Agency response received</td><td>Analysis complete</td><td>Agency responses on record</td><td><span class="badge badge-green">Yes</span></td></tr>
+            <tr><td><strong>6. POA&M Development</strong></td><td>Remediation items, owners, milestones</td><td>Agency CISO sign-off</td><td>Findings finalized</td><td>All items assigned</td><td><span class="badge badge-green">Yes</span></td></tr>
+            <tr><td><strong>7. SAR Delivery</strong></td><td>Final report, executive brief, DoIT submission</td><td>PM + DoIT</td><td>POA&M signed</td><td>SAR delivered &amp; accepted</td><td><span class="badge badge-orange">Partial</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tw-rules">
+    <div class="card">
+      <div class="card-title">⚡ Automated Workflow Rules</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Trigger</th><th>Condition</th><th>Automated Action</th><th>Active</th></tr></thead>
+          <tbody>
+            <tr><td>Evidence overdue</td><td>&gt;5 days past due date</td><td>Email agency rep + lead assessor; create task in ServiceNow</td><td><span class="badge badge-green">Active</span></td></tr>
+            <tr><td>Agency unresponsive</td><td>No response in 10 business days</td><td>Escalate to Agency Head; notify DoIT Program Manager</td><td><span class="badge badge-green">Active</span></td></tr>
+            <tr><td>Critical finding identified</td><td>CMMI score = 1 for any control</td><td>Flag for immediate assessor review; add to risk register priority queue</td><td><span class="badge badge-green">Active</span></td></tr>
+            <tr><td>POA&M item approaching due</td><td>7 days before due date</td><td>Notify assigned owner; send status update request</td><td><span class="badge badge-green">Active</span></td></tr>
+            <tr><td>Assessment &gt;30 days no activity</td><td>No updates in 30 days</td><td>Flag as stalled; notify Program Manager</td><td><span class="badge badge-green">Active</span></td></tr>
+            <tr><td>Assessment complete</td><td>SAR delivered and accepted</td><td>Archive records; schedule reassessment in 12 months; update master tracker</td><td><span class="badge badge-green">Active</span></td></tr>
+            <tr><td>New finding disputed</td><td>Agency selects "Disputes"</td><td>Route to Lead Assessor for adjudication; hold SAR finalization</td><td><span class="badge badge-green">Active</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-outline btn-sm" onclick="notify('⚡ New workflow rule added')">+ Add Rule</button>
+        <button class="btn btn-outline btn-sm" onclick="notify('📥 Workflow ruleset exported: MD_Workflow_Rules_v2.json')">📥 Export Rules</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ SETTINGS -->
+<div class="section" id="settings">
+  <div class="page-header">
+    <h1>Settings &amp; Integration</h1>
+    <p>Platform configuration, ServiceNow GRC integration, user roles, and audit logs.</p>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">🔗 ServiceNow GRC Integration</div>
+      <div class="form-grid">
+        <div class="form-group full"><label>ServiceNow Instance URL</label><input value="https://maryland.service-now.com/grc"></div>
+        <div class="form-group"><label>Integration User</label><input value="assurit_api_svc"></div>
+        <div class="form-group"><label>Auth Method</label><select><option>OAuth 2.0</option><option>API Key</option></select></div>
+        <div class="form-group"><label>Sync Frequency</label><select><option>Real-time</option><option>Every 15 min</option><option>Hourly</option></select></div>
+        <div class="form-group"><label>Data Modules</label><select><option>Risk + POA&M + Evidence</option></select></div>
+        <div class="form-group"><label>Custom Code Required</label><input value="No — standard REST API connectors"></div>
+      </div>
+      <div class="success-box" style="margin-top:14px;">✅ Integration active. Last sync: Today 09:42 AM. 847 records synced.</div>
+      <div class="btn-row">
+        <button class="btn btn-primary btn-sm" onclick="notify('🔗 Test sync complete: 847 records, 0 errors')">Test Connection</button>
+        <button class="btn btn-outline btn-sm">View Logs</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">👥 User Roles &amp; Access Control</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Role</th><th>Access Level</th><th>Users</th></tr></thead>
+          <tbody>
+            <tr><td>Program Manager</td><td>Full access (all agencies)</td><td>2</td></tr>
+            <tr><td>Lead Assessor</td><td>Full access (assigned agencies)</td><td>8</td></tr>
+            <tr><td>Assessor</td><td>Read/write (assigned agency)</td><td>24</td></tr>
+            <tr><td>Agency Rep</td><td>Evidence upload, view own agency</td><td>90</td></tr>
+            <tr><td>DoIT Reviewer</td><td>Read-only (all agencies)</td><td>5</td></tr>
+            <tr><td>Executive</td><td>Dashboard/summary only</td><td>10</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="btn-row"><button class="btn btn-outline btn-sm" onclick="notify('👥 User management panel opened')">Manage Users</button><button class="btn btn-outline btn-sm" onclick="notify('📋 Audit log exported')">View Audit Log</button></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end content -->
+</div><!-- end main -->
+
+<div class="notification" id="notif"></div>
+
+<script>
+// ---- NAV ----
+function showSection(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+  const titles = {
+    sq:'Pre-Assessment Questionnaire', s1:'ASSESS — Intake & Scoping',
+    s2:'ASSESS — NIST CSF Control Mapping', s3:'NORMALIZE — Evidence Collection',
+    s4:'NORMALIZE — Risk & CMMI Scoring', s5:'CONSOLIDATE — POA&M & Remediation',
+    s6:'REPORT — SAR Dashboard', s7:'OPTIMIZE — Agency Master Tracker',
+    sp:'2-Year Assessment Pipeline', sa:'Agency Portal (MDOT View)',
+    sw:'Workflow Templates & Configuration', settings:'Settings & Integration',
+    sai:'Agency CSF Intake & Evidence Upload'
+  };
+  const ctxMap = {sa:'MDOT — Agency Representative View', sw:'Assessment Configuration', sp:'Program Management Office (PMO)'};
+  const ctx = ctxMap[id] || 'Maryland Dept. of Transportation (MDOT)';
+  document.getElementById('topbar-title').innerHTML = (titles[id]||id) + `<span>${ctx}</span>`;
+  if(id==='s4') setTimeout(initCharts4,100);
+  if(id==='s5') setTimeout(initCharts5,100);
+  if(id==='s6') setTimeout(initCharts6,100);
+  if(id==='s7') setTimeout(initCharts7,100);
+  if(id==='sp') setTimeout(initPipelineCharts,100);
+  if(id==='sai') setTimeout(initSaiPortal,100);
+}
+
+function switchTab(el, id) {
+  const bar = el.closest('.tab-bar');
+  bar.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  const section = el.closest('.section') || document.body;
+  section.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function notify(msg) {
+  const n = document.getElementById('notif');
+  n.textContent = msg; n.style.display='block';
+  setTimeout(()=>{ n.style.display='none'; }, 3200);
+}
+
+// ---- DATA ----
+const mappingData = [
+  {fn:'GOVERN', cat:'Organizational Context', sub:'GV.OC-01', desc:'The organizational mission is understood and informs cybersecurity risk management.', src:'Policy Docs', cmmi:2},
+  {fn:'GOVERN', cat:'Risk Management Strategy', sub:'GV.RM-01', desc:'Risk management objectives are established and agreed to by organizational stakeholders.', src:'Interview: CISO', cmmi:2},
+  {fn:'IDENTIFY', cat:'Asset Management', sub:'ID.AM-01', desc:'Inventories of hardware managed by the organization are maintained.', src:'CMDB + Scan', cmmi:2},
+  {fn:'IDENTIFY', cat:'Asset Management', sub:'ID.AM-02', desc:'Inventories of software, services, and systems managed by the org are maintained.', src:'CMDB Review', cmmi:2},
+  {fn:'IDENTIFY', cat:'Risk Assessment', sub:'ID.RA-01', desc:'Vulnerabilities in assets are identified, validated, and recorded.', src:'Nessus Scan', cmmi:3},
+  {fn:'PROTECT', cat:'Identity Management', sub:'PR.AA-01', desc:'Identities and credentials for authorized users, services, and hardware are managed.', src:'AD Review', cmmi:3},
+  {fn:'PROTECT', cat:'Data Security', sub:'PR.DS-01', desc:'The confidentiality, integrity, and availability of data-at-rest are protected.', src:'Policy + Interview', cmmi:3},
+  {fn:'PROTECT', cat:'Platform Security', sub:'PR.PS-01', desc:'Configuration management practices are established and applied.', src:'Config baselines', cmmi:2},
+  {fn:'PROTECT', cat:'Platform Security', sub:'PR.PS-02', desc:'Software is maintained, replaced, and removed commensurate with risk.', src:'Patch logs', cmmi:2},
+  {fn:'DETECT', cat:'Continuous Monitoring', sub:'DE.CM-01', desc:'Networks and network services are monitored to find potentially adverse events.', src:'SOC Interview', cmmi:1},
+  {fn:'DETECT', cat:'Continuous Monitoring', sub:'DE.CM-06', desc:'External service provider activities and services are monitored.', src:'Vendor reviews', cmmi:1},
+  {fn:'RESPOND', cat:'Incident Management', sub:'RS.MA-01', desc:'The incident response plan is executed in coordination with relevant third parties.', src:'IRP doc (2022)', cmmi:2},
+  {fn:'RECOVER', cat:'Incident Recovery', sub:'RC.RP-01', desc:'The recovery portion of the incident response plan is executed once initiated.', src:'BCP/DRP docs', cmmi:2},
+];
+
+const fnMap = {GOVERN:'fn-govern',IDENTIFY:'fn-identify',PROTECT:'fn-protect',DETECT:'fn-detect',RESPOND:'fn-respond',RECOVER:'fn-recover'};
+
+function maturityBar(level) {
+  // CMMI 0-5 scale: 6 blocks (0 through 5)
+  const colors = ['#6b7280','#dc2626','#ea580c','#d97706','#16a34a','#0d9488'];
+  const names = ['Nonexistent','Performed','Managed','Defined','Measured','Optimized'];
+  let html = '<div class="maturity-bar">';
+  for(let i=0;i<=5;i++) {
+    const filled = i<=level && level>0;
+    const col = filled ? colors[level] : (i===0 && level===0 ? colors[0] : '');
+    html += `<div class="ml-block" style="${col?'background:'+col:''}"></div>`;
+  }
+  html += `<span class="ml-label">ML${level} — ${names[level]||''}</span></div>`;
+  return html;
+}
+
+// ---- QUESTIONNAIRE SCORING ----
+function selectOpt(el) {
+  el.classList.toggle('selected');
+  if(el.classList.contains('selected')) el.textContent = '✅ ' + el.textContent.replace('✅ ','');
+  else el.textContent = el.textContent.replace('✅ ','');
+}
+function calcScore() {
+  notify('⚡ Scoring complete: Complexity Score 46/60 → LARGE Pod assigned. Wave 1, Pod Alpha. Assessment plan generated.');
+}
+
+// ---- PIPELINE GANTT ----
+function buildPipelineGantt() {
+  const agencies = [
+    {name:'MDOT', w:1, assess:[1,3], report:[3,4], done:false},
+    {name:'MDH', w:1, assess:[1,3], report:[3,5], done:false},
+    {name:'MSDE', w:1, assess:[0,2], report:[2,3], done:true},
+    {name:'DPSCS', w:1, assess:[0,1], report:[1,2], done:true},
+    {name:'MD State Police', w:1, assess:[2,4], report:[4,5], done:false},
+    {name:'Office of Comptroller', w:1, assess:[0,1], report:[1,2], done:true},
+    {name:'Dept. of Labor', w:2, assess:[1,2], report:[2,3], done:true},
+    {name:'Dept. of Agriculture', w:2, assess:[1,2], report:[2,3], done:true},
+    {name:'MD Dept. of Commerce', w:2, assess:[3,5], report:[5,6], done:false},
+    {name:'MD Dept. of Environment', w:2, assess:[2,4], report:[4,5], done:false},
+    {name:'MD Human Services', w:3, assess:[4,6], report:[6,7], done:false},
+    {name:'MD Dept. of Health — Sub', w:3, assess:[5,7], report:[7,8], done:false},
+    {name:'MD Insurance Admin', w:3, assess:[2,3], report:[3,4], done:true},
+    {name:'MD State Archives', w:3, assess:[2,3], report:[3,4], done:true},
+    {name:'Governor\'s Office', w:4, assess:[6,8], report:[8,9], done:false},
+    {name:'Wave 4 Agencies (×11)', w:4, assess:[5,8], report:[8,10], done:false},
+    {name:'Wave 5 Agencies (×15)', w:5, assess:[7,9], report:[9,10], done:false},
+    {name:'Wave 6 Agencies (×15)', w:6, assess:[9,10], report:[10,10], done:false},
+  ];
+  const totalCols = 10;
+  const el = document.getElementById('pipeline-gantt');
+  if(!el) return;
+  el.innerHTML = agencies.map(a=>{
+    const assessLeft = (a.assess[0]/totalCols*100).toFixed(1)+'%';
+    const assessW = ((a.assess[1]-a.assess[0])/totalCols*100).toFixed(1)+'%';
+    const reportLeft = (a.report[0]/totalCols*100).toFixed(1)+'%';
+    const reportW = ((a.report[1]-a.report[0])/totalCols*100).toFixed(1)+'%';
+    const cls = a.done ? 'wave-report' : (a.assess[0]<3 ? 'wave-assess' : 'wave-pending');
+    const rCls = a.done ? 'wave-report' : 'wave-normalize';
+    return `<div class="wave-row">
+      <div class="wave-label" title="${a.name}">${a.name}</div>
+      <div class="wave-bar-wrap">
+        ${a.done?`<div class="wave-bar wave-report" style="left:${(a.assess[0]/totalCols*100).toFixed(1)}%;width:${((a.report[1]-a.assess[0])/totalCols*100).toFixed(1)}%">✓ Complete</div>`:`
+        <div class="wave-bar wave-assess" style="left:${assessLeft};width:${assessW}">Assess</div>
+        <div class="wave-bar ${rCls}" style="left:${reportLeft};width:${reportW}">${a.report[1]<10?'Report':'Sched.'}</div>`}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ---- PIPELINE CHARTS ----
+let pipelineChartsInit = false;
+function initPipelineCharts() {
+  if(pipelineChartsInit) return;
+  pipelineChartsInit = true;
+  buildPipelineGantt();
+  new Chart(document.getElementById('podCapacityChart'), {
+    type:'bar',
+    data:{
+      labels:['Pod Alpha\n(Large)','Pod Beta\n(Large)','Pod Gamma\n(Med)','Pod Delta\n(Med)','Pod Epsilon\n(Sm)','Pod Zeta\n(Sm)'],
+      datasets:[
+        {label:'Agencies Active',data:[1,2,2,2,1,1],backgroundColor:'#2563a8',borderRadius:4},
+        {label:'Capacity Remaining',data:[0,0,0,1,0,0],backgroundColor:'#e5e7eb',borderRadius:4}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,scales:{x:{stacked:true},y:{stacked:true,max:3}},plugins:{legend:{position:'bottom'}}}
+  });
+  new Chart(document.getElementById('throughputChart'), {
+    type:'line',
+    data:{
+      labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug'],
+      datasets:[
+        {label:'Assessments Started',data:[4,6,5,7,8,6,5,4],borderColor:'#2563a8',backgroundColor:'rgba(37,99,168,.1)',fill:true,tension:.4},
+        {label:'SARs Delivered',data:[0,2,4,5,6,7,6,5],borderColor:'#16a34a',backgroundColor:'rgba(22,163,74,.08)',fill:true,tension:.4}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}
+  });
+}
+
+function buildMappingTable() {
+  const tb = document.getElementById('mapping-table');
+  tb.innerHTML = mappingData.map(r=>`
+    <tr>
+      <td><span class="fn-tag ${fnMap[r.fn]}">${r.fn}</span></td>
+      <td>${r.cat}</td>
+      <td><code>${r.sub}</code></td>
+      <td>${r.desc}</td>
+      <td>${r.src}</td>
+      <td>${maturityBar(r.cmmi)}</td>
+      <td><span class="badge ${r.cmmi<=1?'badge-red':r.cmmi<=2?'badge-orange':'badge-green'}">${r.cmmi<=1?'Gap':r.cmmi<=2?'Partial':'Satisfactory'}</span></td>
+    </tr>`).join('');
+}
+
+const evidenceData = [
+  {id:'E-001', item:'Information Security Policy', fn:'GOVERN', cat:'Policy', src:'Documentation', status:'Collected', by:'S. Patel', note:'Last updated Jan 2025'},
+  {id:'E-002', item:'Risk Management Plan', fn:'GOVERN', cat:'Policy', src:'Documentation', status:'Collected', by:'J. Williams', note:'Covers enterprise risk'},
+  {id:'E-003', item:'Hardware Asset Inventory (CMDB)', fn:'IDENTIFY', cat:'Technical', src:'Tool', status:'Collected', by:'R. Okafor', note:'~40% gap estimated'},
+  {id:'E-004', item:'Software Inventory', fn:'IDENTIFY', cat:'Technical', src:'Tool', status:'Pending', by:'—', note:'Requested Apr 14, no response'},
+  {id:'E-005', item:'Network Diagram (current)', fn:'IDENTIFY', cat:'Technical', src:'Documentation', status:'Collected', by:'R. Okafor', note:'Received Apr 15'},
+  {id:'E-006', item:'Access Control Policy', fn:'PROTECT', cat:'Policy', src:'Documentation', status:'Collected', by:'S. Patel', note:''},
+  {id:'E-007', item:'Active Directory Configuration Review', fn:'PROTECT', cat:'Technical', src:'Tool', status:'Collected', by:'R. Okafor', note:'MFA gaps confirmed'},
+  {id:'E-008', item:'Patch Management Logs (90 days)', fn:'PROTECT', cat:'Technical', src:'Documentation', status:'Collected', by:'J. Williams', note:'97-day avg CVE patch'},
+  {id:'E-009', item:'SIEM/Log Management Config', fn:'DETECT', cat:'Technical', src:'Tool', status:'Not Available', by:'—', note:'No SIEM deployed — flagged as critical gap'},
+  {id:'E-010', item:'Vulnerability Scan Results', fn:'DETECT', cat:'Tool', src:'Tool', status:'Collected', by:'R. Okafor', note:'Nessus scan Apr 21'},
+  {id:'E-011', item:'Incident Response Plan', fn:'RESPOND', cat:'Policy', src:'Documentation', status:'Collected', by:'J. Williams', note:'Dated 2022 — not tested'},
+  {id:'E-012', item:'Business Continuity / DRP', fn:'RECOVER', cat:'Policy', src:'Documentation', status:'Collected', by:'S. Patel', note:''},
+  {id:'E-013', item:'Security Awareness Training Records', fn:'PROTECT', cat:'Policy', src:'Documentation', status:'Pending', by:'—', note:'HR interview pending'},
+  {id:'E-014', item:'Third-Party/Vendor Contracts (security)', fn:'GOVERN', cat:'Policy', src:'Documentation', status:'Not Available', by:'—', note:'No formal TPRM — gap'},
+];
+
+const statusBadge = {Collected:'badge-green', Pending:'badge-orange', 'Not Available':'badge-red'};
+function buildEvidenceTable() {
+  const tb = document.getElementById('evidence-table');
+  tb.innerHTML = evidenceData.map((r,i)=>`
+    <tr>
+      <td>${r.id}</td>
+      <td>${r.item}</td>
+      <td><span class="fn-tag ${fnMap[r.fn]}">${r.fn}</span></td>
+      <td>${r.cat}</td>
+      <td>${r.src}</td>
+      <td><span class="badge ${statusBadge[r.status]}">${r.status}</span></td>
+      <td>${r.by}</td>
+      <td style="font-size:.76rem; color:var(--text-muted);">${r.note}</td>
+    </tr>`).join('');
+}
+
+const riskData = [
+  {id:'R-001', finding:'No SIEM/continuous monitoring', fn:'DETECT', likelihood:'Very High', impact:'Critical', score:25, business:'Real-time threat visibility — safety-critical for MDOT operations', priority:'CRITICAL'},
+  {id:'R-002', finding:'MFA not enforced — privileged accounts', fn:'PROTECT', likelihood:'High', impact:'Critical', score:20, business:'Credential compromise could expose entire infrastructure', priority:'CRITICAL'},
+  {id:'R-003', finding:'40% asset inventory gap', fn:'IDENTIFY', likelihood:'High', impact:'High', score:16, business:'Unknown attack surface creates unmanaged risk', priority:'CRITICAL'},
+  {id:'R-004', finding:'IR Plan not tested since 2022', fn:'RESPOND', likelihood:'Medium', impact:'Critical', score:15, business:'Unproven recovery ability for ransomware, breach events', priority:'CRITICAL'},
+  {id:'R-005', finding:'97-day avg patch cycle for critical CVEs', fn:'PROTECT', likelihood:'High', impact:'High', score:16, business:'Extended exposure to exploitable known vulnerabilities', priority:'HIGH'},
+  {id:'R-006', finding:'No Third-Party Risk Management (TPRM)', fn:'GOVERN', likelihood:'Medium', impact:'High', score:12, business:'Supply chain / vendor breach risk unquantified', priority:'HIGH'},
+  {id:'R-007', finding:'Incomplete security awareness training', fn:'PROTECT', likelihood:'Medium', impact:'Medium', score:9, business:'Increased susceptibility to phishing/social engineering', priority:'MEDIUM'},
+  {id:'R-008', finding:'DRP not tested (last test 2021)', fn:'RECOVER', likelihood:'Low', impact:'Critical', score:10, business:'Unproven disaster recovery for critical transportation systems', priority:'HIGH'},
+];
+
+const priorityBadge = {CRITICAL:'badge-red', HIGH:'badge-orange', MEDIUM:'badge-orange', LOW:'badge-gray'};
+function buildRiskTable() {
+  const tb = document.getElementById('risk-table');
+  tb.innerHTML = riskData.map(r=>`
+    <tr>
+      <td>${r.id}</td>
+      <td>${r.finding}</td>
+      <td><span class="fn-tag ${fnMap[r.fn]}">${r.fn}</span></td>
+      <td>${r.likelihood}</td>
+      <td>${r.impact}</td>
+      <td><span class="risk-score ${r.score>=20?'risk-critical':r.score>=12?'risk-high':r.score>=6?'risk-medium':'risk-low'}">${r.score}</span></td>
+      <td style="font-size:.78rem;">${r.business}</td>
+      <td><span class="badge ${priorityBadge[r.priority]}">${r.priority}</span></td>
+    </tr>`).join('');
+}
+
+const poamData = [
+  {id:'PM-001', finding:'Deploy SIEM / log management', ctrl:'DE.CM-01', priority:'CRITICAL', action:'Procure and deploy Splunk Enterprise Security or equivalent; integrate all log sources', owner:'SOC Manager', due:'2026-05-19', status:'In Progress', pct:35},
+  {id:'PM-002', finding:'Enforce MFA for all privileged accounts', ctrl:'PR.AA-01', priority:'CRITICAL', action:'Configure Azure AD / Okta MFA enforcement; revoke non-compliant sessions', owner:'IT Director', due:'2026-04-30', status:'In Progress', pct:70},
+  {id:'PM-003', finding:'Complete hardware asset inventory', ctrl:'ID.AM-01', priority:'CRITICAL', action:'Deploy Qualys Asset Inventory; reconcile CMDB with field office discovery', owner:'Network Admin', due:'2026-05-15', status:'In Progress', pct:45},
+  {id:'PM-004', finding:'Update and test IRP', ctrl:'RS.MA-01', priority:'CRITICAL', action:'Update IRP to NIST SP 800-61 Rev 2; conduct full tabletop exercise with leadership', owner:'CISO', due:'2026-06-30', status:'Not Started', pct:10},
+  {id:'PM-005', finding:'Reduce patch cycle to <30 days', ctrl:'PR.PS-02', priority:'HIGH', action:'Implement WSUS + automated patching pipeline for critical CVEs; track via dashboard', owner:'IT Director', due:'2026-07-01', status:'In Progress', pct:20},
+  {id:'PM-006', finding:'Implement TPRM program', ctrl:'GV.OC-01', priority:'HIGH', action:'Develop vendor risk questionnaire; implement annual review cycle for Tier 1 vendors', owner:'CISO', due:'2026-08-01', status:'Not Started', pct:5},
+  {id:'PM-007', finding:'Mandatory security awareness training', ctrl:'PR.AT-01', priority:'MEDIUM', action:'Enroll all staff in KnowBe4 or equivalent; track completion rates monthly', owner:'HR Director', due:'2026-07-15', status:'In Progress', pct:50},
+  {id:'PM-008', finding:'Test BCP/DRP', ctrl:'RC.RP-01', priority:'HIGH', action:'Schedule full DR exercise; update recovery time objectives (RTOs)', owner:'CISO', due:'2026-09-01', status:'Not Started', pct:0},
+];
+
+const statusBadge2 = {'In Progress':'badge-blue','Not Started':'badge-orange','Complete':'badge-green','Closed':'badge-green'};
+function buildPoamTable() {
+  const tb = document.getElementById('poam-table');
+  tb.innerHTML = poamData.map(r=>`
+    <tr>
+      <td>${r.id}</td>
+      <td>${r.finding}</td>
+      <td><code>${r.ctrl}</code></td>
+      <td><span class="badge ${priorityBadge[r.priority]}">${r.priority}</span></td>
+      <td style="font-size:.78rem;">${r.action}</td>
+      <td>${r.owner}</td>
+      <td>${r.due}</td>
+      <td><span class="badge ${statusBadge2[r.status]}">${r.status}</span></td>
+      <td>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div class="progress-bar-wrap" style="flex:1;"><div class="progress-bar ${r.pct>=70?'pb-green':r.pct>=40?'pb-blue':'pb-orange'}" style="width:${r.pct}%"></div></div>
+          <span style="font-size:.75rem; white-space:nowrap;">${r.pct}%</span>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+const agencyData = [
+  {n:'Maryland Dept. of Transportation (MDOT)', size:'Large', risk:'HIGH', status:'In Progress', lead:'J. Williams', start:'Apr 7', end:'May 19', maturity:2.5, crit:4},
+  {n:'Maryland Dept. of Health (MDH)', size:'Large', risk:'HIGH', status:'In Progress', lead:'S. Patel', start:'Apr 7', end:'May 26', maturity:2.8, crit:2},
+  {n:'Maryland Dept. of Education (MSDE)', size:'Large', risk:'HIGH', status:'Complete', lead:'J. Williams', start:'Feb 3', end:'Mar 17', maturity:3.1, crit:1},
+  {n:'Dept. of Public Safety & Corr. Services', size:'Large', risk:'HIGH', status:'Complete', lead:'R. Okafor', start:'Jan 6', end:'Feb 18', maturity:2.3, crit:6},
+  {n:'Maryland Dept. of Human Services (DHS)', size:'Large', risk:'HIGH', status:'Scheduled', lead:'S. Patel', start:'May 5', end:'Jun 16', maturity:'—', crit:'—'},
+  {n:'Maryland Dept. of Labor', size:'Medium', risk:'MEDIUM', status:'Complete', lead:'T. Adams', start:'Feb 10', end:'Mar 14', maturity:3.4, crit:0},
+  {n:'Maryland Dept. of Agriculture', size:'Medium', risk:'LOW', status:'Complete', lead:'T. Adams', start:'Mar 3', end:'Apr 7', maturity:3.7, crit:0},
+  {n:'Maryland State Police', size:'Large', risk:'HIGH', status:'In Progress', lead:'R. Okafor', start:'Apr 14', end:'May 26', maturity:2.6, crit:3},
+  {n:'Office of the Comptroller', size:'Medium', risk:'HIGH', status:'Complete', lead:'J. Williams', start:'Jan 13', end:'Feb 24', maturity:2.9, crit:2},
+  {n:'Maryland Dept. of Environment (MDE)', size:'Medium', risk:'MEDIUM', status:'In Progress', lead:'T. Adams', start:'Apr 21', end:'Jun 2', maturity:2.1, crit:5},
+  {n:'MD Dept. of Natural Resources', size:'Medium', risk:'LOW', status:'Scheduled', lead:'—', start:'May 12', end:'Jun 23', maturity:'—', crit:'—'},
+  {n:'MD Dept. of Commerce', size:'Medium', risk:'MEDIUM', status:'Scheduled', lead:'—', start:'May 19', end:'Jun 30', maturity:'—', crit:'—'},
+  {n:'MD Insurance Administration', size:'Small', risk:'MEDIUM', status:'Complete', lead:'T. Adams', start:'Mar 10', end:'Apr 7', maturity:3.2, crit:1},
+  {n:'MD State Archives', size:'Small', risk:'LOW', status:'Complete', lead:'S. Patel', start:'Mar 17', end:'Apr 14', maturity:3.9, crit:0},
+  {n:'MD Office of the Governor', size:'Small', risk:'HIGH', status:'Unresponsive', lead:'—', start:'—', end:'—', maturity:'—', crit:'—'},
+];
+
+const agencyStatusClass = {'Complete':'dot-complete','In Progress':'dot-active','Scheduled':'dot-pending','Unresponsive':'dot-not-started'};
+function buildAgencyTable() {
+  const tb = document.getElementById('agency-table');
+  tb.innerHTML = agencyData.map((r,i)=>`
+    <tr>
+      <td>${i+1}</td>
+      <td>${r.n}</td>
+      <td>${r.size}</td>
+      <td><span class="badge ${r.risk==='HIGH'?'badge-red':r.risk==='MEDIUM'?'badge-orange':'badge-gray'}">${r.risk}</span></td>
+      <td><span class="status-dot ${agencyStatusClass[r.status]}"></span>${r.status}</td>
+      <td>${r.lead}</td>
+      <td>${r.start}</td>
+      <td>${r.end}</td>
+      <td>${typeof r.maturity==='number'?`<strong>${r.maturity}</strong> / 5.0`:'—'}</td>
+      <td>${r.crit!=='—'?`<span class="${r.crit>=4?'badge badge-red':r.crit>=1?'badge badge-orange':'badge badge-green'}">${r.crit}</span>`:'—'}</td>
+    </tr>`).join('');
+}
+
+// ---- CHARTS ----
+let charts = {};
+function destroyChart(id) { if(charts[id]) { charts[id].destroy(); delete charts[id]; } }
+
+function initCharts4() {
+  destroyChart('radar'); destroyChart('riskdist');
+  charts['radar'] = new Chart(document.getElementById('radarChart'), {
+    type:'radar',
+    data:{
+      labels:['Govern','Identify','Protect','Detect','Respond','Recover'],
+      datasets:[
+        {label:'Current (CMMI)',data:[2.4,2.8,3.1,2.2,2.6,2.0],backgroundColor:'rgba(37,99,168,.15)',borderColor:'#2563a8',pointBackgroundColor:'#2563a8',borderWidth:2},
+        {label:'Target',data:[4,3,4,4,3,3],backgroundColor:'rgba(39,174,96,.1)',borderColor:'#27ae60',borderDash:[5,4],pointBackgroundColor:'#27ae60',borderWidth:2}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:5,ticks:{stepSize:1},pointLabels:{font:{size:11}}}},plugins:{legend:{position:'bottom'}}}
+  });
+  charts['riskdist'] = new Chart(document.getElementById('riskChart'), {
+    type:'doughnut',
+    data:{labels:['Critical','High','Medium','Low'],datasets:[{data:[4,9,7,3],backgroundColor:['#dc2626','#ea580c','#d97706','#16a34a'],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right'}}}
+  });
+}
+
+function initCharts5() {
+  destroyChart('poam');
+  charts['poam'] = new Chart(document.getElementById('poamChart'), {
+    type:'bar',
+    data:{
+      labels:['PM-001','PM-002','PM-003','PM-004','PM-005','PM-006','PM-007','PM-008'],
+      datasets:[{label:'% Complete',data:[35,70,45,10,20,5,50,0],backgroundColor:poamData.map(r=>r.pct>=70?'#16a34a':r.pct>=40?'#2563a8':'#ea580c'),borderRadius:4}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%'}}},plugins:{legend:{display:false}}}
+  });
+}
+
+function initCharts6() {
+  destroyChart('findings');
+  charts['findings'] = new Chart(document.getElementById('findingsChart'), {
+    type:'bar',
+    data:{
+      labels:['Govern','Identify','Protect','Detect','Respond','Recover'],
+      datasets:[
+        {label:'Critical',data:[1,1,1,1,0,0],backgroundColor:'#dc2626',borderRadius:4},
+        {label:'High',data:[2,1,2,2,1,1],backgroundColor:'#ea580c',borderRadius:4},
+        {label:'Medium',data:[1,2,2,1,1,0],backgroundColor:'#d97706',borderRadius:4},
+        {label:'Low',data:[0,1,1,0,1,0],backgroundColor:'#16a34a',borderRadius:4},
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,scales:{x:{stacked:true},y:{stacked:true}},plugins:{legend:{position:'bottom'}}}
+  });
+}
+
+function initCharts7() {
+  destroyChart('state');
+  charts['state'] = new Chart(document.getElementById('stateChart'), {
+    type:'bar',
+    data:{
+      labels:['ML 1\nInitial','ML 2\nManaged','ML 3\nDefined','ML 4\nQuant.','ML 5\nOptimizing'],
+      datasets:[{label:'Agencies',data:[3,10,7,2,1],backgroundColor:['#dc2626','#ea580c','#d97706','#16a34a','#0d9488'],borderRadius:6}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{title:{display:true,text:'# Agencies Assessed'}}}}
+  });
+}
+
+// ---- FILTER ----
+// ---- UPLOAD SIMULATION ----
+const uploadedFiles = [];
+function simulateUpload() {
+  const names = ['MDOT_Software_Inventory_2026.xlsx','MDOT_Vendor_Contracts_Security.pdf','MDOT_Training_Records_Q1.xlsx'];
+  const name = names[uploadedFiles.length % names.length];
+  const size = (Math.random()*4+0.5).toFixed(1)+' MB';
+  uploadedFiles.push({name,size});
+  const list = document.getElementById('upload-list');
+  if(list) {
+    list.innerHTML = uploadedFiles.map(f=>`
+      <div class="upload-item">
+        <div class="fi-icon">📄</div>
+        <div class="fi-name">${f.name}</div>
+        <div class="fi-size">${f.size}</div>
+        <span class="badge badge-blue fi-status">Uploading...</span>
+      </div>`).join('');
+    setTimeout(()=>{
+      list.innerHTML = uploadedFiles.map(f=>`
+        <div class="upload-item">
+          <div class="fi-icon">📄</div>
+          <div class="fi-name">${f.name}</div>
+          <div class="fi-size">${f.size}</div>
+          <span class="badge badge-green fi-status">Uploaded</span>
+        </div>`).join('');
+      notify('✅ '+name+' submitted successfully. Assessor notified.');
+    },1400);
+  }
+}
+
+// ---- WORKFLOW TEMPLATE SELECTION ----
+function selectTemplate(el, name) {
+  document.querySelectorAll('.wf-card').forEach(c=>{ c.classList.remove('selected'); const b=c.querySelector('.wf-badge'); if(b)b.remove(); });
+  el.classList.add('selected');
+  el.insertAdjacentHTML('afterbegin','<span class="wf-badge badge badge-blue">Selected</span>');
+  notify('✅ Template "'+name+'" selected. Configuration panel updated below.');
+}
+
+// ---- TREND CHARTS ----
+let trendChartsInit = false;
+function initChartsTrend() {
+  if(trendChartsInit) return;
+  trendChartsInit = true;
+  const months = ['Jan 25','Mar 25','May 25','Jul 25','Sep 25','Nov 25','Jan 26','Mar 26'];
+  new Chart(document.getElementById('trendLineChart'), {
+    type:'line',
+    data:{
+      labels: months,
+      datasets:[
+        {label:'Statewide Avg Maturity',data:[2.1,2.2,2.3,2.4,2.5,2.7,2.8,2.9],borderColor:'#2563a8',backgroundColor:'rgba(37,99,168,.1)',fill:true,tension:.4,pointRadius:4},
+        {label:'Target Trajectory',data:[2.1,2.3,2.5,2.7,2.9,3.1,3.3,3.5],borderColor:'#27ae60',borderDash:[6,4],backgroundColor:'transparent',tension:.4,pointRadius:0},
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,scales:{y:{min:1,max:5,title:{display:true,text:'CMMI Maturity Level'}}},plugins:{legend:{position:'bottom'}}}
+  });
+  new Chart(document.getElementById('findingsTrendChart'), {
+    type:'bar',
+    data:{
+      labels: months,
+      datasets:[
+        {label:'Critical Findings Opened',data:[14,18,22,19,16,12,8,6],backgroundColor:'#dc2626',borderRadius:3},
+        {label:'Critical Findings Closed',data:[0,4,9,14,18,22,28,38],backgroundColor:'#16a34a',borderRadius:3},
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}
+  });
+  new Chart(document.getElementById('stateFunctionChart'), {
+    type:'bar',
+    data:{
+      labels:['Govern','Identify','Protect','Detect','Respond','Recover'],
+      datasets:[
+        {label:'Jan 2025',data:[1.8,2.0,2.2,1.6,1.9,1.7],backgroundColor:'rgba(37,99,168,.4)',borderRadius:3},
+        {label:'Mar 2026 (current)',data:[2.6,2.9,3.2,2.3,2.7,2.4],backgroundColor:'#2563a8',borderRadius:3},
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,scales:{y:{min:0,max:5}},plugins:{legend:{position:'bottom'}}}
+  });
+}
+
+function filterEvidence(cat) {
+  document.querySelectorAll('#evidence-table tr').forEach(tr=>{
+    tr.style.display = (!cat || tr.cells[3]?.textContent.includes(cat)) ? '' : 'none';
+  });
+}
+function filterEvidenceStatus(st) {
+  document.querySelectorAll('#evidence-table tr').forEach(tr=>{
+    tr.style.display = (!st || tr.cells[5]?.textContent.includes(st)) ? '' : 'none';
+  });
+}
+
+// ---- SAI PORTAL ----
+const SAI_FNS = [
+  { id:'govern',  label:'GOVERN',   abbr:'GV', color:'#7c3aed', bg:'#ede9fe',
+    controls:[
+      { id:'gv01', nist:'GV.OC-01', title:'Mission Alignment',        desc:'Organizational mission informs cybersecurity risk management objectives.',
+        q:'Does your agency have a documented cybersecurity mission statement aligned to enterprise risk objectives?',
+        ev:['InfoSec Mission Statement','Risk Management Charter'] },
+      { id:'gv02', nist:'GV.RM-01', title:'Risk Management Objectives', desc:'Risk management objectives are established and agreed to by organizational stakeholders.',
+        q:'Are risk management objectives formally established, documented, and agreed upon by senior leadership?',
+        ev:['Risk Management Policy','Executive Approval Memo'] },
+      { id:'gv03', nist:'GV.RM-02', title:'Risk Appetite Statement',   desc:'Risk appetite and risk tolerance statements are established, communicated, and maintained.',
+        q:'Is there a formal risk appetite/tolerance statement reviewed at least annually by leadership?',
+        ev:['Risk Appetite Statement','Board/Leadership Sign-off'] },
+      { id:'gv04', nist:'GV.PO-01', title:'Cybersecurity Policy',      desc:'Policy for managing cybersecurity risks is established, communicated, and enforced.',
+        q:'Does your agency maintain an up-to-date cybersecurity policy reviewed within the past 12 months?',
+        ev:['InfoSec Policy (current year)','Policy Distribution Records'] },
+      { id:'gv05', nist:'GV.SC-01', title:'Supply Chain Risk Program', desc:'A cybersecurity supply chain risk management program is established, communicated, and monitored.',
+        q:'Does your agency have a formal third-party/supply chain risk management program?',
+        ev:['Supply Chain Risk Policy','Vendor Assessment Register'] },
+    ]
+  },
+  { id:'identify', label:'IDENTIFY', abbr:'ID', color:'#1e40af', bg:'#dbeafe',
+    controls:[
+      { id:'id01', nist:'ID.AM-01', title:'Hardware Asset Inventory',  desc:'Inventories of hardware managed by the organization are maintained.',
+        q:'Does your agency maintain a complete and current inventory of all hardware assets?',
+        ev:['Hardware Asset Inventory (CMDB)','Last Scan Report'] },
+      { id:'id02', nist:'ID.AM-02', title:'Software Asset Inventory',  desc:'Inventories of software, services, and systems managed by the organization are maintained.',
+        q:'Is there an authoritative software and services inventory updated at least quarterly?',
+        ev:['Software Asset Register','License Compliance Report'] },
+      { id:'id03', nist:'ID.AM-05', title:'Asset Prioritization',      desc:'Assets are prioritized based on classification, criticality, resources, and mission impact.',
+        q:'Are assets classified by criticality with priority tiers mapped to mission impact?',
+        ev:['Asset Classification Policy','Criticality Matrix'] },
+      { id:'id04', nist:'ID.RA-01', title:'Vulnerability Identification', desc:'Vulnerabilities in assets are identified, validated, and recorded with supporting processes.',
+        q:'Does your agency conduct regular vulnerability scans (at minimum quarterly) of all in-scope systems?',
+        ev:['Vulnerability Scan Reports (last 90 days)','Remediation Tracking Log'] },
+      { id:'id05', nist:'ID.RA-05', title:'Risk Assessment',           desc:'Threats, vulnerabilities, likelihoods, and impacts are used to understand inherent risk and inform decisions.',
+        q:'Has your agency completed a formal risk assessment within the past 12 months?',
+        ev:['Current Risk Assessment Report','Threat Model Documentation'] },
+    ]
+  },
+  { id:'protect', label:'PROTECT',  abbr:'PR', color:'#0d9488', bg:'#ccfbf1',
+    controls:[
+      { id:'pr01', nist:'PR.AA-01', title:'Identity & Credential Management', desc:'Identities and credentials for authorized users, services, and hardware are managed by the organization.',
+        q:'Is identity lifecycle management (provisioning, review, de-provisioning) formally documented and enforced?',
+        ev:['IAM Policy','User Access Review Records'] },
+      { id:'pr02', nist:'PR.AA-05', title:'Least Privilege Enforcement', desc:'Access permissions and authorizations are managed incorporating the principles of least privilege and separation of duties.',
+        q:'Are least-privilege and separation-of-duties principles applied and audited for all privileged accounts?',
+        ev:['Privileged Access Management Policy','Quarterly Access Review Evidence'] },
+      { id:'pr03', nist:'PR.DS-01', title:'Data-at-Rest Protection',   desc:'The confidentiality, integrity, and availability of data-at-rest are protected.',
+        q:'Is encryption enforced for all sensitive data-at-rest on servers, endpoints, and removable media?',
+        ev:['Data Encryption Standard','Encryption Compliance Report'] },
+      { id:'pr04', nist:'PR.DS-02', title:'Data-in-Transit Protection', desc:'The confidentiality, integrity, and availability of data-in-transit are protected.',
+        q:'Is TLS 1.2+ or equivalent enforced for all data transmitted across networks?',
+        ev:['Network Encryption Policy','SSL/TLS Configuration Evidence'] },
+      { id:'pr05', nist:'PR.AT-01', title:'Security Awareness Training', desc:'Personnel are provided with awareness and training so that they possess cybersecurity knowledge and skills.',
+        q:'Does your agency conduct annual security awareness training with tracked completion rates?',
+        ev:['Training Completion Report','Security Awareness Program Policy'] },
+    ]
+  },
+  { id:'detect', label:'DETECT',    abbr:'DE', color:'#d97706', bg:'#fef3cd',
+    controls:[
+      { id:'de01', nist:'DE.AE-01', title:'Network Baseline',         desc:'A baseline of network operations and expected data flows for users and systems is established and managed.',
+        q:'Has your agency established and documented a network baseline for normal operations and data flows?',
+        ev:['Network Baseline Documentation','Traffic Analysis Report'] },
+      { id:'de02', nist:'DE.AE-02', title:'Event Analysis',           desc:'Potentially adverse events are analyzed to better characterize the events and detect cybersecurity incidents.',
+        q:'Are security events systematically analyzed and correlated to identify potential incidents?',
+        ev:['SIEM Configuration Evidence','Event Analysis Procedures'] },
+      { id:'de03', nist:'DE.CM-01', title:'Network Monitoring',       desc:'Networks and network services are monitored to find potentially adverse events.',
+        q:'Is continuous network monitoring in place with alerting to a SOC or security team?',
+        ev:['Network Monitoring Architecture','SOC Alert Evidence'] },
+      { id:'de04', nist:'DE.CM-03', title:'User Activity Monitoring', desc:'Personnel activity and technology usage are monitored to find potentially adverse events.',
+        q:'Is user and entity behavior monitoring (UEBA) or equivalent implemented for insider threat detection?',
+        ev:['UEBA/DLP Configuration','Monitoring Policy'] },
+      { id:'de05', nist:'DE.AE-06', title:'Adverse Event Communication', desc:'Information on adverse events is provided to authorized staff and tools in a timely manner.',
+        q:'Are security alerts routed to the appropriate personnel with defined SLAs for response?',
+        ev:['Escalation Procedures','Alert Routing Configuration'] },
+    ]
+  },
+  { id:'respond', label:'RESPOND',  abbr:'RS', color:'#dc2626', bg:'#fee2e2',
+    controls:[
+      { id:'rs01', nist:'RS.MA-01', title:'Incident Response Execution', desc:'The incident response plan is executed in coordination with relevant third parties once an incident is declared.',
+        q:'Does your agency have a tested incident response plan with clear roles and third-party coordination procedures?',
+        ev:['Incident Response Plan','Tabletop Exercise Report (last 12 mo)'] },
+      { id:'rs02', nist:'RS.MA-02', title:'Incident Triage',           desc:'Incident reports are triaged and validated, with prioritization informed by risk context.',
+        q:'Is there a formal triage and severity classification process for all reported security incidents?',
+        ev:['Incident Triage Procedure','Ticketing System Evidence'] },
+      { id:'rs03', nist:'RS.AN-01', title:'Notification Investigation', desc:'Notifications from detection systems are investigated to understand the nature and impact of the incident.',
+        q:'Are all SIEM/monitoring alerts investigated with documented findings within defined SLA timeframes?',
+        ev:['Investigation Procedure','SLA Compliance Evidence'] },
+      { id:'rs04', nist:'RS.CO-02', title:'Stakeholder Notification',  desc:'Internal and external stakeholders are notified of incidents in a timely manner per established procedures.',
+        q:'Does your agency have documented procedures for notifying internal and external stakeholders including DoIT?',
+        ev:['Notification Procedures','Prior Incident Notification Records'] },
+      { id:'rs05', nist:'RS.MI-01', title:'Incident Containment',      desc:'Incidents are contained to minimize their scope and impact on the organization.',
+        q:'Are containment strategies defined and executable for the primary attack scenarios in your threat model?',
+        ev:['Containment Playbooks','Evidence of Past Containment Actions'] },
+    ]
+  },
+  { id:'recover', label:'RECOVER',  abbr:'RC', color:'#16a34a', bg:'#d4f4e2',
+    controls:[
+      { id:'rc01', nist:'RC.RP-01', title:'Recovery Plan Execution',  desc:'The recovery portion of the incident response plan is executed once initiated from the RESPOND function.',
+        q:'Is there a tested recovery plan that outlines step-by-step restoration procedures for critical systems?',
+        ev:['Business Continuity/DR Plan','Recovery Test Results'] },
+      { id:'rc02', nist:'RC.RP-02', title:'Recovery Action Prioritization', desc:'Recovery actions are selected, scoped, prioritized, and performed in accordance with the recovery plan.',
+        q:'Are recovery actions prioritized by mission criticality with defined RTO/RPO targets for each system tier?',
+        ev:['RTO/RPO Documentation','System Tier Classification'] },
+      { id:'rc03', nist:'RC.RP-03', title:'Backup Integrity Verification', desc:'The integrity of backups and other restoration assets is verified before using them for restoration.',
+        q:'Are backup restoration tests performed at least quarterly with documented results?',
+        ev:['Backup Test Logs (last 90 days)','Backup Retention Policy'] },
+      { id:'rc04', nist:'RC.CO-03', title:'Recovery Communications',  desc:'Recovery activities and progress in restoring operational capabilities are communicated to designated stakeholders.',
+        q:'Are recovery status updates communicated to designated stakeholders including agency leadership and DoIT?',
+        ev:['Communication Plan','Evidence of Prior Recovery Communications'] },
+      { id:'rc05', nist:'RC.CO-04', title:'Public Statements',        desc:'Public statements regarding the incident are updated and aligned with authorized messaging.',
+        q:'Does your agency have a media/public relations procedure for cybersecurity incidents coordinated with the Governor\'s office?',
+        ev:['Crisis Communications Policy','PIO Coordination Procedure'] },
+    ]
+  },
+];
+
+const saiAnswers   = {};   // rowId → 'yes'|'part'|'no'
+const saiUploads   = {};   // upId  → fileName
+let   saiInit      = false;
+
+function initSaiPortal() {
+  if(saiInit) return;
+  saiInit = true;
+  const tabBar  = document.getElementById('sai-tab-bar');
+  const contents = document.getElementById('sai-fn-contents');
+  const fnBars  = document.getElementById('sai-fn-bars');
+
+  SAI_FNS.forEach((fn, fi) => {
+    // Tab
+    const tab = document.createElement('div');
+    tab.className = 'csf-fn-tab' + (fi===0?' active':'');
+    tab.style.borderBottomColor = fi===0 ? fn.color : 'transparent';
+    tab.style.color = fi===0 ? fn.color : '';
+    tab.dataset.fnid = fn.id;
+    tab.innerHTML = fn.label + `<span class="fn-count">(${fn.controls.length})</span>`;
+    tab.onclick = () => switchCsfTab(fn.id, tab, fn.color);
+    tabBar.appendChild(tab);
+
+    // Content
+    const content = document.createElement('div');
+    content.className = 'csf-fn-content' + (fi===0?' active':'');
+    content.id = 'fn-' + fn.id;
+    content.innerHTML = fn.controls.map(ctrl => buildCtrlRowHTML(ctrl, fn)).join('');
+    contents.appendChild(content);
+
+    // Score bar row
+    const barRow = document.createElement('div');
+    barRow.className = 'lsp-fn-row';
+    barRow.innerHTML = `
+      <div class="lsp-fn-label" style="color:${fn.color};">${fn.label}</div>
+      <div class="lsp-fn-bar-wrap"><div class="lsp-fn-bar" id="lspb-${fn.id}" style="width:0%;background:${fn.color};"></div></div>
+      <div class="lsp-fn-val" id="lspv-${fn.id}">0.0</div>`;
+    fnBars.appendChild(barRow);
+  });
+}
+
+function buildCtrlRowHTML(ctrl, fn) {
+  const evItems = ctrl.ev.map((e,i) =>
+    `<div class="ctrl-upload-item" id="up-${ctrl.id}-${i}" onclick="ctrlUpload('${ctrl.id}-${i}','${e.replace(/'/g,'\\\'')}.pdf')">
+       <span class="ui-icon">📎</span><span class="ui-name">${e}</span>
+       <span class="ui-status" id="ups-${ctrl.id}-${i}" style="color:var(--text-muted);">+ Upload</span>
+     </div>`).join('');
+  return `
+<div class="ctrl-row pending" id="cr-${ctrl.id}">
+  <div class="ctrl-header">
+    <div class="ctrl-nist-id" style="background:${fn.bg};color:${fn.color};">${ctrl.nist}</div>
+    <div class="ctrl-meta">
+      <div class="ctrl-title">${ctrl.title}</div>
+      <div class="ctrl-desc">${ctrl.desc}</div>
+      <div class="ctrl-cmmi-impact">Maps to: <strong>${fn.label}</strong> function &nbsp;·&nbsp; CMMI impact: Yes=Full &nbsp; Partial=Half &nbsp; No=Gap</div>
+    </div>
+    <div class="ctrl-score-pill" id="sp-${ctrl.id}" style="background:#f1f3f7;color:#6b7a90;">—</div>
+  </div>
+  <div class="ctrl-body">
+    <div class="ctrl-q">
+      <div class="ctrl-q-label">Assessment Question</div>
+      <div style="font-size:.8rem;color:var(--text);margin-bottom:10px;line-height:1.5;">${ctrl.q}</div>
+      <div class="ctrl-opts">
+        <div class="ctrl-opt" id="opt-${ctrl.id}-yes"  onclick="selectCtrlOpt(this,'${ctrl.id}','yes')">✅ Yes — Fully implemented</div>
+        <div class="ctrl-opt" id="opt-${ctrl.id}-part" onclick="selectCtrlOpt(this,'${ctrl.id}','part')">⚡ Partial — In progress</div>
+        <div class="ctrl-opt" id="opt-${ctrl.id}-no"   onclick="selectCtrlOpt(this,'${ctrl.id}','no')">❌ No — Gap identified</div>
+      </div>
+    </div>
+    <div class="ctrl-upload">
+      <div class="ctrl-upload-label">Evidence Required</div>
+      <div class="ctrl-upload-items">${evItems}</div>
+    </div>
+  </div>
+</div>`;
+}
+
+function switchCsfTab(fnId, el, color) {
+  document.querySelectorAll('.csf-fn-tab').forEach(t => {
+    t.classList.remove('active');
+    t.style.borderBottomColor = 'transparent';
+    t.style.color = '';
+  });
+  document.querySelectorAll('.csf-fn-content').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  el.style.borderBottomColor = color;
+  el.style.color = color;
+  const cont = document.getElementById('fn-' + fnId);
+  if(cont) cont.classList.add('active');
+}
+
+function selectCtrlOpt(el, rowId, val) {
+  // Clear previous selection in this row
+  ['yes','part','no'].forEach(v => {
+    const opt = document.getElementById(`opt-${rowId}-${v}`);
+    if(opt) opt.classList.remove('sel-yes','sel-part','sel-no');
+  });
+  // Apply selection
+  const cls = val==='yes'?'sel-yes': val==='part'?'sel-part':'sel-no';
+  el.classList.add(cls);
+  saiAnswers[rowId] = val;
+  // Update row border
+  const row = document.getElementById('cr-'+rowId);
+  if(row) { row.classList.remove('pending','answered','partial','gap'); row.classList.add(val==='yes'?'answered': val==='part'?'partial':'gap'); }
+  // Update pill
+  const pill = document.getElementById('sp-'+rowId);
+  if(pill) {
+    const cfg = {yes:['ML: Full','#d4f4e2','#065f46'], part:['ML: Partial','#fef3cd','#78350f'], no:['ML: Gap','#fee2e2','#7f1d1d']};
+    const [txt,bg,col] = cfg[val];
+    pill.textContent = txt; pill.style.background = bg; pill.style.color = col;
+  }
+  updateSaiScore();
+}
+
+function ctrlUpload(upId, fileName) {
+  saiUploads[upId] = fileName;
+  const item = document.getElementById('up-'+upId);
+  const stat = document.getElementById('ups-'+upId);
+  if(item) { item.classList.add('uploaded'); item.querySelector('.ui-icon').textContent='✅'; }
+  if(stat) { stat.textContent='✓ Uploaded'; stat.style.color='#16a34a'; }
+  notify(`📎 "${fileName}" uploaded successfully. Routed to assessor S. Patel for review.`);
+  updateSaiScore();
+}
+
+function updateSaiScore() {
+  let totalScore = 0, fnCount = 0;
+  let cntYes=0, cntPart=0, cntNo=0, cntAnswered=0;
+  const totalControls = SAI_FNS.reduce((s,fn)=>s+fn.controls.length, 0);
+
+  SAI_FNS.forEach(fn => {
+    let fnScore = 0, fnTotal = fn.controls.length;
+    fn.controls.forEach(ctrl => {
+      const ans = saiAnswers[ctrl.id];
+      if(ans==='yes')  { fnScore+=1; cntYes++; cntAnswered++; }
+      else if(ans==='part'){ fnScore+=0.5; cntPart++; cntAnswered++; }
+      else if(ans==='no')  { cntNo++; cntAnswered++; }
+    });
+    const fnCmmi = fnTotal>0 ? (fnScore/fnTotal)*5 : 0;
+    totalScore += fnCmmi; fnCount++;
+    // Update bar
+    const bar = document.getElementById('lspb-'+fn.id);
+    const val = document.getElementById('lspv-'+fn.id);
+    if(bar) bar.style.width = (fnCmmi/5*100).toFixed(1)+'%';
+    if(val) val.textContent = fnCmmi.toFixed(1);
+  });
+
+  const overall = fnCount>0 ? totalScore/fnCount : 0;
+  const rounded = Math.round(overall*10)/10;
+  // Ring
+  const ring = document.getElementById('sai-ring');
+  const ringScore = document.getElementById('sai-ring-score');
+  const ringLabel = document.getElementById('sai-ring-label');
+  const ringGroup = document.getElementById('sai-ring-group');
+  if(ringScore) ringScore.textContent = rounded.toFixed(1);
+  const cmmiColors = ['#6b7280','#dc2626','#ea580c','#d97706','#16a34a','#0d9488'];
+  const cmmiLabels = ['Nonexistent','Performed','Managed','Defined','Measured','Optimized'];
+  const ml = Math.min(5, Math.floor(rounded));
+  if(ring) ring.style.borderColor = cmmiColors[ml];
+  if(ringLabel) ringLabel.textContent = 'ML'+ml+' — '+cmmiLabels[ml];
+  const grp = overall<=1.4?'A (0.0–1.4)': overall<=2.5?'B (1.5–2.5)': overall<=3.4?'C (2.6–3.4)': overall<=4.4?'D (3.5–4.4)':'E (4.5–5.0)';
+  if(ringGroup) ringGroup.textContent = 'Group '+grp;
+  // Stats
+  document.getElementById('sai-stat-yes').textContent = cntYes;
+  document.getElementById('sai-stat-part').textContent = cntPart;
+  document.getElementById('sai-stat-no').textContent = cntNo;
+  document.getElementById('sai-stat-pct').textContent = Math.round(cntAnswered/totalControls*100)+'%';
+  document.getElementById('sai-stat-sub').textContent = cntAnswered+' of '+totalControls+' controls answered';
+  document.getElementById('sai-upload-count').textContent = Object.keys(saiUploads).length;
+}
+
+function submitSaiIntake() {
+  const total = SAI_FNS.reduce((s,fn)=>s+fn.controls.length,0);
+  const answered = Object.keys(saiAnswers).length;
+  if(answered < total) {
+    notify(`⚠️ ${total-answered} controls still unanswered. You may submit now; Assurit will follow up on gaps during on-site assessment.`);
+  }
+  notify('📤 CSF Intake submitted to assessor S. Patel. Confirmation: ACG-MDOT-CSF-2026-0042. You will receive an email summary within 24 hours.');
+}
+
+// ---- INIT ----
+buildMappingTable();
+buildEvidenceTable();
+buildRiskTable();
+buildPoamTable();
+buildAgencyTable();
+</script>
+</body>
+</html>
