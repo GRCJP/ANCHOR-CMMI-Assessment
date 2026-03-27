@@ -1,5 +1,48 @@
 /* Master Tracker specific styles */
 
+/* CHARTS */
+.chart-wrap { 
+  position: relative; 
+  height: 240px; 
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.chart-wrap-sm { 
+  position: relative; 
+  height: 180px; 
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.chart-wrap canvas {
+  max-width: 100%;
+  height: auto !important;
+}
+
+/* Responsive charts */
+@media (max-width: 992px) {
+  .chart-wrap {
+    height: 200px;
+  }
+  
+  .chart-wrap-sm {
+    height: 160px;
+  }
+}
+
+@media (max-width: 768px) {
+  .chart-wrap {
+    height: 180px;
+  }
+  
+  .chart-wrap-sm {
+    height: 140px;
+  }
+}
+
 /* Gantt Chart Styles */
 .gantt-row {
   display: flex;
