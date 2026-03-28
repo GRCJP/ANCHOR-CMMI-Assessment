@@ -453,39 +453,31 @@
   </div>
   <div class="nav-section">ANCHOR Framework — MDOT Demo</div>
   <div class="nav-item active" onclick="showSection('sq',this)">
-    <div class="step-num" style="background:#1e40af">Q</div>
-    <div><div style="font-size:.65rem; opacity:.6; font-weight:400;">PRE-ASSESS</div>Agency Questionnaire</div>
-  </div>
-  <div class="nav-item" onclick="showSection('s1',this)">
     <div class="step-num">1</div>
-    <div><div style="font-size:.65rem; opacity:.6; font-weight:400;">① ASSESS</div>Intake &amp; Scoping</div>
+    <div><div style="font-size:.65rem; opacity:.6; font-weight:400;">PRE-ASSESS</div>Agency Setup &amp; Intake</div>
     <div class="dot-done"></div>
   </div>
   <div class="nav-item" onclick="showSection('s2',this)">
     <div class="step-num">2</div>
-    <div><div style="font-size:.65rem; opacity:.6; font-weight:400;">① ASSESS</div>CSF Assessment</div>
+    <div><div style="font-size:.65rem; opacity:.6; font-weight:400;">ASSESS</div>CSF Assessment</div>
     <div class="dot-done"></div>
   </div>
   <div class="nav-item" onclick="showSection('s3',this)">
     <div class="step-num">3</div>
-    <div><div style="font-size:.65rem; opacity:.6; font-weight:400;">② NORMALIZE</div>Evidence Collection</div>
+    <div><div style="font-size:.65rem; opacity:.6; font-weight:400;">NORMALIZE</div>Evidence Collection</div>
     <div class="dot-done"></div>
   </div>
   <div class="nav-item" onclick="showSection('s4',this)">
     <div class="step-num">4</div>
-    <div><div style="font-size:.65rem; opacity:.6; font-weight:400;">③ CONSOLIDATE</div>CMMI Scoring &amp; Risk</div>
+    <div><div style="font-size:.65rem; opacity:.6; font-weight:400;">CONSOLIDATE</div>CMMI Scoring &amp; Risk</div>
   </div>
   <div class="nav-item" onclick="showSection('s5',this)">
     <div class="step-num">5</div>
-    <div><div style="font-size:.65rem; opacity:.6; font-weight:400;">④ HARMONIZE · FRTA</div>POA&amp;M &amp; QA Gate</div>
+    <div><div style="font-size:.65rem; opacity:.6; font-weight:400;">HARMONIZE · FRTA</div>POA&amp;M &amp; QA Gate</div>
   </div>
   <div class="nav-item" onclick="showSection('s6',this)">
     <div class="step-num">6</div>
-    <div><div style="font-size:.65rem; opacity:.6; font-weight:400;">⑥ REPORT</div>SAR Dashboard</div>
-  </div>
-  <div class="nav-item" onclick="showSection('s7',this)">
-    <div class="step-num">7</div>
-    <div><div style="font-size:.65rem; opacity:.6; font-weight:400;">⑤ OPTIMIZE</div>Agency Master Tracker</div>
+    <div><div style="font-size:.65rem; opacity:.6; font-weight:400;">REPORT</div>SAR Dashboard</div>
   </div>
   <div class="nav-section" style="margin-top:12px; border-top:1px solid rgba(255,255,255,.1); padding-top:12px;">NAVIGATION</div>
   <div class="nav-item" onclick="window.location.href='main-dashboard.html'">
@@ -517,63 +509,60 @@
 <!-- ============================================================ QUESTIONNAIRE -->
 <div class="section active" id="sq">
   <div class="page-header">
-    <div class="step-tag" style="background:#1e40af;">⬛ PRE-ASSESS &nbsp;|&nbsp; ANCHOR Phase 0</div>
-    <h1>Pre-Assessment Security Questionnaire</h1>
-    <p>Agencies complete this intake questionnaire before kick-off. Responses drive pod sizing, template selection, and assessment scheduling — ensuring consistent scoping across all 90 agencies.</p>
+    <div class="step-tag">🟢 Step 1 &nbsp;|&nbsp; ANCHOR Phase 0–1</div>
+    <h1>Agency Setup &amp; Intake</h1>
+    <p>Capture agency profile, IT environment, and security posture to configure the assessment. Pod assignment and wave scheduling are predefined by the client — this step sets up the tool for the full assessment process.</p>
   </div>
 
-  <div class="anchor-banner">
-    <div>🔗</div>
-    <div><strong>ANCHOR Framework — Pre-Assess Phase:</strong> Questionnaire responses are automatically scored to determine agency complexity tier, IT risk profile, and pod assignment. Data feeds directly into the assessment plan and master schedule.</div>
+  <div style="display:flex; gap:12px; align-items:stretch; margin-bottom:18px;">
+    <div class="anchor-banner" style="flex:1; margin-bottom:0;">
+      <div>🔗</div>
+      <div><strong>ANCHOR Framework — ASSESS Phase:</strong> Agency profile and IT environment details inform scheduling placement, template selection, and pod scoping. All assignment parameters are confirmed by the client and reviewed by the lead assessor prior to kick-off.</div>
+    </div>
+    <div style="background:linear-gradient(135deg,#1a3a5c,#2563eb); color:#fff; border-radius:10px; padding:14px 22px; display:flex; flex-direction:column; align-items:center; justify-content:center; min-width:200px; text-align:center; box-shadow:0 2px 8px rgba(37,99,235,.3);">
+      <div style="font-size:.65rem; text-transform:uppercase; letter-spacing:.08em; opacity:.8; margin-bottom:4px;">Assigned Pod</div>
+      <div style="font-size:1.5rem; font-weight:700; letter-spacing:.02em;">Pod Alpha</div>
+      <div style="font-size:.8rem; opacity:.85; margin-top:3px;">Large &nbsp;·&nbsp; 6–8 Assessors &nbsp;·&nbsp; 63 Days</div>
+      <div style="margin-top:8px; background:rgba(255,255,255,.15); border-radius:5px; padding:3px 10px; font-size:.7rem;">Wave 1 — Q1–Q2 2026</div>
+    </div>
   </div>
 
   <div class="grid-2">
     <div>
       <div class="q-section">
-        <div class="q-section-title">🏛 Section 1 — Agency Profile</div>
+        <div class="q-section-title">🏛 Agency Profile</div>
         <div class="q-item">
           <label>Agency Name</label>
           <input type="text" id="sq-agency-name" value="Maryland Department of Transportation (MDOT)">
         </div>
         <div class="q-item">
-          <label>Primary IT/Security Contact</label>
-          <input type="text" value="Lisa Harmon, CISO — l.harmon@mdot.maryland.gov">
+          <label>Primary IT/Security Contact — Name &amp; Title</label>
+          <input type="text" value="Lisa Harmon, CISO">
         </div>
         <div class="q-item">
-          <label>Is this agency an Executive Branch agency?</label>
-          <div class="radio-group">
-            <div class="radio-opt selected" onclick="selectOpt(this)">✅ Yes</div>
-            <div class="radio-opt" onclick="selectOpt(this)">No</div>
-          </div>
+          <label>Primary Contact Email</label>
+          <input type="email" value="l.harmon@mdot.maryland.gov">
         </div>
         <div class="q-item">
-          <label>Is this agency a DoIT Enterprise Agency?</label>
-          <div class="radio-group">
-            <div class="radio-opt selected" onclick="selectOpt(this)">✅ Yes</div>
-            <div class="radio-opt" onclick="selectOpt(this)">No</div>
-          </div>
+          <label>Primary Contact Phone</label>
+          <input type="tel" value="(410) 545-0300">
         </div>
         <div class="q-item">
-          <label>Agency Size Tier</label>
-          <div class="radio-group">
-            <div class="radio-opt" onclick="selectOpt(this)">Small (&lt;100 FTEs)</div>
-            <div class="radio-opt" onclick="selectOpt(this)">Medium (100–499)</div>
-            <div class="radio-opt selected" onclick="selectOpt(this)">✅ Large (500+)</div>
-          </div>
+          <label>Alternative Contact — Name &amp; Title</label>
+          <input type="text" placeholder="e.g. John Smith, IT Director">
         </div>
         <div class="q-item">
-          <label>Approximate number of IT-managed systems/applications</label>
-          <div class="radio-group">
-            <div class="radio-opt" onclick="selectOpt(this)">&lt;10</div>
-            <div class="radio-opt" onclick="selectOpt(this)">10–24</div>
-            <div class="radio-opt selected" onclick="selectOpt(this)">✅ 25–49</div>
-            <div class="radio-opt" onclick="selectOpt(this)">50+</div>
-          </div>
+          <label>Alternative Contact Email</label>
+          <input type="email" placeholder="e.g. j.smith@agency.maryland.gov">
+        </div>
+        <div class="q-item">
+          <label>Alternative Contact Phone</label>
+          <input type="tel" placeholder="e.g. (410) 555-0100">
         </div>
       </div>
 
       <div class="q-section">
-        <div class="q-section-title">☁️ Section 2 — IT Environment</div>
+        <div class="q-section-title">☁️ IT Environment</div>
         <div class="q-item">
           <label>IT Complexity Tier</label>
           <div class="radio-group">
@@ -611,166 +600,45 @@
         </div>
       </div>
 
-      <div class="q-section">
-        <div class="q-section-title">🔐 Section 3 — Current Security Posture</div>
-        <div class="q-item">
-          <label>Has the agency had a cybersecurity assessment in the past 2 years?</label>
-          <div class="radio-group">
-            <div class="radio-opt" onclick="selectOpt(this)">Yes — within 12 months</div>
-            <div class="radio-opt selected" onclick="selectOpt(this)">✅ Yes — 1–2 years ago</div>
-            <div class="radio-opt" onclick="selectOpt(this)">No</div>
-          </div>
-        </div>
-        <div class="q-item">
-          <label>Is a formal Information Security Policy in place?</label>
-          <div class="radio-group">
-            <div class="radio-opt selected" onclick="selectOpt(this)">✅ Yes — current (&lt;2 yrs)</div>
-            <div class="radio-opt" onclick="selectOpt(this)">Yes — outdated (&gt;2 yrs)</div>
-            <div class="radio-opt" onclick="selectOpt(this)">In progress</div>
-            <div class="radio-opt" onclick="selectOpt(this)">No</div>
-          </div>
-        </div>
-        <div class="q-item">
-          <label>Is Multi-Factor Authentication (MFA) enforced agency-wide?</label>
-          <div class="radio-group">
-            <div class="radio-opt" onclick="selectOpt(this)">Yes — all users</div>
-            <div class="radio-opt selected" onclick="selectOpt(this)">✅ Partial — some users</div>
-            <div class="radio-opt" onclick="selectOpt(this)">No</div>
-          </div>
-        </div>
-        <div class="q-item">
-          <label>Does the agency have a Security Operations Center (SOC) or SIEM?</label>
-          <div class="radio-group">
-            <div class="radio-opt" onclick="selectOpt(this)">Yes — dedicated SOC + SIEM</div>
-            <div class="radio-opt" onclick="selectOpt(this)">Shared/outsourced SOC</div>
-            <div class="radio-opt selected" onclick="selectOpt(this)">✅ No SIEM deployed</div>
-          </div>
-        </div>
-        <div class="q-item">
-          <label>Is there a tested Incident Response Plan (IRP)?</label>
-          <div class="radio-group">
-            <div class="radio-opt" onclick="selectOpt(this)">Yes — tested in past year</div>
-            <div class="radio-opt selected" onclick="selectOpt(this)">✅ Plan exists, not recently tested</div>
-            <div class="radio-opt" onclick="selectOpt(this)">No plan</div>
-          </div>
-        </div>
-        <div class="q-item">
-          <label>How would you estimate your current CMMI maturity level? (self-assessed)</label>
-          <div class="radio-group">
-            <div class="radio-opt" onclick="selectOpt(this)">0 — Nonexistent</div>
-            <div class="radio-opt" onclick="selectOpt(this)">1 — Performed</div>
-            <div class="radio-opt selected" onclick="selectOpt(this)">✅ 2 — Managed</div>
-            <div class="radio-opt" onclick="selectOpt(this)">3 — Defined</div>
-            <div class="radio-opt" onclick="selectOpt(this)">4 — Measured</div>
-            <div class="radio-opt" onclick="selectOpt(this)">5 — Optimized</div>
-          </div>
-        </div>
-        <div class="q-item">
-          <label>Top cybersecurity concerns (select up to 3)</label>
-          <div class="radio-group">
-            <div class="radio-opt selected" onclick="selectOpt(this)">✅ Ransomware</div>
-            <div class="radio-opt selected" onclick="selectOpt(this)">✅ Phishing</div>
-            <div class="radio-opt" onclick="selectOpt(this)">Insider threats</div>
-            <div class="radio-opt selected" onclick="selectOpt(this)">✅ Supply chain risk</div>
-            <div class="radio-opt" onclick="selectOpt(this)">Data exfiltration</div>
-          </div>
-        </div>
-        <div class="q-item">
-          <label>Additional context or known constraints</label>
-          <textarea rows="3">Limited documentation on legacy field office systems. No dedicated security team — CISO function shared with IT Director. OT interfaces at 3 transportation facilities are poorly documented.</textarea>
-        </div>
-      </div>
-
       <div class="btn-row">
-        <button class="btn btn-primary" onclick="calcScore()">⚡ Calculate Pod Assignment &amp; Score</button>
-        <button class="btn btn-outline" onclick="notify('📧 Questionnaire link sent to l.harmon@mdot.maryland.gov')">📧 Send to Agency</button>
-        <button class="btn btn-outline btn-sm" onclick="notify('📥 Questionnaire exported: MDOT_PreAssess_Q.pdf')">📥 Export</button>
+        <button class="btn btn-primary" onclick="notify('✅ Agency profile saved.')">💾 Save Agency Profile</button>
       </div>
     </div>
 
     <div>
-      <div class="card" id="score-card">
-        <div class="card-title">⚡ Automated Scoring Engine</div>
-        <div class="score-preview" style="margin-bottom:16px;">
-          <div class="sp-label">Recommended Pod Size</div>
-          <div class="sp-val" id="pod-val">Large Pod</div>
-          <div class="sp-desc" id="pod-desc">6 assessors · 63-day engagement · 92 evidence items</div>
-        </div>
-        <div class="table-wrap" style="margin-bottom:14px;">
-          <table>
-            <thead><tr><th>Scoring Dimension</th><th>Value</th><th>Weight</th><th>Score</th></tr></thead>
-            <tbody>
-              <tr><td>Agency Size</td><td>Large (500+)</td><td>High</td><td><span class="badge badge-orange">+8</span></td></tr>
-              <tr><td>IT Complexity</td><td>Complex (multi-site + cloud)</td><td>High</td><td><span class="badge badge-red">+10</span></td></tr>
-              <tr><td>Sensitive Data</td><td>PII + Financial</td><td>High</td><td><span class="badge badge-orange">+7</span></td></tr>
-              <tr><td>OT/ICS Present</td><td>Yes — limited</td><td>Medium</td><td><span class="badge badge-orange">+5</span></td></tr>
-              <tr><td>No SIEM</td><td>Gap identified</td><td>High</td><td><span class="badge badge-red">+8</span></td></tr>
-              <tr><td>IRP Not Tested</td><td>Gap identified</td><td>Medium</td><td><span class="badge badge-orange">+5</span></td></tr>
-              <tr><td>Self-Assessed CMMI</td><td>Level 2</td><td>Low</td><td><span class="badge badge-gray">+3</span></td></tr>
-              <tr style="font-weight:700;"><td colspan="3">Total Complexity Score</td><td><span class="badge badge-red">46 / 60</span></td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="success-box">✅ <strong>Pod Assignment: LARGE</strong> — 6–8 assessors, standard enterprise template, 63-day target. Complexity score 46/60 exceeds Medium threshold (35).</div>
-        <hr class="divider">
-        <div class="card-title" style="margin-bottom:10px;">🗓 Suggested Schedule Placement</div>
+      <div class="card">
+        <div class="card-title">📋 Assessment Assignment — Client Predefined</div>
+        <div class="info-box" style="margin-bottom:14px;">Pod size, wave placement, and assessor assignment are defined by the client prior to tool setup. Update the values below to match the confirmed engagement parameters.</div>
         <div class="table-wrap">
           <table>
             <thead><tr><th>Parameter</th><th>Value</th></tr></thead>
             <tbody>
-              <tr><td>Assessment Wave</td><td>Wave 1 — Q1–Q2 2026</td></tr>
-              <tr><td>Pod Assignment</td><td>Pod Alpha (Lead: J. Williams)</td></tr>
-              <tr><td>Suggested Start</td><td>April 7, 2026</td></tr>
-              <tr><td>Estimated End</td><td>May 19, 2026 (42 days)</td></tr>
-              <tr><td>Template</td><td>Standard Enterprise IT (High-Risk variant)</td></tr>
-              <tr><td>Executive Branch</td><td>Yes</td></tr>
-              <tr><td>DoIT Enterprise</td><td>Yes</td></tr>
-              <tr><td>Maturity Group</td><td>Group B (Score 1.5–2.5)</td></tr>
+              <tr><td>Assessment Wave</td><td><input type="text" value="Wave 1 — Q1–Q2 2026" style="border:1px solid var(--border); border-radius:5px; padding:4px 8px; font-size:.8rem; width:100%;"></td></tr>
+              <tr><td>Pod Assignment</td><td><input type="text" value="Pod Alpha — Large" style="border:1px solid var(--border); border-radius:5px; padding:4px 8px; font-size:.8rem; width:100%;"></td></tr>
+              <tr><td>Lead Assessor</td><td><input type="text" value="J. Williams" style="border:1px solid var(--border); border-radius:5px; padding:4px 8px; font-size:.8rem; width:100%;"></td></tr>
+              <tr><td>Team Size</td><td><select style="border:1px solid var(--border); border-radius:5px; padding:4px 8px; font-size:.8rem;"><option>Large (6–8 assessors)</option><option selected>Standard (4–5 assessors)</option><option>Small (2–3 assessors)</option></select></td></tr>
+              <tr><td>Confirmed Start</td><td><input type="date" value="2026-04-07" style="border:1px solid var(--border); border-radius:5px; padding:4px 8px; font-size:.8rem;"></td></tr>
+              <tr><td>Confirmed End</td><td><input type="date" value="2026-05-19" style="border:1px solid var(--border); border-radius:5px; padding:4px 8px; font-size:.8rem;"></td></tr>
+              <tr><td>Assessment Template</td><td><select style="border:1px solid var(--border); border-radius:5px; padding:4px 8px; font-size:.8rem;"><option selected>Standard Enterprise IT (High-Risk)</option><option>Standard Enterprise IT</option><option>Cloud-Only</option><option>OT/ICS</option></select></td></tr>
+              <tr><td>Executive Branch</td><td><select style="border:1px solid var(--border); border-radius:5px; padding:4px 8px; font-size:.8rem;"><option selected>Yes</option><option>No</option></select></td></tr>
+              <tr><td>DoIT Enterprise</td><td><select style="border:1px solid var(--border); border-radius:5px; padding:4px 8px; font-size:.8rem;"><option selected>Yes</option><option>No</option></select></td></tr>
+              <tr><td>Maturity Group</td><td><select style="border:1px solid var(--border); border-radius:5px; padding:4px 8px; font-size:.8rem;"><option>Group A (0.0–1.4)</option><option selected>Group B (1.5–2.5)</option><option>Group C (2.6–3.4)</option><option>Group D (3.5–4.4)</option><option>Group E (4.5–5.0)</option></select></td></tr>
             </tbody>
           </table>
         </div>
         <div class="btn-row">
-          <button class="btn btn-primary btn-sm" onclick="notify('✅ MDOT assigned to Wave 1, Pod Alpha. Pipeline updated.')">✅ Confirm Assignment</button>
-          <button class="btn btn-outline btn-sm" onclick="notify('📋 Pre-assessment summary sent to Lead Assessor J. Williams')">📋 Brief Assessor</button>
+          <button class="btn btn-primary btn-sm" onclick="notify('✅ Assignment confirmed. Pipeline updated.')">✅ Confirm Assignment</button>
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-title">📊 CMMI Maturity Group Classification</div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Maturity Group</th><th>Score Range</th><th>Description</th><th>Priority</th></tr></thead>
-            <tbody>
-              <tr><td><strong>Group A</strong></td><td>0.0 – 1.4</td><td>Critical — foundational gaps, highest risk</td><td><span class="badge badge-red">Immediate</span></td></tr>
-              <tr style="background:#fef3cd20;"><td><strong>Group B</strong></td><td>1.5 – 2.5</td><td>Developing — basic controls, inconsistent application</td><td><span class="badge badge-orange">High</span></td></tr>
-              <tr><td><strong>Group C</strong></td><td>2.6 – 3.4</td><td>Established — defined processes, some measurement</td><td><span class="badge badge-blue">Medium</span></td></tr>
-              <tr><td><strong>Group D</strong></td><td>3.5 – 4.4</td><td>Advanced — quantitatively managed, data-driven</td><td><span class="badge badge-gray">Standard</span></td></tr>
-              <tr><td><strong>Group E</strong></td><td>4.5 – 5.0</td><td>Optimized — continuous improvement, automation</td><td><span class="badge badge-green">Maintenance</span></td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="info-box" style="margin-top:12px; margin-bottom:0;">MDOT's self-assessed score of 2 places them in <strong>Group B</strong>. Assessor-validated scores are used for final classification and statewide dashboard filtering.</div>
-      </div>
     </div>
   </div>
-</div>
 
-<!-- ============================================================ STEP 1 -->
-<div class="section" id="s1">
-  <div class="page-header">
-    <div class="step-tag">🟢 Step 1 &nbsp;|&nbsp; New Agency Received</div>
-    <h1>Agency Intake &amp; Scope Definition</h1>
-    <p>Collect initial agency information, define assessment scope, and categorize system risk prior to assessment kick-off.</p>
-  </div>
-
-  <div class="info-box">
-    <strong>Demo Scenario:</strong> Maryland Department of Transportation (MDOT) has been assigned for a NIST CSF 2.0 cybersecurity assessment under the statewide initiative covering ~90 agencies.
-  </div>
-
-  <div class="grid-2">
+  <!-- Agency Information & Scope -->
+  <div class="grid-2" style="margin-top:20px;">
     <div>
       <div class="card">
-        <div class="card-title"><span class="icon">🏛</span> Agency Information</div>
+        <div class="card-title"><span class="icon">🏛</span> Agency Information &amp; Assessment Parameters</div>
         <div class="form-grid">
           <div class="form-group">
             <label>Agency Name</label>
@@ -843,17 +711,9 @@
           <div class="form-group">
             <label>Maturity Model</label>
             <select>
-              <option selected>CMMI (1–5 Scale)</option>
+              <option selected>CMMI (0–5 Scale)</option>
               <option>Tier-Based (1–4)</option>
             </select>
-          </div>
-          <div class="form-group">
-            <label>Target Start Date</label>
-            <input type="date" value="2026-04-07">
-          </div>
-          <div class="form-group">
-            <label>Target Completion</label>
-            <input type="date" value="2026-05-19">
           </div>
           <div class="form-group full">
             <label>Scope Description</label>
@@ -865,9 +725,7 @@
           </div>
         </div>
         <div class="btn-row">
-          <button class="btn btn-primary" onclick="notify('✅ Intake form saved. Assessment ID MD-MDOT-2026-041 created.')">💾 Save Intake Record</button>
-          <button class="btn btn-outline" onclick="notify('📧 Kick-off packet sent to l.harmon@mdot.maryland.gov')">📧 Send Kick-off Packet</button>
-          <button class="btn btn-outline btn-sm">🖨 Export PDF</button>
+          <button class="btn btn-primary" onclick="notify('✅ Intake record saved. Assessment ID MD-MDOT-2026-041 created.')">💾 Save Intake Record</button>
         </div>
       </div>
     </div>
@@ -917,30 +775,29 @@
       <div class="card">
         <div class="card-title"><span class="icon">📋</span> Scope Summary</div>
         <table>
-          <thead><tr><th>Area</th><th>Included</th><th>Count</th></tr></thead>
+          <thead><tr><th>Area</th><th>Status</th><th>Notes</th></tr></thead>
           <tbody>
-            <tr><td>Enterprise Systems</td><td><span class="badge badge-green">Yes</span></td><td>47 systems</td></tr>
-            <tr><td>Network Infrastructure</td><td><span class="badge badge-green">Yes</span></td><td>12 segments</td></tr>
-            <tr><td>Cloud Environments</td><td><span class="badge badge-green">Yes</span></td><td>AWS + Azure</td></tr>
-            <tr><td>Field Offices</td><td><span class="badge badge-orange">Partial</span></td><td>8 of 14</td></tr>
-            <tr><td>OT/ICS Systems</td><td><span class="badge badge-orange">Partial</span></td><td>3 interfaces</td></tr>
-            <tr><td>Third-party Vendors</td><td><span class="badge badge-blue">Review Only</span></td><td>6 vendors</td></tr>
-            <tr><td>Classified Systems</td><td><span class="badge badge-gray">Excluded</span></td><td>—</td></tr>
+            <tr><td>IT Complexity</td><td><span class="badge badge-green">Confirmed</span></td><td>Complex (multi-site + cloud)</td></tr>
+            <tr><td>Cloud Environments</td><td><span class="badge badge-green">In Scope</span></td><td>AWS GovCloud, Azure Government</td></tr>
+            <tr><td>OT/ICS Systems</td><td><span class="badge badge-orange">Partial</span></td><td>Yes — limited interfaces</td></tr>
+            <tr><td>Sensitive Data Types</td><td><span class="badge badge-green">Confirmed</span></td><td>PII, Financial</td></tr>
+            <tr><td>Data Classification</td><td><span class="badge badge-red">High</span></td><td>FIPS 199 HIGH</td></tr>
+            <tr><td>Assessment Framework</td><td><span class="badge badge-blue">Selected</span></td><td>NIST CSF 2.0 + SP 800-53 Rev 5</td></tr>
           </tbody>
         </table>
         <hr class="divider">
         <div class="grid-3" style="gap:12px; margin-top:4px;">
           <div class="stat-card accent">
-            <div class="stat-label">Risk Level</div>
+            <div class="stat-label">FIPS Risk Level</div>
             <div class="stat-value" style="font-size:1.3rem">HIGH</div>
           </div>
           <div class="stat-card">
-            <div class="stat-label">Assessors Assigned</div>
-            <div class="stat-value">4</div>
+            <div class="stat-label">Pod Size</div>
+            <div class="stat-value" style="font-size:1.1rem">Large</div>
           </div>
           <div class="stat-card">
-            <div class="stat-label">Estimated Days</div>
-            <div class="stat-value">42</div>
+            <div class="stat-label">Assessment Days</div>
+            <div class="stat-value">63</div>
           </div>
         </div>
       </div>
@@ -1450,142 +1307,6 @@
   </div>
 </div>
 
-<!-- ============================================================ STEP 7 -->
-<div class="section" id="s7">
-  <div class="page-header">
-    <div class="step-tag">🟢 Step 7 &nbsp;|&nbsp; Scale Across 90 Agencies</div>
-    <h1>Agency Master Tracker — Statewide Dashboard</h1>
-    <p>Manage and monitor cybersecurity assessments across all ~90 Maryland state agencies. Statewide risk metrics and trend analysis.</p>
-  </div>
-
-  <div class="tab-bar">
-    <div class="tab active" onclick="switchTab(this,'t7-tracker')">Agency Tracker</div>
-    <div class="tab" onclick="switchTab(this,'t7-trends'); initChartsTrend()">Trends &amp; Analytics</div>
-  </div>
-
-  <div class="tab-content active" id="t7-tracker">
-    <div class="grid-4" style="margin-bottom:20px;">
-      <div class="stat-card green"><div class="stat-label">Assessments Complete</div><div class="stat-value">23</div><div class="stat-sub">of 90 agencies</div></div>
-      <div class="stat-card"><div class="stat-label">In Progress</div><div class="stat-value">31</div><div class="stat-sub">Active assessments</div></div>
-      <div class="stat-card accent"><div class="stat-label">Scheduled</div><div class="stat-value">28</div><div class="stat-sub">Kick-off pending</div></div>
-      <div class="stat-card red"><div class="stat-label">Unresponsive</div><div class="stat-value">8</div><div class="stat-sub">Escalation required</div></div>
-    </div>
-    <div class="grid-2" style="margin-bottom:20px;">
-      <div class="card">
-        <div class="card-title">📊 Statewide Maturity Distribution</div>
-        <div class="chart-wrap-sm"><canvas id="stateChart"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-title">📈 Assessment Completion Progress</div>
-        <div style="margin-bottom:12px;">
-          <div style="display:flex; justify-content:space-between; font-size:.8rem; margin-bottom:4px;"><span>Overall Progress</span><span>54 / 90</span></div>
-          <div class="progress-bar-wrap"><div class="progress-bar pb-blue" style="width:60%"></div></div>
-        </div>
-        <div style="margin-bottom:12px;">
-          <div style="display:flex; justify-content:space-between; font-size:.8rem; margin-bottom:4px;"><span>Large Agencies (&gt;500)</span><span>8 / 14</span></div>
-          <div class="progress-bar-wrap"><div class="progress-bar pb-green" style="width:57%"></div></div>
-        </div>
-        <div style="margin-bottom:12px;">
-          <div style="display:flex; justify-content:space-between; font-size:.8rem; margin-bottom:4px;"><span>Medium Agencies (100–499)</span><span>22 / 38</span></div>
-          <div class="progress-bar-wrap"><div class="progress-bar pb-orange" style="width:58%"></div></div>
-        </div>
-        <div>
-          <div style="display:flex; justify-content:space-between; font-size:.8rem; margin-bottom:4px;"><span>Small Agencies (&lt;100)</span><span>24 / 38</span></div>
-          <div class="progress-bar-wrap"><div class="progress-bar pb-blue" style="width:63%"></div></div>
-        </div>
-        <hr class="divider">
-        <div class="warn-box" style="margin:0;">⚠️ <strong>8 agencies</strong> have not responded to intake requests. Escalation letters issued to agency heads. DoIT Program Manager notified.</div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title">🗂 Agency Master Tracker</div>
-      <div class="info-box" style="margin-bottom:10px; font-size:.78rem;">RFP §2.3.1(G) mandatory filters active. All tier definitions set by DoIT. Filters apply to tracker table and statewide analytics simultaneously.</div>
-      <div style="display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap; align-items:center;">
-        <strong style="font-size:.72rem; color:var(--primary); white-space:nowrap;">Required Filters:</strong>
-        <select style="padding:5px 9px; border-radius:6px; border:1.5px solid var(--primary-light); font-size:.75rem; background:#dbeafe20;">
-          <option>Executive Branch: All</option><option>Executive Branch: Yes</option><option>Executive Branch: No</option>
-        </select>
-        <select style="padding:5px 9px; border-radius:6px; border:1.5px solid var(--primary-light); font-size:.75rem; background:#dbeafe20;">
-          <option>DoIT Enterprise: All</option><option>DoIT Enterprise: Yes</option><option>DoIT Enterprise: No</option>
-        </select>
-        <select style="padding:5px 9px; border-radius:6px; border:1.5px solid var(--primary-light); font-size:.75rem; background:#dbeafe20;">
-          <option>Size Tier: All</option><option>Large (500+)</option><option>Medium (100–499)</option><option>Small (&lt;100)</option>
-        </select>
-        <select style="padding:5px 9px; border-radius:6px; border:1.5px solid var(--primary-light); font-size:.75rem; background:#dbeafe20;">
-          <option>IT Complexity: All</option><option>Complex</option><option>Moderate</option><option>Simple</option>
-        </select>
-        <select style="padding:5px 9px; border-radius:6px; border:1.5px solid var(--primary-light); font-size:.75rem; background:#dbeafe20;">
-          <option>Maturity Group: All</option><option>Group A (0.0–1.4)</option><option>Group B (1.5–2.5)</option><option>Group C (2.6–3.4)</option><option>Group D (3.5–4.4)</option><option>Group E (4.5–5.0)</option>
-        </select>
-      </div>
-      <div style="display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;">
-        <select style="padding:5px 9px; border-radius:6px; border:1px solid var(--border); font-size:.75rem;">
-          <option>Status: All</option><option>Complete</option><option>In Progress</option><option>Scheduled</option><option>Unresponsive</option>
-        </select>
-        <select style="padding:5px 9px; border-radius:6px; border:1px solid var(--border); font-size:.75rem;">
-          <option>Wave: All</option><option>Wave 1</option><option>Wave 2</option><option>Wave 3+</option>
-        </select>
-        <input type="text" placeholder="Search agency..." style="padding:5px 9px; border-radius:6px; border:1px solid var(--border); font-size:.75rem; flex:1;">
-        <button class="btn btn-primary btn-sm" onclick="notify('🔍 Filters applied — 23 agencies match')">🔍 Apply</button>
-        <button class="btn btn-outline btn-sm" onclick="notify('📥 Master tracker exported: MD_Statewide_Assessment_Tracker.xlsx')">📥 Export</button>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>#</th><th>Agency</th><th>Size</th><th>Risk Level</th><th>Status</th><th>Lead Assessor</th><th>Start</th><th>Target End</th><th>Maturity</th><th>Critical Findings</th></tr>
-          </thead>
-          <tbody id="agency-table"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <div class="tab-content" id="t7-trends">
-    <div class="grid-4" style="margin-bottom:20px;">
-      <div class="stat-card"><div class="stat-label">Avg Statewide Maturity</div><div class="stat-value accent">2.9</div><div class="stat-sub">Up from 2.1 (Jan 2025)</div></div>
-      <div class="stat-card green"><div class="stat-label">Critical Findings Closed</div><div class="stat-value">38</div><div class="stat-sub">Across 23 completed agencies</div></div>
-      <div class="stat-card"><div class="stat-label">Avg Assessment Duration</div><div class="stat-value">41</div><div class="stat-sub">Days per agency</div></div>
-      <div class="stat-card accent"><div class="stat-label">POA&M Items Tracked</div><div class="stat-value">312</div><div class="stat-sub">Across all agencies</div></div>
-    </div>
-    <div class="grid-2" style="margin-bottom:20px;">
-      <div class="card">
-        <div class="card-title">📈 Statewide Average Maturity — Historical Trend</div>
-        <div class="chart-wrap"><canvas id="trendLineChart"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-title">🔴 Critical Findings Over Time</div>
-        <div class="chart-wrap"><canvas id="findingsTrendChart"></canvas></div>
-      </div>
-    </div>
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-title">📊 Maturity by NIST Function — Statewide Avg</div>
-        <div class="chart-wrap-sm"><canvas id="stateFunctionChart"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-title">🏆 Top Performing vs. At-Risk Agencies</div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Category</th><th>Agency</th><th>Maturity</th><th>Trend</th></tr></thead>
-            <tbody>
-              <tr><td><span class="badge badge-green">Top</span></td><td>MD State Archives</td><td>3.9</td><td>↑ +0.4</td></tr>
-              <tr><td><span class="badge badge-green">Top</span></td><td>MD Dept. of Agriculture</td><td>3.7</td><td>↑ +0.6</td></tr>
-              <tr><td><span class="badge badge-green">Top</span></td><td>MD Dept. of Labor</td><td>3.4</td><td>↑ +0.5</td></tr>
-              <tr><td><span class="badge badge-red">At-Risk</span></td><td>MD Dept. of Environment</td><td>2.1</td><td>↔ +0.0</td></tr>
-              <tr><td><span class="badge badge-red">At-Risk</span></td><td>DPSCS</td><td>2.3</td><td>↑ +0.2</td></tr>
-              <tr><td><span class="badge badge-orange">Watch</span></td><td>MD State Police</td><td>2.6</td><td>↑ +0.3</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="btn-row">
-          <button class="btn btn-outline btn-sm" onclick="notify('📊 Trend report exported: MD_Statewide_Trend_Report_Q1_2026.pdf')">📥 Export Trend Report</button>
-          <button class="btn btn-outline btn-sm" onclick="notify('📧 Executive summary sent to DoIT leadership')">📧 Send to DoIT</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- ============================================================ AGENCY PORTAL -->
 <div class="section" id="sa">
   <div class="page-header">
@@ -1984,18 +1705,18 @@
       </div>
     </div>
     <div class="card">
-      <div class="card-title">📐 Pod Sizing Logic — Driven by Questionnaire Score</div>
+      <div class="card-title">📐 Pod Sizing Reference</div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Complexity Score</th><th>Pod Type</th><th>Team Size</th><th>Typical Duration</th><th>Evidence Items</th><th>CMMI Controls</th></tr></thead>
+          <thead><tr><th>Pod Type</th><th>Team Size</th><th>Typical Duration</th><th>Evidence Items</th><th>CMMI Controls</th></tr></thead>
           <tbody>
-            <tr><td>0 – 20</td><td><span class="badge badge-gray">Small</span></td><td>2–3 staff</td><td>~21 days</td><td>32</td><td>CSF Subset (52)</td></tr>
-            <tr><td>21 – 35</td><td><span class="badge badge-orange">Medium</span></td><td>4–5 staff</td><td>~42 days</td><td>58</td><td>Full CSF (106)</td></tr>
-            <tr style="background:#fee2e220;"><td>36 – 60</td><td><span class="badge badge-red">Large</span></td><td>6–8 staff</td><td>~63 days</td><td>92</td><td>CSF + 800-53 (180+)</td></tr>
+            <tr><td><span class="badge badge-gray">Small</span></td><td>2–3 staff</td><td>~21 days</td><td>32</td><td>CSF Subset (52)</td></tr>
+            <tr><td><span class="badge badge-orange">Medium</span></td><td>4–5 staff</td><td>~42 days</td><td>58</td><td>Full CSF (106)</td></tr>
+            <tr style="background:#fee2e220;"><td><span class="badge badge-red">Large</span></td><td>6–8 staff</td><td>~63 days</td><td>92</td><td>CSF + 800-53 (180+)</td></tr>
           </tbody>
         </table>
       </div>
-      <div class="info-box" style="margin-top:12px; margin-bottom:0;">MDOT scored <strong>46/60</strong> on the pre-assessment questionnaire → <strong>Large Pod assigned</strong>. This sizing ensures no agency is under-resourced and no pod is overextended.</div>
+      <div class="info-box" style="margin-top:12px; margin-bottom:0;">Pod assignment is confirmed by the client during Agency Setup &amp; Intake. Sizing ensures no agency is under-resourced and no pod is overextended.</div>
     </div>
   </div>
 
@@ -2220,10 +1941,10 @@ function showSection(id, el) {
   document.getElementById(id).classList.add('active');
   el.classList.add('active');
   const titles = {
-    sq:'Pre-Assessment Questionnaire', s1:'ASSESS — Intake & Scoping',
+    sq:'ASSESS — Agency Setup & Intake',
     s2:'ASSESS — CSF Assessment Workbook', s3:'NORMALIZE — Evidence Collection',
     s4:'NORMALIZE — Risk & CMMI Scoring', s5:'CONSOLIDATE — POA&M & Remediation',
-    s6:'REPORT — SAR Dashboard', s7:'OPTIMIZE — Agency Master Tracker',
+    s6:'REPORT — SAR Dashboard',
     sp:'2-Year Assessment Pipeline', sa:'Agency Portal (MDOT View)',
     sw:'Workflow Templates & Configuration', settings:'Settings & Integration',
     sai:'Agency CSF Intake & Evidence Upload'
@@ -2235,7 +1956,6 @@ function showSection(id, el) {
   if(id==='s4') setTimeout(initCharts4,100);
   if(id==='s5') setTimeout(initCharts5,100);
   if(id==='s6') setTimeout(initCharts6,100);
-  if(id==='s7') setTimeout(initCharts7,100);
   if(id==='sp') setTimeout(initPipelineCharts,100);
   if(id==='sai') setTimeout(initSaiPortal,100);
 }
