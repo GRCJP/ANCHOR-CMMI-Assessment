@@ -1,191 +1,176 @@
-const AWS = require('aws-sdk');
+// Anchor Platform — AWS Cognito Auth
+// Browser-compatible (uses amazon-cognito-identity-js CDN)
 
-// Configure AWS SDK
-AWS.config.update({
-  region: process.env.AWS_REGION || 'us-east-1',
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-});
-
-// Cognito configuration
-const poolData = {
-  UserPoolId: process.env.COGNITO_USER_POOL_ID,
-  ClientId: process.env.COGNITO_CLIENT_ID
+const ANCHOR_CONFIG = {
+  region:     'us-east-1',
+  userPoolId: 'us-east-1_lraXA8aSx',
+  clientId:   '76fkks429itoh7topumn95vii4',
+  cfDomain:   'https://dqf6m8xu3v66j.cloudfront.net'
 };
 
-class AWSAuth {
+// Map Cognito group → internal role key
+const GROUP_ROLE_MAP = {
+  Admins:        'admin',
+  LeadAssessors: 'lead_assessor',
+  Assessors:     'assessor',
+  AgencyPOCs:    'agency_rep',
+  DoITReviewers: 'doit_reviewer'
+};
+
+// Role → landing page
+const ROLE_LANDING = {
+  admin:         'main-dashboard.html',
+  lead_assessor: 'main-dashboard.html',
+  assessor:      'main-dashboard.html',
+  doit_reviewer: 'main-dashboard.html',
+  agency_rep:    null   // resolved dynamically from custom:agency
+};
+
+class AnchorAuth {
   constructor() {
-    this.userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
-    this.currentUser = null;
+    this.poolData = {
+      UserPoolId: ANCHOR_CONFIG.userPoolId,
+      ClientId:   ANCHOR_CONFIG.clientId
+    };
+    this.userPool = new AmazonCognitoIdentity.CognitoUserPool(this.poolData);
   }
 
-  async login(email, password) {
-    const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails({
+  // ── Login ──────────────────────────────────────────────────────────────────
+  login(email, password) {
+    const authDetails = new AmazonCognitoIdentity.AuthenticationDetails({
       Username: email,
       Password: password
     });
-
-    const userData = {
+    const cognitoUser = new AmazonCognitoIdentity.CognitoUser({
       Username: email,
       Pool: this.userPool
-    };
+    });
 
-    const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
-    
-    return new Promise((resolve, reject) => {
-      cognitoUser.authenticateUser(authenticationDetails, {
+    return new Promise((resolve) => {
+      cognitoUser.authenticateUser(authDetails, {
         onSuccess: (result) => {
-          this.currentUser = cognitoUser;
-          const token = result.getIdToken().getJwtToken();
-          const payload = result.getIdToken().payload;
-          
-          // Store in localStorage
-          localStorage.setItem('authToken', token);
-          localStorage.setItem('currentUser', JSON.stringify({
-            email: payload.email,
-            name: payload.name,
-            role: payload['custom:role'] || 'assessor',
-            userId: payload.sub
-          }));
-          
-          resolve({
-            success: true,
-            token: token,
-            user: {
-              email: payload.email,
-              name: payload.name,
-              role: payload['custom:role'] || 'assessor',
-              userId: payload.sub
-            }
-          });
+          const payload  = result.getIdToken().payload;
+          const groups   = payload['cognito:groups'] || [];
+          const role     = GROUP_ROLE_MAP[groups[0]] || 'assessor';
+          const agency   = payload['custom:agency']       || '';
+          const dispRole = payload['custom:display_role'] || role;
+
+          const session = {
+            email:        payload.email,
+            name:         payload.name || email,
+            role,
+            agency,
+            display_role: dispRole,
+            groups,
+            idToken:      result.getIdToken().getJwtToken(),
+            loginTime:    new Date().toISOString()
+          };
+
+          localStorage.setItem('anchor_session', JSON.stringify(session));
+          resolve({ success: true, session });
         },
         onFailure: (err) => {
-          resolve({
-            success: false,
-            error: err.message || 'Authentication failed'
-          });
+          resolve({ success: false, error: err.message || 'Authentication failed' });
+        },
+        newPasswordRequired: () => {
+          resolve({ success: false, error: 'Password reset required — contact your administrator.' });
         }
       });
     });
   }
 
-  async logout() {
-    if (this.currentUser) {
-      this.currentUser.signOut();
-      this.currentUser = null;
-    }
-    
-    // Clear localStorage
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('currentUser');
-    
-    // Redirect to login
-    window.location.href = 'login.html';
+  // ── Logout ─────────────────────────────────────────────────────────────────
+  logout() {
+    const currentUser = this.userPool.getCurrentUser();
+    if (currentUser) currentUser.signOut();
+    localStorage.removeItem('anchor_session');
+    window.location.href = 'index.html?logout=true';
   }
 
-  getCurrentUser() {
-    const userData = localStorage.getItem('currentUser');
-    return userData ? JSON.parse(userData) : null;
+  // ── Session helpers ────────────────────────────────────────────────────────
+  getSession() {
+    try {
+      const raw = localStorage.getItem('anchor_session');
+      return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
   }
 
   isAuthenticated() {
-    const token = localStorage.getItem('authToken');
-    const user = this.getCurrentUser();
-    return !!(token && user);
+    return !!this.getSession();
   }
 
-  getAuthHeaders() {
-    const token = localStorage.getItem('authToken');
-    return {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    };
+  getRole() {
+    const s = this.getSession();
+    return s ? s.role : null;
   }
 
-  getCurrentUserId() {
-    const user = this.getCurrentUser();
-    return user ? user.userId : null;
+  getAgency() {
+    const s = this.getSession();
+    return s ? (s.agency || '').toUpperCase() : null;
   }
 
-  getCurrentUserRole() {
-    const user = this.getCurrentUser();
-    return user ? user.role : null;
-  }
+  // ── Role checks ────────────────────────────────────────────────────────────
+  isAdmin()        { return this.getRole() === 'admin'; }
+  isLeadAssessor() { return ['admin','lead_assessor'].includes(this.getRole()); }
+  isAssessor()     { return ['admin','lead_assessor','assessor'].includes(this.getRole()); }
+  isAgencyRep()    { return this.getRole() === 'agency_rep'; }
+  isDoITReviewer() { return this.getRole() === 'doit_reviewer'; }
 
-  // Check if user has required role
-  hasRole(requiredRole) {
-    const userRole = this.getCurrentUserRole();
-    if (!userRole) return false;
-    
-    const roleHierarchy = {
-      'admin': 3,
-      'assessor': 2,
-      'agency_rep': 1
-    };
-    
-    return roleHierarchy[userRole] >= roleHierarchy[requiredRole];
-  }
+  canWrite()    { return this.isAssessor(); }
+  canManage()   { return this.isLeadAssessor(); }
+  canAdminAll() { return this.isAdmin(); }
 
-  // Initialize auth state on page load
-  init() {
-    if (this.isAuthenticated()) {
-      this.updateUIForAuthenticatedUser();
-    } else {
-      this.updateUIForUnauthenticatedUser();
+  // ── Role-based landing page ────────────────────────────────────────────────
+  getLandingPage() {
+    const role   = this.getRole();
+    const agency = this.getAgency();
+    if (role === 'agency_rep' && agency) {
+      const agencySlug = agency.toLowerCase().replace(/[^a-z]/g, '');
+      return `agency-${agencySlug}.html`;
     }
+    return ROLE_LANDING[role] || 'main-dashboard.html';
   }
 
-  updateUIForAuthenticatedUser() {
-    const user = this.getCurrentUser();
-    
-    // Update user avatar and info
-    const avatarElements = document.querySelectorAll('.avatar');
-    avatarElements.forEach(el => {
-      el.textContent = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
-      el.setAttribute('aria-label', user.name);
-    });
-
-    // Show/hide navigation based on role
-    this.updateNavigationForRole(user.role);
-    
-    // Add logout functionality
-    this.addLogoutHandlers();
-  }
-
-  updateUIForUnauthenticatedUser() {
-    // Redirect to login if not on login page
-    if (!window.location.pathname.includes('login.html')) {
-      window.location.href = 'login.html';
+  // ── Auth guard (call on every protected page load) ─────────────────────────
+  // Usage: AnchorAuth.guard()  or  AnchorAuth.guard({ requireAgency:'MDOT' })
+  guard(opts = {}) {
+    if (!this.isAuthenticated()) {
+      window.location.replace('index.html?session=expired');
+      return false;
     }
-  }
-
-  updateNavigationForRole(role) {
-    // Hide/show navigation items based on role
-    const navItems = document.querySelectorAll('.nav-item');
-    
-    navItems.forEach(item => {
-      const requiredRole = item.getAttribute('data-role');
-      if (requiredRole && !this.hasRole(requiredRole)) {
-        item.style.display = 'none';
+    // Agency-scoped pages: agency rep can only see their own agency
+    if (opts.requireAgency) {
+      const myAgency = this.getAgency();
+      if (this.isAgencyRep() && myAgency !== opts.requireAgency.toUpperCase()) {
+        window.location.replace(this.getLandingPage());
+        return false;
       }
-    });
+    }
+    // Admin-only pages
+    if (opts.requireAdmin && !this.isAdmin()) {
+      window.location.replace(this.getLandingPage());
+      return false;
+    }
+    return true;
   }
 
-  addLogoutHandlers() {
-    // Add logout to any logout buttons
-    const logoutButtons = document.querySelectorAll('[data-action="logout"]');
-    logoutButtons.forEach(button => {
-      button.addEventListener('click', (e) => {
-        e.preventDefault();
-        this.logout();
-      });
-    });
+  // ── Populate UI elements from session ─────────────────────────────────────
+  hydrateUI() {
+    const s = this.getSession();
+    if (!s) return;
+
+    const initials = s.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2);
+
+    const set = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+    set('user-name',   s.name);
+    set('user-email',  s.email);
+    set('user-role',   s.display_role || s.role);
+    set('user-avatar', initials);
+
+    const av = document.querySelector('.avatar');
+    if (av) av.textContent = initials;
   }
 }
 
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = AWSAuth;
-} else {
-  window.AWSAuth = AWSAuth;
-}
+// Singleton — available globally
+window.anchorAuth = new AnchorAuth();

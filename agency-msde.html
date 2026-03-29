@@ -8,6 +8,9 @@
   <meta name="author" content="Anchor Platform">
 
   <!-- External dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6.3.0/dist/amazon-cognito-identity.min.js"></script>
+  <script src="src/js/aws-auth.js"></script>
+  <script src="src/js/auth-guard.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
   <!-- CSS files -->
@@ -15,7 +18,7 @@
   <link rel="stylesheet" href="src/css/components.css">
   <link rel="stylesheet" href="src/css/accessibility.css">
 </head>
-<body>
+<body data-require-auth="true" data-require-agency="MSDE">
   <!-- Skip to main content link for accessibility -->
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
