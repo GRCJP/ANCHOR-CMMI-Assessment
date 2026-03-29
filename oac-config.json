@@ -1,7 +1,0 @@
-{
-  "Name": "anchor-platform-oac",
-  "Description": "OAC for Anchor Platform S3 bucket",
-  "SigningProtocol": "sigv4",
-  "SigningBehavior": "always",
-  "OriginAccessControlOriginType": "s3"
-}

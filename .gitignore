@@ -1,1 +1,48 @@
-node_modules
+# Dependencies
+node_modules/
+package-lock.json
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Build artifacts
+dist/
+build/
+*.zip
+*.tar.gz
+
+# AWS deployment configs (local only)
+bucket-policy.json
+bucket-policy-website.json
+cloudfront-info.json
+oac-config.json
+secure-cf-config.json
+
+# Local scripts
+setup-cloudfront.sh
+setup-github-deployment.sh
+
+# Temporary files
+*.tmp
+*.temp
+cyberassess-config.json
+
+# Backup files
+*.bak
+*.backup
