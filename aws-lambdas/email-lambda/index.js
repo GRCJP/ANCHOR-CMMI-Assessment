@@ -62,7 +62,7 @@ exports.handler = async (event) => {
                 Data: subject
               }
             },
-            Source: process.env.EMAIL_FROM || 'noreply@cyberassess.com'
+            Source: process.env.EMAIL_FROM || 'noreply@anchor-platform.maryland.gov'
           };
           
           await ses.sendEmail(params).promise();
@@ -96,7 +96,7 @@ exports.handler = async (event) => {
               Data: `Assessment Update: ${assessmentData.agency} - ${assessmentData.status}`
             }
           },
-          Source: process.env.EMAIL_FROM || 'noreply@cyberassess.com'
+          Source: process.env.EMAIL_FROM || 'noreply@anchor-platform.maryland.gov'
         };
         
         await ses.sendEmail(assessmentParams).promise();
@@ -129,7 +129,7 @@ exports.handler = async (event) => {
               Data: `Evidence Request: ${evidenceData.agency} Assessment`
             }
           },
-          Source: process.env.EMAIL_FROM || 'noreply@cyberassess.com'
+          Source: process.env.EMAIL_FROM || 'noreply@anchor-platform.maryland.gov'
         };
         
         await ses.sendEmail(evidenceParams).promise();
@@ -162,7 +162,7 @@ exports.handler = async (event) => {
               Data: `Reminder: ${reminderData.title}`
             }
           },
-          Source: process.env.EMAIL_FROM || 'noreply@cyberassess.com'
+          Source: process.env.EMAIL_FROM || 'noreply@anchor-platform.maryland.gov'
         };
         
         await ses.sendEmail(reminderParams).promise();

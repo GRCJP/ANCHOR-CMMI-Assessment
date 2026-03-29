@@ -14,9 +14,6 @@
   <link rel="stylesheet" href="src/css/main.css">
   <link rel="stylesheet" href="src/css/components.css">
   <link rel="stylesheet" href="src/css/accessibility.css">
-  
-  <!-- Favicon -->
-  <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
 </head>
 <body>
   <!-- Skip to main content link for accessibility -->
@@ -280,20 +277,20 @@
   <script>
     // Legacy function calls for backward compatibility
     function showSection(id, el) {
-      if (window.cyberAssessApp) {
-        window.cyberAssessApp.showSection(id, el);
+      if (window.cAnchorPlatformApp) {
+        window.cAnchorPlatformApp.showSection(id, el);
       }
     }
     
     function notify(msg) {
-      if (window.cyberAssessApp) {
-        window.cyberAssessApp.announce(msg);
+      if (window.cAnchorPlatformApp) {
+        window.cAnchorPlatformApp.announce(msg);
       }
     }
     
     function calculateScore() {
-      if (window.cyberAssessApp) {
-        window.cyberAssessApp.announce('⚡ Scoring complete: Complexity Score 46/60 → LARGE Pod assigned. Wave 1, Pod Alpha. Assessment plan generated.');
+      if (window.cAnchorPlatformApp) {
+        window.cAnchorPlatformApp.announce('⚡ Scoring complete: Complexity Score 46/60 → LARGE Pod assigned. Wave 1, Pod Alpha. Assessment plan generated.');
       }
     }
     

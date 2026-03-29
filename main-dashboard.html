@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Assurit CyberAssess | Agency Portfolio Dashboard</title>
+  <title>Anchor Platform | Agency Portfolio Dashboard</title>
   <meta name="description" content="Main portfolio dashboard for 6-agency demo cohort.">
   <link rel="stylesheet" href="src/css/main.css">
   <link rel="stylesheet" href="src/css/components.css">
@@ -94,6 +94,20 @@
     .lsp-fn-bar-wrap { flex:1; background:#e5e7eb; border-radius:10px; height:8px; overflow:hidden; }
     .lsp-fn-bar { height:100%; border-radius:10px; transition:width .5s ease; }
     .lsp-fn-val { font-size:.72rem; font-weight:700; width:28px; text-align:right; flex-shrink:0; }
+
+    /* USER MENU & DROPDOWN */
+    .user-menu { position: relative; display: inline-block; }
+    .avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #2563a8, #1a3a5c); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .85rem; cursor: pointer; transition: all .2s; }
+    .avatar:hover { transform: scale(1.05); box-shadow: 0 2px 8px rgba(0,0,0,.2); }
+    .user-dropdown { display: none; position: absolute; top: 44px; right: 0; background: #fff; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,.15); min-width: 200px; z-index: 1000; padding: 8px 0; }
+    .user-dropdown.active { display: block; }
+    .user-info { padding: 12px 16px; }
+    .user-name { font-weight: 700; font-size: .9rem; color: var(--text); margin-bottom: 2px; }
+    .user-email { font-size: .78rem; color: var(--text-muted); margin-bottom: 4px; }
+    .user-role { font-size: .7rem; color: var(--primary-light); text-transform: uppercase; letter-spacing: .5px; }
+    .dropdown-divider { height: 1px; background: var(--border); margin: 8px 0; }
+    .dropdown-item { display: flex; align-items: center; gap: 8px; padding: 10px 16px; color: var(--text); text-decoration: none; font-size: .85rem; transition: background .15s; }
+    .dropdown-item:hover { background: #f0f2f5; }
   </style>
 </head>
 <body>
@@ -101,7 +115,7 @@
 
   <nav id="sidebar" role="navigation" aria-label="Main navigation">
     <div class="sidebar-logo">
-      <div class="brand">Assurit CyberAssess</div>
+      <div class="brand">Anchor Platform</div>
       <div class="sub">Maryland DoIT Assessment Platform</div>
       <div class="badge-md">BPM052516</div>
     </div>
@@ -148,7 +162,21 @@
         <span class="badge badge-blue">6 Agencies</span>
         <span class="badge badge-orange">2 Scheduled</span>
         <span class="badge badge-green">1 Complete</span>
-        <div class="avatar">JW</div>
+        <button class="btn btn-outline btn-sm" onclick="logout()" style="margin-left: 10px;">🚪 Logout</button>
+        <div class="user-menu">
+          <div class="avatar" id="user-avatar" title="Click for options">JW</div>
+          <div class="user-dropdown" id="user-dropdown">
+            <div class="user-info">
+              <div class="user-name" id="user-name">Loading...</div>
+              <div class="user-email" id="user-email">...</div>
+              <div class="user-role" id="user-role">...</div>
+            </div>
+            <div class="dropdown-divider"></div>
+            <a href="#" class="dropdown-item" onclick="logout(); return false;">
+              <span>🚪</span> Logout
+            </a>
+          </div>
+        </div>
       </div>
     </header>
 
@@ -1298,7 +1326,7 @@
       }
       const current = JSON.parse(localStorage.getItem(`assessment_${agencyId}`) || '{}');
       logActivity('Opened Assessment', current.agencyName || agencyId.toUpperCase(), 'Navigated to intake and scoping view');
-      window.location.href = `index.html?agency=${agencyId}`;
+      window.location.href = `agency-${agencyId}.html`;
     }
 
     // ---- UPLOAD SIMULATION ----
@@ -1885,6 +1913,73 @@
     renderPortfolio();
     updateOverviewStats();
     setTimeout(initPortfolioCharts, 150);
+
+    // ---- USER INFO & LOGOUT ----
+    function getInitials(name) {
+      if (!name) return 'U';
+      return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+    }
+
+    function loadUserInfo() {
+      const session = localStorage.getItem('anchor_session');
+      if (!session) {
+        // Redirect to login if no session
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      try {
+        const user = JSON.parse(session);
+        const avatar = document.getElementById('user-avatar');
+        const userName = document.getElementById('user-name');
+        const userEmail = document.getElementById('user-email');
+        const userRole = document.getElementById('user-role');
+        
+        if (avatar) avatar.textContent = getInitials(user.name);
+        if (userName) userName.textContent = user.name || 'Unknown';
+        if (userEmail) userEmail.textContent = user.email || '';
+        if (userRole) userRole.textContent = (user.role || 'user').replace('_', ' ');
+      } catch (e) {
+        console.error('Error loading user info:', e);
+      }
+    }
+
+    function toggleUserDropdown() {
+      const dropdown = document.getElementById('user-dropdown');
+      if (dropdown) {
+        dropdown.classList.toggle('active');
+      }
+    }
+
+    function logout() {
+      // Clear session data
+      localStorage.removeItem('anchor_session');
+      sessionStorage.clear();
+      
+      // Show logout message and redirect
+      if (typeof notify === 'function') {
+        notify('👋 You have been logged out successfully');
+      }
+      
+      setTimeout(() => {
+        window.location.href = 'login.html?logout=true';
+      }, 500);
+    }
+
+    // Add click handler for avatar
+    document.getElementById('user-avatar').addEventListener('click', function(e) {
+      e.stopPropagation();
+      toggleUserDropdown();
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function() {
+      const dropdown = document.getElementById('user-dropdown');
+      if (dropdown) dropdown.classList.remove('active');
+    });
+
+    // Load user info on page load
+    loadUserInfo();
   </script>
 </body>
 </html>

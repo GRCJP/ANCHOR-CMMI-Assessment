@@ -5,7 +5,7 @@
 
 class DataManager {
   constructor() {
-    this.storageKey = 'cyberAssessData';
+    this.storageKey = 'AnchorPlatformData';
     this.data = this.loadData();
     this.init();
   }

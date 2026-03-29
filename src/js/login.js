@@ -1,7 +1,11 @@
-// Login page JavaScript
+// Login page JavaScript - Demo Mode
 class LoginManager {
   constructor() {
-    this.auth = new AWSAuth();
+    this.demoUsers = {
+      'admin@anchor.com': { password: 'Anchor123!', name: 'Anchor Administrator', role: 'admin' },
+      'assessor@anchor.com': { password: 'Anchor123!', name: 'J. Williams', role: 'assessor' },
+      'agency@anchor.com': { password: 'Anchor123!', name: 'Lisa Harmon', role: 'agency_rep' }
+    };
     this.initializeEventListeners();
     this.checkForExistingSession();
   }
@@ -48,22 +52,25 @@ class LoginManager {
   }
 
   async checkForExistingSession() {
-    // Check if user is already authenticated
-    if (this.auth.isAuthenticated()) {
-      this.redirectToDashboard();
-      return;
+    // Check if user is already logged in via localStorage
+    const session = localStorage.getItem('anchor_session');
+    if (session) {
+      try {
+        const user = JSON.parse(session);
+        if (user && user.email) {
+          this.redirectToDashboard();
+          return;
+        }
+      } catch (e) {
+        localStorage.removeItem('anchor_session');
+      }
     }
 
-    // Check URL parameters for logout or error messages
+    // Check URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     
     if (urlParams.get('logout') === 'true') {
       this.showSuccessMessage('You have been successfully logged out.');
-    }
-
-    if (urlParams.get('error')) {
-      const error = urlParams.get('error');
-      this.showErrorMessage(error);
     }
 
     if (urlParams.get('session') === 'expired') {
@@ -93,10 +100,20 @@ class LoginManager {
     this.hideErrorMessage();
 
     try {
-      // Attempt login
-      const result = await this.auth.login(email, password);
-
-      if (result.success) {
+      // Demo authentication
+      const user = this.demoUsers[email];
+      if (user && user.password === password) {
+        // Create session
+        const session = {
+          email: email,
+          name: user.name,
+          role: user.role,
+          loginTime: new Date().toISOString()
+        };
+        
+        // Store in localStorage
+        localStorage.setItem('anchor_session', JSON.stringify(session));
+        
         // Store remember preference
         if (remember) {
           localStorage.setItem('rememberEmail', email);
@@ -108,10 +125,7 @@ class LoginManager {
         this.showSuccessMessage('Login successful! Redirecting...');
         
         // Log activity
-        await this.logActivity('login', 'authentication', {
-          email: email,
-          success: true
-        });
+        console.log('Login successful:', { email, role: user.role });
 
         // Redirect after a short delay
         setTimeout(() => {
@@ -120,23 +134,13 @@ class LoginManager {
 
       } else {
         // Show error
-        this.showErrorMessage(result.error || 'Login failed. Please try again.');
-        
-        // Log failed attempt
-        await this.logActivity('login_failed', 'authentication', {
-          email: email,
-          error: result.error
-        });
+        this.showErrorMessage('Invalid email or password. Please try again.');
+        console.log('Login failed:', { email });
       }
 
     } catch (error) {
       console.error('Login error:', error);
       this.showErrorMessage('An unexpected error occurred. Please try again.');
-      
-      await this.logActivity('login_error', 'authentication', {
-        email: email,
-        error: error.message
-      });
     } finally {
       this.setLoadingState(false);
     }
@@ -303,11 +307,12 @@ class LoginManager {
   }
 
   redirectToDashboard() {
-    // Redirect to main dashboard or last visited page
-    const lastPage = sessionStorage.getItem('lastVisitedPage');
-    const redirectUrl = lastPage && lastPage !== 'login.html' ? lastPage : 'index.html';
+    // Clear any stored navigation state that might cause redirects
+    sessionStorage.removeItem('lastVisitedPage');
+    localStorage.removeItem('activeAssessment');
     
-    window.location.href = redirectUrl;
+    // Redirect to main portfolio dashboard
+    window.location.href = 'main-dashboard.html';
   }
 
   async logActivity(action, section, details = {}) {

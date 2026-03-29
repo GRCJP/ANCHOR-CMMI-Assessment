@@ -3,7 +3,7 @@
  * Handles navigation, initialization, and core functionality
  */
 
-class CyberAssessApp {
+class AnchorPlatformApp {
   constructor() {
     this.currentSection = 'sq';
     this.charts = {};
@@ -499,8 +499,8 @@ class CyberAssessApp {
 
 // Initialize the application when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-  window.cyberAssessApp = new CyberAssessApp();
+  window.cyberAssessApp = new AnchorPlatformApp();
 });
 
 // Export for module usage
-export default CyberAssessApp;
+export default AnchorPlatformApp;
