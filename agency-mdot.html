@@ -624,6 +624,58 @@
           </div>
         </div>
 
+        <!-- Agency Rep Quick Upload -->
+        <div class="card" style="border-left:4px solid var(--primary);">
+          <div class="card-title">Submit Documents to Assessor</div>
+          <p style="font-size:.82rem; color:var(--text-muted); margin-bottom:16px;">Upload evidence artifacts directly to your assessment package. Each submission is tagged to the applicable NIST CSF control and routed to your lead assessor for review.</p>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
+            <div>
+              <label style="font-size:.78rem; font-weight:700; display:block; margin-bottom:6px;">Evidence Category</label>
+              <select id="ev-category" style="width:100%; border:1px solid var(--border); border-radius:6px; padding:8px 10px; font-size:.82rem; font-family:inherit;">
+                <option value="">— Select —</option>
+                <option>Information Security Policy</option>
+                <option>System Security Plan (SSP)</option>
+                <option>Asset Inventory</option>
+                <option>Network Diagram</option>
+                <option>Access Control Policy</option>
+                <option>Incident Response Plan</option>
+                <option>Business Continuity / DRP</option>
+                <option>Vulnerability Scan Report</option>
+                <option>Training Records</option>
+                <option>Audit Logs</option>
+                <option>Third-Party Contracts</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:.78rem; font-weight:700; display:block; margin-bottom:6px;">NIST CSF Function</label>
+              <select id="ev-nist-fn" style="width:100%; border:1px solid var(--border); border-radius:6px; padding:8px 10px; font-size:.82rem; font-family:inherit;">
+                <option value="">— Select —</option>
+                <option>GOVERN — Policy &amp; Risk Management</option>
+                <option>IDENTIFY — Asset &amp; Risk Management</option>
+                <option>PROTECT — Access Control &amp; Training</option>
+                <option>DETECT — Monitoring &amp; Detection</option>
+                <option>RESPOND — Incident Response</option>
+                <option>RECOVER — Recovery Planning</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-bottom:12px;">
+            <label style="font-size:.78rem; font-weight:700; display:block; margin-bottom:6px;">Description / Notes</label>
+            <textarea id="ev-notes" rows="2" placeholder="Describe what this document covers and the time period it applies to..." style="width:100%; border:1px solid var(--border); border-radius:6px; padding:8px 10px; font-size:.82rem; font-family:inherit; resize:vertical;"></textarea>
+          </div>
+          <div onclick="agencyUploadClick()" style="border:2px dashed var(--border); border-radius:8px; padding:28px; text-align:center; cursor:pointer; background:#fafbfd; transition:all .2s;" onmouseover="this.style.borderColor='var(--primary-light)'" onmouseout="this.style.borderColor='var(--border)'">
+            <div style="font-size:1.8rem; margin-bottom:8px;">📎</div>
+            <div style="font-size:.88rem; font-weight:600; color:var(--primary);">Click to browse or drag &amp; drop files here</div>
+            <div style="font-size:.75rem; color:var(--text-muted); margin-top:4px;">Supported: PDF, DOCX, XLSX, PNG, JPG | Max 50MB per file</div>
+          </div>
+          <div id="ev-uploaded-files" style="margin-top:10px;"></div>
+          <div class="btn-row" style="margin-top:14px;">
+            <button class="btn btn-primary" onclick="agencySubmitEvidence()">Submit to Assessor</button>
+            <button class="btn btn-outline" onclick="notify('Draft saved. You can return to complete this submission later.')">Save Draft</button>
+          </div>
+        </div>
+
         <div class="card">
           <div class="card-title">Interview Schedule</div>
           <div class="table-wrap">
@@ -1478,6 +1530,41 @@
       // Initialize charts if Chart.js is loaded
       initAgencyCharts();
     });
+
+    // ── Agency Rep Evidence Submission ────────────────────────────────────────
+    const evUploaded = [];
+    function agencyUploadClick() {
+      const fakeFiles = ['MDOT_Policy_v2.pdf', 'MDOT_AssetInventory_Apr2026.xlsx', 'MDOT_NetworkDiagram.vsdx', 'MDOT_IRPlan_2026.pdf', 'MDOT_ScanReport_Q1.pdf'];
+      const file = fakeFiles[Math.floor(Math.random() * fakeFiles.length)];
+      evUploaded.push(file);
+      const container = document.getElementById('ev-uploaded-files');
+      if (container) {
+        container.innerHTML = evUploaded.map(f =>
+          `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid #d1fae5;border-radius:6px;background:#f0fdf4;margin-bottom:6px;">
+            <span style="font-size:1rem;">📄</span>
+            <span style="flex:1;font-size:.82rem;font-weight:600;">${f}</span>
+            <span style="font-size:.72rem;color:#16a34a;font-weight:700;">Ready to submit</span>
+          </div>`
+        ).join('');
+      }
+      notify('File selected: ' + file);
+    }
+
+    function agencySubmitEvidence() {
+      const category = document.getElementById('ev-category')?.value;
+      const nistFn   = document.getElementById('ev-nist-fn')?.value;
+      if (!category) { notify('Please select an Evidence Category.'); return; }
+      if (!nistFn)   { notify('Please select a NIST CSF Function.'); return; }
+      if (evUploaded.length === 0) { notify('Please select a file to upload.'); return; }
+      notify('Evidence submitted to assessor J. Williams — ' + evUploaded.join(', ') + ' | Category: ' + category);
+      evUploaded.length = 0;
+      const container = document.getElementById('ev-uploaded-files');
+      if (container) container.innerHTML = '';
+      document.getElementById('ev-category').value = '';
+      document.getElementById('ev-nist-fn').value = '';
+      if (document.getElementById('ev-notes')) document.getElementById('ev-notes').value = '';
+    }
+    // ─────────────────────────────────────────────────────────────────────────
 
     function initAgencyCharts() {
       if (typeof Chart === 'undefined') return;
