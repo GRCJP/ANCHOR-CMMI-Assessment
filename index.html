@@ -51,11 +51,6 @@
   }
   .nav-item:hover { background: rgba(255,255,255,.09); opacity: 1; }
   .nav-item.active { background: rgba(255,255,255,.14); border-left-color: var(--accent); opacity: 1; font-weight: 600; }
-  .nav-item .step-num {
-    width: 22px; height: 22px; border-radius: 50%; background: rgba(255,255,255,.15);
-    display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: 700; flex-shrink: 0;
-  }
-  .nav-item.active .step-num { background: var(--accent); }
   .nav-item .dot-done { width: 8px; height: 8px; border-radius: 50%; background: var(--accent2); flex-shrink: 0; margin-left: auto; }
   .sidebar-bottom { margin-top: auto; padding: 16px; border-top: 1px solid rgba(255,255,255,.1); font-size: .72rem; opacity: .55; }
 
@@ -84,8 +79,7 @@
   .page-header { margin-bottom: 22px; }
   .page-header h1 { font-size: 1.45rem; font-weight: 700; color: var(--primary); }
   .page-header p { color: var(--text-muted); font-size: .88rem; margin-top: 4px; }
-  .step-tag { display: inline-flex; align-items: center; gap: 6px; background: var(--accent); color: #fff; padding: 3px 10px; border-radius: 20px; font-size: .7rem; font-weight: 700; margin-bottom: 8px; }
-
+  
   /* CARDS */
   .card { background: var(--card-bg); border-radius: 10px; border: 1px solid var(--border); padding: 22px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.05); }
   .card-title { font-size: .95rem; font-weight: 700; color: var(--primary); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
@@ -467,35 +461,29 @@
   </div>
   <div class="nav-section">ANCHOR Framework — MDOT Demo</div>
   <div class="nav-item active" onclick="showSection('sq',this)">
-    <div class="step-num">1</div>
-    <div><div style="font-size:.65rem; opacity:.6; font-weight:400;">PRE-ASSESS</div>Agency Setup &amp; Intake</div>
+    <div>Agency Setup &amp; Intake</div>
     <div class="dot-done"></div>
   </div>
   <div class="nav-item" onclick="showSection('s3',this)">
-    <div class="step-num">2</div>
-    <div><div style="font-size:.65rem; opacity:.6; font-weight:400;">ASSESS</div>Evidence Collection</div>
+    <div>Evidence Collection</div>
     <div class="dot-done"></div>
   </div>
   <div class="nav-item" onclick="showSection('s2',this)">
-    <div class="step-num">3</div>
-    <div><div style="font-size:.65rem; opacity:.6; font-weight:400;">ASSESS</div>CSF Assessment</div>
+    <div>CSF Assessment</div>
     <div class="dot-done"></div>
   </div>
   <div class="nav-item" onclick="showSection('s4',this)">
-    <div class="step-num">4</div>
-    <div><div style="font-size:.65rem; opacity:.6; font-weight:400;">CONSOLIDATE</div>CMMI Scoring &amp; Risk</div>
+    <div>CMMI Scoring &amp; Risk</div>
   </div>
   <div class="nav-item" onclick="showSection('s5',this)">
-    <div class="step-num">5</div>
-    <div><div style="font-size:.65rem; opacity:.6; font-weight:400;">HARMONIZE · FRTA</div>POA&amp;M &amp; QA Gate</div>
+    <div>POA&amp;M &amp; QA Gate</div>
   </div>
   <div class="nav-item" onclick="showSection('s6',this)">
-    <div class="step-num">6</div>
-    <div><div style="font-size:.65rem; opacity:.6; font-weight:400;">REPORT</div>SAR Dashboard</div>
+    <div>SAR Dashboard</div>
   </div>
   <div class="nav-section" style="margin-top:12px; border-top:1px solid rgba(255,255,255,.1); padding-top:12px;">NAVIGATION</div>
   <div class="nav-item" onclick="window.location.href='main-dashboard.html'">
-    <div class="step-num" style="background:rgba(255,255,255,.1)">◀</div> Back to Portfolio
+    Back to Portfolio
   </div>
   <div class="sidebar-bottom">
     Maryland DGS / DoIT &nbsp;|&nbsp; Assessor: J. Williams<br>
@@ -522,7 +510,6 @@
 <!-- ============================================================ QUESTIONNAIRE -->
 <div class="section active" id="sq">
   <div class="page-header">
-    <div class="step-tag">Step 1 &nbsp;|&nbsp; ANCHOR Phase 0–1</div>
     <h1>Agency Setup &amp; Intake</h1>
     <p>Capture agency profile, IT environment, and security posture to configure the assessment. Pod assignment and wave scheduling are predefined by the client — this step sets up the tool for the full assessment process.</p>
   </div>
@@ -967,9 +954,40 @@
 <!-- ============================================================ STEP 2 -->
 <div class="section" id="s2">
   <div class="page-header">
-    <div class="step-tag">Step 3 | CSF Assessment Workbook</div>
     <h1>NIST CSF 2.0 Assessment — SRTM Workbook</h1>
     <p>Conduct the full NIST CSF 2.0 assessment aligned with the ANCHOR framework. Each control has assessment procedures with EXAMINE / INTERVIEW / TEST methods, implementation status, result scoring, and evidence mapping — modeled on the APIS CMMC SRTM.</p>
+  </div>
+
+  <!-- ===== CSF ASSESSMENT PROGRESS BANNER ===== -->
+  <div style="background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:10px 20px 12px; margin-bottom:14px;">
+    <div style="font-size:.62rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px;">CSF Assessment Progress</div>
+    <div class="h-stepper" style="margin:0;">
+      <div class="h-step done">
+        <div class="h-step-circle">✓</div>
+        <div class="h-step-label">Control Review</div>
+        <div class="h-step-date">Apr 14-20</div>
+      </div>
+      <div class="h-step done">
+        <div class="h-step-circle">✓</div>
+        <div class="h-step-label">Evidence Mapping</div>
+        <div class="h-step-date">Apr 21-27</div>
+      </div>
+      <div class="h-step active">
+        <div class="h-step-circle">3</div>
+        <div class="h-step-label">Assessment Procedures</div>
+        <div class="h-step-date">Apr 28-May 4</div>
+      </div>
+      <div class="h-step">
+        <div class="h-step-circle">4</div>
+        <div class="h-step-label">Scoring & Analysis</div>
+        <div class="h-step-date">May 5-11</div>
+      </div>
+      <div class="h-step">
+        <div class="h-step-circle">5</div>
+        <div class="h-step-label">Crosswalk Validation</div>
+        <div class="h-step-date">May 12-19</div>
+      </div>
+    </div>
   </div>
 
   <div class="tab-bar">
@@ -1143,9 +1161,40 @@
 <!-- ============================================================ STEP 3 -->
 <div class="section" id="s3">
   <div class="page-header">
-    <div class="step-tag">Step 3 &nbsp;|&nbsp; Data Collection</div>
     <h1>Evidence Collection Tracker</h1>
     <p>Track all evidence collected from documentation, interviews, and automated tools. Validate accuracy and reconcile discrepancies.</p>
+  </div>
+
+  <!-- ===== EVIDENCE COLLECTION PROGRESS BANNER ===== -->
+  <div style="background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:10px 20px 12px; margin-bottom:14px;">
+    <div style="font-size:.62rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px;">Evidence Collection Progress</div>
+    <div class="h-stepper" style="margin:0;">
+      <div class="h-step done">
+        <div class="h-step-circle">✓</div>
+        <div class="h-step-label">Evidence Request Sent</div>
+        <div class="h-step-date">Apr 7-13</div>
+      </div>
+      <div class="h-step done">
+        <div class="h-step-circle">✓</div>
+        <div class="h-step-label">Agency Interviews</div>
+        <div class="h-step-date">Apr 14-20</div>
+      </div>
+      <div class="h-step active">
+        <div class="h-step-circle">3</div>
+        <div class="h-step-label">Document Collection</div>
+        <div class="h-step-date">Apr 21-27</div>
+      </div>
+      <div class="h-step">
+        <div class="h-step-circle">4</div>
+        <div class="h-step-label">Technical Testing</div>
+        <div class="h-step-date">Apr 28-May 4</div>
+      </div>
+      <div class="h-step">
+        <div class="h-step-circle">5</div>
+        <div class="h-step-label">Validation & QA</div>
+        <div class="h-step-date">May 5-11</div>
+      </div>
+    </div>
   </div>
 
   <div class="grid-4" style="margin-bottom:20px;">
@@ -1208,7 +1257,6 @@
 <!-- ============================================================ STEP 4 -->
 <div class="section" id="s4">
   <div class="page-header">
-    <div class="step-tag">Step 4 &nbsp;|&nbsp; Risk Identification</div>
     <h1>Risk Register &amp; CMMI Maturity Scoring</h1>
     <p>Identify, analyze, and prioritize risks. Apply CMMI maturity scores across NIST CSF functions. Map risks to business impact.</p>
   </div>
@@ -1307,7 +1355,6 @@
 <!-- ============================================================ STEP 5 -->
 <div class="section" id="s5">
   <div class="page-header">
-    <div class="step-tag" style="background:#065f46;">④ HARMONIZE &nbsp;|&nbsp; FRTA Quality Gate</div>
     <h1>POA&amp;M, QA Gate &amp; Remediation Tracking</h1>
     <p>All findings pass through the mandatory <strong>Finalization Review and Technical Assurance (FRTA)</strong> gate before State delivery — ensuring ESG alignment, inter-assessor consistency, and ServiceNow GRC readiness. POA&amp;M items are developed, assigned, and tracked post-gate.</p>
   </div>
@@ -1362,7 +1409,6 @@
 <!-- ============================================================ STEP 6 -->
 <div class="section" id="s6">
   <div class="page-header">
-    <div class="step-tag">Step 6 &nbsp;|&nbsp; Reporting</div>
     <h1>System Assessment Report (SAR) &amp; Dashboard</h1>
     <p>Standardized and customizable reporting for executive and technical audiences. Real-time visibility into assessment outcomes.</p>
   </div>
@@ -1495,7 +1541,6 @@
 <!-- ============================================================ AGENCY PORTAL -->
 <div class="section" id="sa">
   <div class="page-header">
-    <div class="step-tag">Collaboration &amp; Stakeholder Engagement</div>
     <h1>Agency Portal — MDOT View</h1>
     <p>Agency representatives can upload evidence, respond to findings, and track their assessment status in real time. Role-based access limits each agency to their own data.</p>
   </div>
@@ -1648,7 +1693,6 @@
 <!-- ============================================================ CSF INTAKE & UPLOAD PORTAL -->
 <div class="section" id="sai">
   <div class="page-header">
-    <div class="step-tag" style="background:#065f46;">AGENCY-FACING &nbsp;|&nbsp; Self-Service Portal</div>
     <h1>Agency CSF Intake &amp; Evidence Upload Portal</h1>
     <p>Complete your NIST CSF 2.0 self-assessment and upload supporting evidence. Each response maps directly to CMMI maturity scoring — results flow live to your Assurit assessor's dashboard.</p>
   </div>
@@ -1740,7 +1784,6 @@
 <!-- ============================================================ 2-YEAR PIPELINE -->
 <div class="section" id="sp">
   <div class="page-header">
-    <div class="step-tag" style="background:#0d9488;">📅 OPTIMIZE &nbsp;|&nbsp; Program Management</div>
     <h1>90-Agency Assessment Pipeline — 24-Month Schedule</h1>
     <p>Wave-based delivery across all Maryland state agencies. Each wave is sized to pod capacity and agency complexity. Real-time schedule tracking with escalation alerts.</p>
   </div>
@@ -1942,7 +1985,6 @@
 <!-- ============================================================ WORKFLOW TEMPLATES -->
 <div class="section" id="sw">
   <div class="page-header">
-    <div class="step-tag">⚡ Workflow &amp; Assessment Management</div>
     <h1>Workflow Templates &amp; Configurability</h1>
     <p>Select and customize assessment profiles by agency type, risk level, or system category. Templates vary requirements at each lifecycle stage.</p>
   </div>

@@ -1,5 +1,5 @@
 /**
- * Main application controller for Assurit CyberAssess Platform
+ * Main application controller for Anchor Platform
  * Handles navigation, initialization, and core functionality
  */
 
@@ -213,7 +213,7 @@ class CyberAssessApp {
     }
 
     // Update document title
-    document.title = `${title} | Assurit CyberAssess`;
+    document.title = `${title} | Anchor Platform`;
   }
 
   initializeSection(id) {

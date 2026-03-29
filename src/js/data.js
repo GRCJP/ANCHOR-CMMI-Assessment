@@ -1,5 +1,5 @@
 /**
- * Data management module for Assurit CyberAssess Platform
+ * Data management module for Anchor Platform
  * Handles data storage, retrieval, and validation
  */
 

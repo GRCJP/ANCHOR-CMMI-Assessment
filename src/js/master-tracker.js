@@ -1,5 +1,5 @@
 /**
- * Master Tracker specific functionality for Assurit CyberAssess Platform
+ * Master Tracker specific functionality for Anchor Platform
  * Handles agency overview, charts, and navigation to individual assessments
  */
 

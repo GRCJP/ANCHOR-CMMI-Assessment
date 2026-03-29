@@ -1,16 +1,30 @@
 {
-  "name": "assurit-cyberassess-platform",
-  "version": "1.0.0",
+  "name": "anchor-cybersecurity-platform",
+  "version": "2.4.1",
   "description": "Maryland DoIT Cybersecurity Assessment Platform - ANCHOR Framework Implementation",
-  "main": "index-new.html",
+  "main": "login.html",
   "scripts": {
     "start": "python -m http.server 8080",
     "dev": "python -m http.server 8080",
     "build": "echo 'Build complete - static files ready'",
     "serve": "python -m http.server 8080 --bind 127.0.0.1",
+    "deploy": "./deploy.sh",
+    "deploy-integrated": "./deploy-integrated.sh",
+    "deploy-standalone": "./deploy-standalone.sh",
+    "deploy-minimal": "./deploy-minimal.sh",
+    "deploy-init": "./deploy.sh init",
+    "deploy-lambda": "./deploy.sh lambda",
+    "deploy-frontend": "./deploy.sh frontend",
+    "setup-demo": "./deploy.sh demo",
     "test": "echo 'Running accessibility tests...'",
     "lint": "echo 'Linting CSS and JS...'",
-    "validate": "echo 'Validating HTML and accessibility...'"
+    "validate": "echo 'Validating HTML and accessibility...'",
+    "package-lambdas": "npm run package-auth && npm run package-data && npm run package-upload && npm run package-email && npm run package-setup",
+    "package-auth": "cd aws-lambdas/auth-lambda && zip -r ../../auth-lambda.zip .",
+    "package-data": "cd aws-lambdas/data-lambda && zip -r ../../data-lambda.zip .",
+    "package-upload": "cd aws-lambdas/upload-lambda && zip -r ../../upload-lambda.zip .",
+    "package-email": "cd aws-lambdas/email-lambda && zip -r ../../email-lambda.zip .",
+    "package-setup": "cd aws-lambdas/setup-lambda && zip -r ../../setup-lambda.zip ."
   },
   "keywords": [
     "cybersecurity",
@@ -19,13 +33,22 @@
     "cmmi",
     "maryland",
     "doit",
-    "anchor-framework"
+    "anchor-framework",
+    "aws",
+    "cognito",
+    "dynamodb",
+    "lambda",
+    "s3"
   ],
-  "author": "Assurit",
+  "author": "Anchor Platform",
   "license": "MIT",
-  "devDependencies": {},
+  "devDependencies": {
+    "concurrently": "^7.6.0"
+  },
   "dependencies": {
-    "chart.js": "^4.4.0"
+    "chart.js": "^4.4.0",
+    "aws-sdk": "^2.1490.0",
+    "amazon-cognito-identity-js": "^6.3.0"
   },
   "repository": {
     "type": "git",
@@ -33,5 +56,35 @@
   },
   "engines": {
     "node": ">=14.0.0"
+  },
+  "aws": {
+    "region": "us-east-1",
+    "profile": "default",
+    "bucket": "anchor-demo",
+    "evidence_bucket": "anchor-evidence",
+    "dynamodb_table": "anchor-data",
+    "cognito_user_pool": "anchor-users"
+  },
+  "demo": {
+    "users": {
+      "admin": {
+        "email": "admin@anchor.com",
+        "password": "Anchor123!",
+        "role": "admin",
+        "name": "Anchor Administrator"
+      },
+      "assessor": {
+        "email": "assessor@anchor.com",
+        "password": "Anchor123!",
+        "role": "assessor",
+        "name": "J. Williams"
+      },
+      "agency": {
+        "email": "agency@anchor.com",
+        "password": "Anchor123!",
+        "role": "agency_rep",
+        "name": "Lisa Harmon"
+      }
+    }
   }
 }

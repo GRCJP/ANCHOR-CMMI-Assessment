@@ -1,0 +1,35 @@
+{
+  "app": {
+    "name": "Anchor Platform",
+    "version": "2.4.1",
+    "mode": "local",
+    "storage": "local"
+  },
+  "aws": {
+    "s3_bucket": "anchor-minimal-1774800323",
+    "region": "us-east-1",
+    "account_id": "791493234971"
+  },
+  "demo": {
+    "users": {
+      "admin": {
+        "email": "admin@anchor.com",
+        "password": "Anchor123!",
+        "role": "admin",
+        "name": "Anchor Administrator"
+      },
+      "assessor": {
+        "email": "assessor@anchor.com",
+        "password": "Anchor123!",
+        "role": "assessor",
+        "name": "J. Williams"
+      },
+      "agency": {
+        "email": "agency@anchor.com",
+        "password": "Anchor123!",
+        "role": "agency_rep",
+        "name": "Lisa Harmon"
+      }
+    }
+  }
+}

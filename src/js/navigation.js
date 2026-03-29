@@ -1,5 +1,5 @@
 /**
- * Navigation module for Assurit CyberAssess Platform
+ * Navigation module for Anchor Platform
  * Handles all navigation-related functionality
  */
 

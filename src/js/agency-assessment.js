@@ -186,7 +186,7 @@ class AgencyAssessment {
       titleElement.innerHTML = `${this.agencyData.name} Assessment<span>Current Stage: ${this.agencyData.stage}</span>`;
     }
 
-    document.title = `${this.agencyData.name} Assessment | Assurit CyberAssess`;
+    document.title = `${this.agencyData.name} Assessment | Anchor Platform`;
   }
 
   initializeCharts() {

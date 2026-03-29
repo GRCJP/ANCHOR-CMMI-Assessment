@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MDOT Assessment | Assurit CyberAssess</title>
+  <title>MDOT Assessment | Anchor Platform</title>
   <meta name="description" content="Maryland Dept. of Transportation Cybersecurity Assessment">
-  <meta name="author" content="Assurit">
+  <meta name="author" content="Anchor Platform">
   
   <!-- External dependencies -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -25,16 +25,14 @@
   <!-- SIDEBAR NAVIGATION -->
   <nav id="sidebar" role="navigation" aria-label="Main navigation">
     <div class="sidebar-logo">
-      <div class="brand">Assurit CyberAssess</div>
+      <div class="brand">Anchor Platform</div>
       <div class="sub">Maryland DoIT Assessment Platform</div>
       <div class="badge-md">BPM052516</div>
     </div>
     
     <!-- Back to Master Tracker -->
     <div class="nav-item" role="button" aria-expanded="false" tabindex="0" onclick="goToMasterTracker()">
-      <div class="step-num" style="background:#27ae60">←</div>
       <div>
-        <div style="font-size:.65rem; opacity:.6; font-weight:400;">BACK TO</div>
         Master Tracker
       </div>
     </div>
@@ -42,69 +40,53 @@
     <div class="nav-section">MDOT Assessment Workflow</div>
     
     <div class="nav-item active" role="button" aria-expanded="true" aria-controls="overview" tabindex="0">
-      <div class="step-num">📊</div>
       <div>
-        <div style="font-size:.65rem; opacity:.6; font-weight:400;">OVERVIEW</div>
         Assessment Dashboard
       </div>
     </div>
     
     <div class="nav-item" role="button" aria-expanded="false" aria-controls="questionnaire" tabindex="0">
-      <div class="step-num" style="background:#1e40af">Q</div>
       <div>
-        <div style="font-size:.65rem; opacity:.6; font-weight:400;">PRE-ASSESS</div>
         Agency Questionnaire
       </div>
       <div class="dot-done"></div>
     </div>
     
     <div class="nav-item" role="button" aria-expanded="false" aria-controls="intake" tabindex="0">
-      <div class="step-num">1</div>
       <div>
-        <div style="font-size:.65rem; opacity:.6; font-weight:400;">ASSESS</div>
         Intake & Scoping
       </div>
       <div class="dot-done"></div>
     </div>
     
     <div class="nav-item" role="button" aria-expanded="false" aria-controls="mapping" tabindex="0">
-      <div class="step-num">2</div>
       <div>
-        <div style="font-size:.65rem; opacity:.6; font-weight:400;">ASSESS</div>
         NIST CSF Mapping
       </div>
       <div class="dot-done"></div>
     </div>
     
     <div class="nav-item" role="button" aria-expanded="false" aria-controls="evidence" tabindex="0">
-      <div class="step-num">3</div>
       <div>
-        <div style="font-size:.65rem; opacity:.6; font-weight:400;">NORMALIZE</div>
         Evidence Collection
       </div>
       <div class="dot-done"></div>
     </div>
     
     <div class="nav-item" role="button" aria-expanded="false" aria-controls="risk" tabindex="0">
-      <div class="step-num">4</div>
       <div>
-        <div style="font-size:.65rem; opacity:.6; font-weight:400;">CONSOLIDATE</div>
         Risk & CMMI Scoring
       </div>
     </div>
     
     <div class="nav-item" role="button" aria-expanded="false" aria-controls="poam" tabindex="0">
-      <div class="step-num">5</div>
       <div>
-        <div style="font-size:.65rem; opacity:.6; font-weight:400;">HARMONIZE</div>
         POA&M Remediation
       </div>
     </div>
     
     <div class="nav-item" role="button" aria-expanded="false" aria-controls="sar" tabindex="0">
-      <div class="step-num">6</div>
       <div>
-        <div style="font-size:.65rem; opacity:.6; font-weight:400;">REPORT</div>
         SAR Dashboard
       </div>
     </div>
@@ -137,9 +119,40 @@
       <!-- OVERVIEW SECTION -->
       <section class="section active" id="overview" aria-hidden="false">
         <div class="page-header">
-          <div class="step-tag" style="background:#27ae60;">📊 ASSESSMENT OVERVIEW</div>
           <h1 id="section-overview-title">MDOT Cybersecurity Assessment</h1>
           <p>Comprehensive cybersecurity assessment for Maryland Department of Transportation. Current stage: Evidence Collection with 65% overall progress.</p>
+        </div>
+
+        <!-- ===== OVERALL ASSESSMENT PROGRESS BANNER ===== -->
+        <div style="background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:10px 20px 12px; margin-bottom:14px;">
+          <div style="font-size:.62rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px;">Overall Assessment Progress</div>
+          <div class="h-stepper" style="margin:0;">
+            <div class="h-step done">
+              <div class="h-step-circle">✓</div>
+              <div class="h-step-label">Pre-Assessment</div>
+              <div class="h-step-date">Apr 7-13</div>
+            </div>
+            <div class="h-step done">
+              <div class="h-step-circle">✓</div>
+              <div class="h-step-label">CSF Assessment</div>
+              <div class="h-step-date">Apr 14-20</div>
+            </div>
+            <div class="h-step active">
+              <div class="h-step-circle">3</div>
+              <div class="h-step-label">Evidence Collection</div>
+              <div class="h-step-date">Apr 21-27</div>
+            </div>
+            <div class="h-step">
+              <div class="h-step-circle">4</div>
+              <div class="h-step-label">Risk Analysis</div>
+              <div class="h-step-date">Apr 28-May 11</div>
+            </div>
+            <div class="h-step">
+              <div class="h-step-circle">5</div>
+              <div class="h-step-label">SAR Delivery</div>
+              <div class="h-step-date">May 12-19</div>
+            </div>
+          </div>
         </div>
 
         <!-- Agency Info Card -->
@@ -334,7 +347,6 @@
       <!-- QUESTIONNAIRE SECTION -->
       <section class="section" id="questionnaire" aria-hidden="true">
         <div class="page-header">
-          <div class="step-tag" style="background:#1e40af;">⬛ PRE-ASSESS &nbsp;|&nbsp; ANCHOR Phase 0</div>
           <h1 id="section-questionnaire-title">Pre-Assessment Security Questionnaire</h1>
           <p>Completed questionnaire responses that determined pod assignment and assessment scope.</p>
         </div>
