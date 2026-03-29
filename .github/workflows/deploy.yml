@@ -1,0 +1,296 @@
+name: Deploy Anchor Platform to AWS
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - '**.html'
+      - '**.css'
+      - '**.js'
+      - '**.json'
+      - 'aws-lambdas/**'
+      - '!README.md'
+      - '!*.md'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '**.html'
+      - '**.css'
+      - '**.js'
+      - '**.json'
+      - 'aws-lambdas/**'
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-east-1
+  PROJECT_NAME: anchor-platform
+
+jobs:
+  # Test and validate changes
+  test:
+    runs-on: ubuntu-latest
+    name: Test & Validate
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Validate HTML
+      run: |
+        find . -name "*.html" -not -path "./node_modules/*" -exec echo "Validating {}" \; -exec npx html-validator {} \; || true
+        
+    - name: Check CSS syntax
+      run: |
+        find . -name "*.css" -not -path "./node_modules/*" -exec echo "Checking {}" \; -exec npx stylelint {} \; || true
+        
+    - name: Check JavaScript syntax
+      run: |
+        find . -name "*.js" -not -path "./node_modules/*" -not -path "./aws-lambdas/*" -exec echo "Checking {}" \; -exec node -c {} \;
+
+  # Deploy to staging environment
+  deploy-staging:
+    runs-on: ubuntu-latest
+    name: Deploy to Staging
+    needs: test
+    if: github.ref == 'refs/heads/develop' || github.event_name == 'workflow_dispatch'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+        
+    - name: Create staging S3 bucket
+      run: |
+        STAGING_BUCKET="${{ env.PROJECT_NAME }}-staging-$(date +%s)"
+        echo "STAGING_BUCKET=$STAGING_BUCKET" >> $GITHUB_ENV
+        echo "Creating staging bucket: $STAGING_BUCKET"
+        aws s3 mb s3://$STAGING_BUCKET --region ${{ env.AWS_REGION }} || echo "Bucket may already exist"
+        
+    - name: Deploy frontend to S3
+      run: |
+        echo "Deploying frontend to staging bucket: $STAGING_BUCKET"
+        aws s3 sync . s3://$STAGING_BUCKET \
+          --exclude "aws-lambdas/*" \
+          --exclude ".git/*" \
+          --exclude "node_modules/*" \
+          --exclude "*.md" \
+          --exclude ".github/*" \
+          --content-type "text/html" \
+          --exclude "*" \
+          --include "*.html" \
+          --include "*.css" \
+          --include "*.js" \
+          --include "*.json" \
+          --include "*.png" \
+          --include "*.jpg" \
+          --include "*.svg" \
+          --include "*.ico"
+          
+    - name: Set content types
+      run: |
+        echo "Setting content types for CSS and JS files"
+        aws s3 sync s3://$STAGING_BUCKET s3://$STAGING_BUCKET \
+          --content-type "text/css" \
+          --exclude "*" \
+          --include "*.css"
+          
+        aws s3 sync s3://$STAGING_BUCKET s3://$STAGING_BUCKET \
+          --content-type "application/javascript" \
+          --exclude "*" \
+          --include "*.js"
+          
+    - name: Create deployment info
+      run: |
+        echo "Creating deployment metadata"
+        cat > deployment-info.json << EOF
+        {
+          "deployment": {
+            "commit": "${{ github.sha }}",
+            "branch": "${{ github.ref_name }}",
+            "timestamp": "$(date -Iseconds)",
+            "bucket": "$STAGING_BUCKET",
+            "url": "https://s3.console.aws.amazon.com/s3/bucket/$STAGING_BUCKET",
+            "environment": "staging",
+            "actor": "${{ github.actor }}",
+            "version": "$(cat package.json | jq -r .version)"
+          }
+        }
+        EOF
+        
+        aws s3 cp deployment-info.json s3://$STAGING_BUCKET/
+        
+    - name: Deploy Lambda functions
+      run: |
+        echo "Packaging Lambda functions"
+        if [[ "${{ github.event_name }}" == "push" ]]; then
+          cd aws-lambdas/auth-lambda && zip -r ../../auth-lambda.zip . && cd ../..
+          cd aws-lambdas/data-lambda && zip -r ../../data-lambda.zip . && cd ../..
+          cd aws-lambdas/upload-lambda && zip -r ../../upload-lambda.zip . && cd ../..
+          cd aws-lambdas/email-lambda && zip -r ../../email-lambda.zip . && cd ../..
+          cd aws-lambdas/setup-lambda && zip -r ../../setup-lambda.zip . && cd ../..
+          
+          echo "Uploading Lambda packages to S3"
+          aws s3 cp auth-lambda.zip s3://$STAGING_BUCKET/aws-lambdas/
+          aws s3 cp data-lambda.zip s3://$STAGING_BUCKET/aws-lambdas/
+          aws s3 cp upload-lambda.zip s3://$STAGING_BUCKET/aws-lambdas/
+          aws s3 cp email-lambda.zip s3://$STAGING_BUCKET/aws-lambdas/
+          aws s3 cp setup-lambda.zip s3://$STAGING_BUCKET/aws-lambdas/
+        fi
+        
+    - name: Deployment summary
+      run: |
+        echo "🚀 Staging deployment completed!"
+        echo "📱 URL: https://s3.console.aws.amazon.com/s3/bucket/$STAGING_BUCKET"
+        echo "🔧 To access: Open S3 console → Navigate to bucket → Open login.html"
+        echo "📧 Lambda packages uploaded for manual deployment"
+        echo "📊 Version: $(cat package.json | jq -r .version)"
+
+  # Deploy to production environment
+  deploy-production:
+    runs-on: ubuntu-latest
+    name: Deploy to Production
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+        
+    - name: Clean up old production buckets (keep latest 3)
+      run: |
+        echo "Cleaning up old production buckets (keeping latest 3)"
+        aws s3 ls | grep "${{ env.PROJECT_NAME }}-prod" | sort -r | tail -n +4 | awk '{print $3}' | while read bucket; do
+          echo "Cleaning up old bucket: $bucket"
+          aws s3 rb s3://$bucket --force || echo "Failed to remove $bucket"
+        done
+        
+    - name: Create production S3 bucket
+      run: |
+        PROD_BUCKET="${{ env.PROJECT_NAME }}-prod-$(date +%s)"
+        echo "PROD_BUCKET=$PROD_BUCKET" >> $GITHUB_ENV
+        echo "Creating production bucket: $PROD_BUCKET"
+        aws s3 mb s3://$PROD_BUCKET --region ${{ env.AWS_REGION }}
+        
+    - name: Deploy frontend to production S3
+      run: |
+        echo "Deploying frontend to production bucket: $PROD_BUCKET"
+        aws s3 sync . s3://$PROD_BUCKET \
+          --exclude "aws-lambdas/*" \
+          --exclude ".git/*" \
+          --exclude "node_modules/*" \
+          --exclude "*.md" \
+          --exclude ".github/*" \
+          --content-type "text/html" \
+          --exclude "*" \
+          --include "*.html" \
+          --include "*.css" \
+          --include "*.js" \
+          --include "*.json" \
+          --include "*.png" \
+          --include "*.jpg" \
+          --include "*.svg" \
+          --include "*.ico"
+          
+    - name: Set production content types
+      run: |
+        echo "Setting content types for production"
+        aws s3 sync s3://$PROD_BUCKET s3://$PROD_BUCKET \
+          --content-type "text/css" \
+          --exclude "*" \
+          --include "*.css"
+          
+        aws s3 sync s3://$PROD_BUCKET s3://$PROD_BUCKET \
+          --content-type "application/javascript" \
+          --exclude "*" \
+          --include "*.js"
+          
+    - name: Deploy Lambda functions to production
+      run: |
+        echo "Packaging Lambda functions for production"
+        cd aws-lambdas/auth-lambda && zip -r ../../auth-lambda.zip . && cd ../..
+        cd aws-lambdas/data-lambda && zip -r ../../data-lambda.zip . && cd ../..
+        cd aws-lambdas/upload-lambda && zip -r ../../upload-lambda.zip . && cd ../..
+        cd aws-lambdas/email-lambda && zip -r ../../email-lambda.zip . && cd ../..
+        cd aws-lambdas/setup-lambda && zip -r ../../setup-lambda.zip . && cd ../..
+        
+        echo "Uploading Lambda packages to production"
+        aws s3 cp auth-lambda.zip s3://$PROD_BUCKET/aws-lambdas/
+        aws s3 cp data-lambda.zip s3://$PROD_BUCKET/aws-lambdas/
+        aws s3 cp upload-lambda.zip s3://$PROD_BUCKET/aws-lambdas/
+        aws s3 cp email-lambda.zip s3://$PROD_BUCKET/aws-lambdas/
+        aws s3 cp setup-lambda.zip s3://$PROD_BUCKET/aws-lambdas/
+        
+    - name: Create production deployment info
+      run: |
+        echo "Creating production deployment metadata"
+        cat > production-deployment.json << EOF
+        {
+          "deployment": {
+            "commit": "${{ github.sha }}",
+            "branch": "${{ github.ref_name }}",
+            "timestamp": "$(date -Iseconds)",
+            "bucket": "$PROD_BUCKET",
+            "url": "https://s3.console.aws.amazon.com/s3/bucket/$PROD_BUCKET",
+            "environment": "production",
+            "actor": "${{ github.actor }}",
+            "version": "$(cat package.json | jq -r .version)"
+          }
+        }
+        EOF
+        
+        aws s3 cp production-deployment.json s3://$PROD_BUCKET/
+        
+    - name: Production deployment summary
+      run: |
+        echo "🎉 Production deployment completed!"
+        echo "📱 URL: https://s3.console.aws.amazon.com/s3/bucket/$PROD_BUCKET"
+        echo "🔧 To access: Open S3 console → Navigate to bucket → Open login.html"
+        echo "📧 Lambda functions uploaded for deployment"
+        echo "📊 Version: $(cat package.json | jq -r .version)"
+
+  # Notification job
+  notify:
+    runs-on: ubuntu-latest
+    name: Notify Deployment
+    needs: [deploy-staging, deploy-production]
+    if: always()
+    
+    steps:
+    - name: Notify on success
+      if: needs.deploy-staging.result == 'success' || needs.deploy-production.result == 'success'
+      run: |
+        echo "✅ Deployment successful!"
+        if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+          echo "🎉 Production deployment completed!"
+        else
+          echo "🚀 Staging deployment completed!"
+        fi
+        
+    - name: Notify on failure
+      if: needs.deploy-staging.result == 'failure' || needs.deploy-production.result == 'failure'
+      run: |
+        echo "❌ Deployment failed!"
+        echo "🔧 Check the logs for details"
+        exit 1
