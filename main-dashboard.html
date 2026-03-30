@@ -141,8 +141,7 @@
       <div>Settings</div>
     </div>
 
-    <!-- Role-aware context modules — rendered by renderSidebarContext() -->
-    <div id="sidebar-context" style="overflow-y:auto;flex:1;min-height:0;"></div>
+
 
     <div class="sidebar-bottom">
       Maryland DGS / DoIT &nbsp;|&nbsp; Demo Cohort<br>
@@ -1373,7 +1372,6 @@
       if(id==='sp') setTimeout(initPipelineCharts,100);
       if(id==='sai') setTimeout(initSaiPortal,100);
       if(id==='sa') { renderPortfolio(); renderPMNotifications(); }
-      renderSidebarContext();
     }
 
     // ---- TAB SWITCHING ----
@@ -1660,249 +1658,6 @@
       }).join('');
     }
 
-    function renderSidebarContext() {
-      const ctx = document.getElementById('sidebar-context');
-      if (!ctx) return;
-
-      let role = 'assessor';
-      try {
-        const sess = JSON.parse(localStorage.getItem('anchorSession') || '{}');
-        role = sess.role || 'assessor';
-      } catch(e) {}
-
-      // Helper: read agency assessment state
-      function agencyState(key) {
-        const def = { mdot: { name:'MDOT', stage:'Evidence Collection', progress:'65%' },
-                       dpscs:{ name:'DPSCS', stage:'CSF Assessment', progress:'35%' },
-                       msde: { name:'MSDE', stage:'SAR Delivery', progress:'100%' } };
-        const stored = {};
-        try { Object.assign(stored, JSON.parse(localStorage.getItem('assessment_' + key) || '{}')); } catch(e) {}
-        const base = def[key] || { name: key.toUpperCase(), stage:'Intake', progress:'0%' };
-        return {
-          name:     stored.agencyName ? stored.agencyName.replace('Maryland Department of Transportation', 'MDOT').replace('MD Dept. of Public Safety & Correctional Services', 'DPSCS').replace('Maryland State Department of Education', 'MSDE').split('(')[0].trim() : base.name,
-          stage:    stored.stage || base.stage,
-          progress: stored.progress || base.progress
-        };
-      }
-
-      const stageColors = {
-        'Intake & Scoping':     { bg:'rgba(59,130,246,.25)',  color:'#93c5fd' },
-        'Evidence Collection':  { bg:'rgba(245,158,11,.25)',  color:'#fcd34d' },
-        'CSF Assessment':       { bg:'rgba(139,92,246,.25)',  color:'#c4b5fd' },
-        'Risk / CMMI Scoring':  { bg:'rgba(239,68,68,.25)',   color:'#fca5a5' },
-        'POA&M Remediation':    { bg:'rgba(16,185,129,.2)',   color:'#6ee7b7' },
-        'SAR Delivery':         { bg:'rgba(16,185,129,.2)',   color:'#6ee7b7' },
-        'Complete':             { bg:'rgba(16,185,129,.25)',  color:'#6ee7b7' }
-      };
-
-      function stageTag(stage) {
-        const s = stageColors[stage] || { bg:'rgba(255,255,255,.1)', color:'rgba(255,255,255,.7)' };
-        const short = stage.replace('Evidence Collection','Evidence').replace('CSF Assessment','CSF').replace('Risk / CMMI Scoring','Risk/CMMI').replace('POA&M Remediation','POA&M').replace('SAR Delivery','SAR').replace('Intake & Scoping','Intake');
-        return '<span class="sidebar-stage-tag" style="background:' + s.bg + ';color:' + s.color + ';">' + short + '</span>';
-      }
-
-      // ── ASSESSOR ──────────────────────────────────────────────────────────
-      if (role === 'assessor') {
-        const mdot  = agencyState('mdot');
-        const dpscs = agencyState('dpscs');
-        const msde  = agencyState('msde');
-
-        // Count accepted evidence across DPSCS (assessor's active focus)
-        let accepted = 0, reviewing = 0, poamOpen = 3;
-        try {
-          const rv = JSON.parse(localStorage.getItem('anchor_review_dpscs') || '{}');
-          Object.values(rv).forEach(v => { if(v==='accepted') accepted++; else if(v==='reviewing') reviewing++; });
-        } catch(e) {}
-
-        ctx.innerHTML =
-          '<div class="sidebar-divider"></div>' +
-          '<div class="sidebar-module">' +
-            '<div class="sidebar-module-label">My Agencies</div>' +
-
-            // MDOT row
-            '<div class="sidebar-agency-row" onclick="window.location.href=\'agency-mdot.html\'">' +
-              '<div style="width:6px;height:6px;border-radius:50%;background:#3b82f6;flex-shrink:0;"></div>' +
-              '<span class="sidebar-agency-name">MDOT</span>' +
-              stageTag(mdot.stage) +
-              '<span style="font-size:.62rem;opacity:.6;">' + mdot.progress + '</span>' +
-            '</div>' +
-
-            // DPSCS row — highlighted as active
-            '<div class="sidebar-agency-row" style="background:rgba(255,255,255,.08);" onclick="window.location.href=\'agency-dpscs.html\'">' +
-              '<div style="width:6px;height:6px;border-radius:50%;background:#f59e0b;flex-shrink:0;"></div>' +
-              '<span class="sidebar-agency-name" style="opacity:1;font-weight:700;">DPSCS</span>' +
-              stageTag(dpscs.stage) +
-              '<span style="font-size:.62rem;opacity:.6;">' + dpscs.progress + '</span>' +
-            '</div>' +
-
-            // MSDE row
-            '<div class="sidebar-agency-row" onclick="window.location.href=\'agency-msde.html\'">' +
-              '<div style="width:6px;height:6px;border-radius:50%;background:#10b981;flex-shrink:0;"></div>' +
-              '<span class="sidebar-agency-name">MSDE</span>' +
-              stageTag(msde.stage) +
-              '<span style="font-size:.62rem;opacity:.6;">' + msde.progress + '</span>' +
-            '</div>' +
-          '</div>' +
-
-          '<div class="sidebar-divider"></div>' +
-          '<div class="sidebar-module">' +
-            '<div class="sidebar-module-label">Quick Stats</div>' +
-            '<div class="sidebar-stat-row"><span class="sidebar-stat-label">Evidence Accepted</span><span class="sidebar-stat-value" style="color:#6ee7b7;">' + accepted + '</span></div>' +
-            '<div class="sidebar-stat-row"><span class="sidebar-stat-label">Under Review</span><span class="sidebar-stat-value" style="color:#fcd34d;">' + reviewing + '</span></div>' +
-            '<div class="sidebar-stat-row"><span class="sidebar-stat-label">POA&amp;M Open</span><span class="sidebar-stat-value" style="color:#fca5a5;">' + poamOpen + '</span></div>' +
-          '</div>' +
-
-          '<div class="sidebar-divider"></div>' +
-          '<div class="sidebar-module">' +
-            '<div class="sidebar-module-label">Next Action</div>' +
-            '<div class="sidebar-next-action">&#9889; Score remaining CSF controls for DPSCS — <strong>7 controls pending</strong></div>' +
-          '</div>';
-      }
-
-      // ── LEAD ASSESSOR ────────────────────────────────────────────────────
-      else if (role === 'lead_assessor') {
-        const mdot  = agencyState('mdot');
-        const dpscs = agencyState('dpscs');
-        const msde  = agencyState('msde');
-
-        ctx.innerHTML =
-          '<div class="sidebar-divider"></div>' +
-          '<div class="sidebar-module">' +
-            '<div class="sidebar-module-label">Wave 1 — 3 Agencies</div>' +
-            '<div class="sidebar-agency-row" onclick="window.location.href=\'agency-mdot.html\'">' +
-              '<div style="width:6px;height:6px;border-radius:50%;background:#f59e0b;flex-shrink:0;"></div>' +
-              '<span class="sidebar-agency-name">MDOT</span>' + stageTag(mdot.stage) +
-            '</div>' +
-            '<div class="sidebar-agency-row" onclick="window.location.href=\'agency-dpscs.html\'">' +
-              '<div style="width:6px;height:6px;border-radius:50%;background:#8b5cf6;flex-shrink:0;"></div>' +
-              '<span class="sidebar-agency-name">DPSCS</span>' + stageTag(dpscs.stage) +
-            '</div>' +
-            '<div class="sidebar-agency-row" onclick="window.location.href=\'agency-msde.html\'">' +
-              '<div style="width:6px;height:6px;border-radius:50%;background:#10b981;flex-shrink:0;"></div>' +
-              '<span class="sidebar-agency-name">MSDE</span>' + stageTag(msde.stage) +
-            '</div>' +
-          '</div>' +
-
-          '<div class="sidebar-divider"></div>' +
-          '<div class="sidebar-module">' +
-            '<div class="sidebar-module-label">Team Workload</div>' +
-            '<div class="sidebar-stat-row"><span class="sidebar-stat-label">J. Williams</span><span class="sidebar-stat-value" style="font-size:.7rem;opacity:.8;">MDOT &middot; MSDE</span></div>' +
-            '<div class="sidebar-stat-row"><span class="sidebar-stat-label">R. Okafor</span><span class="sidebar-stat-value" style="font-size:.7rem;opacity:.8;">DPSCS</span></div>' +
-            '<div class="sidebar-stat-row"><span class="sidebar-stat-label">S. Patel</span><span class="sidebar-stat-value" style="font-size:.7rem;opacity:.8;">—</span></div>' +
-          '</div>' +
-
-          '<div class="sidebar-divider"></div>' +
-          '<div class="sidebar-module">' +
-            '<div class="sidebar-module-label">Flags</div>' +
-            '<div class="sidebar-alert-row"><span>&#9888;&#65039;</span><span>DPSCS — 10 controls missing evidence</span></div>' +
-            '<div class="sidebar-alert-row"><span>&#128308;</span><span>MDOT SAR target: May 19</span></div>' +
-          '</div>';
-      }
-
-      // ── ADMIN ────────────────────────────────────────────────────────────
-      else if (role === 'admin') {
-        ctx.innerHTML =
-          '<div class="sidebar-divider"></div>' +
-          '<div class="sidebar-module">' +
-            '<div class="sidebar-module-label">Cohort Status</div>' +
-            '<div class="sidebar-stat-row"><span class="sidebar-stat-label">Agencies</span><span class="sidebar-stat-value">3</span></div>' +
-            '<div class="sidebar-stat-row"><span class="sidebar-stat-label">In Progress</span><span class="sidebar-stat-value" style="color:#fcd34d;">2</span></div>' +
-            '<div class="sidebar-stat-row"><span class="sidebar-stat-label">Complete</span><span class="sidebar-stat-value" style="color:#6ee7b7;">1</span></div>' +
-            '<div class="sidebar-stat-row"><span class="sidebar-stat-label">Critical Findings</span><span class="sidebar-stat-value" style="color:#fca5a5;">4</span></div>' +
-          '</div>' +
-
-          '<div class="sidebar-divider"></div>' +
-          '<div class="sidebar-module">' +
-            '<div class="sidebar-module-label">Quick Access</div>' +
-            '<div class="sidebar-agency-row" onclick="window.location.href=\'agency-mdot.html\'">' +
-              '<span style="font-size:.8rem;">&#128309;</span>' +
-              '<span class="sidebar-agency-name">MDOT Workspace</span>' +
-            '</div>' +
-            '<div class="sidebar-agency-row" onclick="window.location.href=\'agency-dpscs.html\'">' +
-              '<span style="font-size:.8rem;">&#128307;</span>' +
-              '<span class="sidebar-agency-name">DPSCS Workspace</span>' +
-            '</div>' +
-            '<div class="sidebar-agency-row" onclick="window.location.href=\'agency-msde.html\'">' +
-              '<span style="font-size:.8rem;">&#128994;</span>' +
-              '<span class="sidebar-agency-name">MSDE Workspace</span>' +
-            '</div>' +
-          '</div>' +
-
-          '<div class="sidebar-divider"></div>' +
-          '<div class="sidebar-module">' +
-            '<div class="sidebar-module-label">System</div>' +
-            '<div class="sidebar-stat-row"><span class="sidebar-stat-label">Platform</span><span class="sidebar-stat-value" style="font-size:.65rem;opacity:.8;">v2.4.1</span></div>' +
-            '<div class="sidebar-stat-row"><span class="sidebar-stat-label">Active Users</span><span class="sidebar-stat-value">7</span></div>' +
-          '</div>';
-      }
-
-      // ── DOIT REVIEWER ────────────────────────────────────────────────────
-      else if (role === 'doit_reviewer') {
-        ctx.innerHTML =
-          '<div class="sidebar-divider"></div>' +
-          '<div class="sidebar-module">' +
-            '<div class="sidebar-module-label">Statewide Summary</div>' +
-            '<div class="sidebar-stat-row"><span class="sidebar-stat-label">Wave 1 Agencies</span><span class="sidebar-stat-value">3</span></div>' +
-            '<div class="sidebar-stat-row"><span class="sidebar-stat-label">Avg Maturity</span><span class="sidebar-stat-value" style="color:#fcd34d;">2.4</span></div>' +
-            '<div class="sidebar-stat-row"><span class="sidebar-stat-label">SARs Delivered</span><span class="sidebar-stat-value" style="color:#6ee7b7;">1</span></div>' +
-            '<div class="sidebar-stat-row"><span class="sidebar-stat-label">Critical Findings</span><span class="sidebar-stat-value" style="color:#fca5a5;">4</span></div>' +
-          '</div>' +
-
-          '<div class="sidebar-divider"></div>' +
-          '<div class="sidebar-module">' +
-            '<div class="sidebar-module-label">Upcoming Deliverables</div>' +
-            '<div class="sidebar-alert-row"><span>&#128203;</span><span>MDOT SAR — May 19</span></div>' +
-            '<div class="sidebar-alert-row"><span>&#128203;</span><span>DPSCS SAR — Jun 2</span></div>' +
-          '</div>' +
-
-          '<div class="sidebar-divider"></div>' +
-          '<div class="sidebar-module">' +
-            '<div class="sidebar-module-label">Risk Overview</div>' +
-            '<div class="sidebar-stat-row"><span class="sidebar-stat-label">&#128308; Critical</span><span class="sidebar-stat-value" style="color:#fca5a5;">4</span></div>' +
-            '<div class="sidebar-stat-row"><span class="sidebar-stat-label">&#128992; High</span><span class="sidebar-stat-value" style="color:#fed7aa;">11</span></div>' +
-            '<div class="sidebar-stat-row"><span class="sidebar-stat-label">&#128993; Medium</span><span class="sidebar-stat-value" style="color:#fef08a;">23</span></div>' +
-          '</div>';
-      }
-
-      // ── AGENCY REP ───────────────────────────────────────────────────────
-      else if (role === 'agency_rep') {
-        // Detect which agency page this rep is viewing (if any)
-        const path = window.location.pathname;
-        const agKey = path.includes('dpscs') ? 'dpscs' : path.includes('msde') ? 'msde' : 'mdot';
-        const ag = agencyState(agKey);
-
-        let answered = 0, artifacts = 0;
-        try {
-          const sa = JSON.parse(localStorage.getItem('anchor_selfassessment_' + agKey) || '{}');
-          Object.values(sa).forEach(d => {
-            if (d.answers && d.answers.some(a => a && a.trim())) answered++;
-            if (d.evidence) artifacts++;
-          });
-        } catch(e) {}
-
-        ctx.innerHTML =
-          '<div class="sidebar-divider"></div>' +
-          '<div class="sidebar-module">' +
-            '<div class="sidebar-module-label">Your Assessment</div>' +
-            '<div class="sidebar-stat-row"><span class="sidebar-stat-label">Stage</span>' + stageTag(ag.stage) + '</div>' +
-            '<div class="sidebar-stat-row"><span class="sidebar-stat-label">Progress</span><span class="sidebar-stat-value" style="color:#6ee7b7;">' + ag.progress + '</span></div>' +
-          '</div>' +
-
-          '<div class="sidebar-divider"></div>' +
-          '<div class="sidebar-module">' +
-            '<div class="sidebar-module-label">Self-Assessment</div>' +
-            '<div class="sidebar-stat-row"><span class="sidebar-stat-label">Controls Answered</span><span class="sidebar-stat-value" style="color:#6ee7b7;">' + answered + ' / 20</span></div>' +
-            '<div class="sidebar-stat-row"><span class="sidebar-stat-label">Artifacts Uploaded</span><span class="sidebar-stat-value" style="color:#6ee7b7;">' + artifacts + '</span></div>' +
-          '</div>' +
-
-          '<div class="sidebar-divider"></div>' +
-          '<div class="sidebar-module">' +
-            '<div class="sidebar-module-label">Your Assessor</div>' +
-            '<div class="sidebar-stat-row"><span class="sidebar-stat-label">Lead</span><span class="sidebar-stat-value" style="font-size:.7rem;opacity:.85;">J. Williams</span></div>' +
-            '<div class="sidebar-stat-row"><span class="sidebar-stat-label">Contact</span><span class="sidebar-stat-value" style="font-size:.65rem;opacity:.7;">j.williams@assurit.com</span></div>' +
-          '</div>';
-      }
-    }
 
     function renderPortfolio() {
       const tb = document.getElementById('portfolio-body');
@@ -2698,7 +2453,6 @@
 
     // ---- INIT ----
     renderPortfolio();
-    renderSidebarContext();
     updateOverviewStats();
     setTimeout(initPortfolioCharts, 150);
     setTimeout(initComplianceDashboard, 350); // compliance metrics now always visible on page load
