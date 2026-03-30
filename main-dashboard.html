@@ -954,8 +954,8 @@
         <div class="tab-content active" id="st-users">
           <!-- Stats row -->
           <div class="grid-4" style="margin-bottom:20px;">
-            <div class="stat-card"><div class="stat-label">Total Users</div><div class="stat-value" id="iam-total">7</div><div class="stat-sub">Active accounts</div></div>
-            <div class="stat-card green"><div class="stat-label">Active</div><div class="stat-value" id="iam-active">7</div><div class="stat-sub">Logged in within 30 days</div></div>
+            <div class="stat-card"><div class="stat-label">Total Users</div><div class="stat-value" id="iam-total">6</div><div class="stat-sub">Active accounts</div></div>
+            <div class="stat-card green"><div class="stat-label">Active</div><div class="stat-value" id="iam-active">6</div><div class="stat-sub">Logged in within 30 days</div></div>
             <div class="stat-card accent"><div class="stat-label">Pending Invites</div><div class="stat-value" id="iam-pending">0</div><div class="stat-sub">Awaiting account setup</div></div>
             <div class="stat-card"><div class="stat-label">Roles</div><div class="stat-value">5</div><div class="stat-sub">Configured access tiers</div></div>
           </div>
@@ -1346,6 +1346,60 @@
   </div>
 
   <div class="notification" id="notif" role="alert" aria-live="polite"></div>
+
+  <!-- Edit User Modal -->
+  <div id="edit-user-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1400;display:none;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:14px;width:460px;max-width:94vw;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden;">
+      <div style="background:#1e293b;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-size:.9rem;font-weight:700;color:#f8fafc;">Edit User</div>
+        <button onclick="closeEditUser()" style="background:none;border:none;color:#94a3b8;font-size:1.1rem;cursor:pointer;padding:2px 6px;">✕</button>
+      </div>
+      <div style="padding:20px 24px;">
+        <input type="hidden" id="edit-user-id">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+          <div>
+            <label style="font-size:.78rem;font-weight:600;display:block;margin-bottom:4px;">Full Name</label>
+            <input id="edit-user-name" style="width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:.85rem;font-family:inherit;">
+          </div>
+          <div>
+            <label style="font-size:.78rem;font-weight:600;display:block;margin-bottom:4px;">Email</label>
+            <input id="edit-user-email" type="email" style="width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:.85rem;font-family:inherit;">
+          </div>
+          <div>
+            <label style="font-size:.78rem;font-weight:600;display:block;margin-bottom:4px;">Role</label>
+            <select id="edit-user-role" style="width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:.85rem;font-family:inherit;">
+              <option>Program Manager</option>
+              <option>Lead Assessor</option>
+              <option>Agency POC</option>
+              <option>DoIT Reviewer</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:.78rem;font-weight:600;display:block;margin-bottom:4px;">Agency</label>
+            <select id="edit-user-agency" style="width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:.85rem;font-family:inherit;">
+              <option>All</option>
+              <option>MDOT</option>
+              <option>DPSCS</option>
+              <option>MSDE</option>
+              <option>All (Read-only)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:.78rem;font-weight:600;display:block;margin-bottom:4px;">Status</label>
+            <select id="edit-user-status" style="width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:.85rem;font-family:inherit;">
+              <option>Active</option>
+              <option>Pending</option>
+              <option>Inactive</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div style="padding:12px 24px 20px;display:flex;justify-content:flex-end;gap:8px;">
+        <button onclick="closeEditUser()" style="padding:8px 18px;border-radius:7px;border:1px solid #e2e8f0;background:#fff;color:#475569;cursor:pointer;font-size:.82rem;font-weight:600;">Cancel</button>
+        <button onclick="saveEditUser()" style="padding:8px 18px;border-radius:7px;border:none;background:#2563eb;color:#fff;cursor:pointer;font-size:.82rem;font-weight:600;">Save Changes</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     const AGENCIES = {
@@ -2542,16 +2596,15 @@
     // ── IAM User Management ─────────────────────────────────────────────
     const IAM_USERS_KEY = 'iam_users';
     const DEFAULT_IAM_USERS = [
-      {id:'u1', name:'James Wilson',   email:'admin@anchor.com',                role:'Program Manager',  agency:'All',            status:'Active', lastActive:'Today 09:41',  avatar:'JW'},
-      {id:'u2', name:'J. Williams',    email:'j.williams@assurit.com',          role:'Lead Assessor',    agency:'All',            status:'Active', lastActive:'Today 08:15',  avatar:'JW'},
-      {id:'u3', name:'R. Okafor',      email:'r.okafor@assurit.com',            role:'Assessor',         agency:'All',            status:'Active', lastActive:'Today 07:52',  avatar:'RO'},
-      {id:'u4', name:'Lisa Harmon',    email:'l.harmon@mdot.maryland.gov',      role:'Agency POC',       agency:'MDOT',           status:'Active', lastActive:'Today 09:55',  avatar:'LH'},
-      {id:'u5', name:'Angela Torres',  email:'a.torres@dpscs.maryland.gov',     role:'Agency POC',       agency:'DPSCS',          status:'Active', lastActive:'Today 09:38',  avatar:'AT'},
-      {id:'u6', name:'Patricia Hall',  email:'p.hall@msde.maryland.gov',        role:'Agency POC',       agency:'MSDE',           status:'Active', lastActive:'Yesterday',    avatar:'PH'},
-      {id:'u7', name:'DoIT Reviewer',  email:'reviewer@doit.maryland.gov',      role:'DoIT Reviewer',    agency:'All (Read-only)', status:'Active', lastActive:'Today 08:30', avatar:'DR'},
+      {id:'u1', name:'James Wilson',  email:'admin@anchor.com',               role:'Program Manager', agency:'All',            status:'Active', lastActive:'Today 09:41',  avatar:'JW'},
+      {id:'u2', name:'J. Williams',   email:'j.williams@assurit.com',         role:'Lead Assessor',   agency:'All',            status:'Active', lastActive:'Today 08:15',  avatar:'JW'},
+      {id:'u3', name:'Lisa Harmon',   email:'l.harmon@mdot.maryland.gov',     role:'Agency POC',      agency:'MDOT',           status:'Active', lastActive:'Today 09:55',  avatar:'LH'},
+      {id:'u4', name:'Angela Torres', email:'a.torres@dpscs.maryland.gov',    role:'Agency POC',      agency:'DPSCS',          status:'Active', lastActive:'Today 09:38',  avatar:'AT'},
+      {id:'u5', name:'Patricia Hall', email:'p.hall@msde.maryland.gov',       role:'Agency POC',      agency:'MSDE',           status:'Active', lastActive:'Yesterday',    avatar:'PH'},
+      {id:'u6', name:'DoIT Reviewer', email:'reviewer@doit.maryland.gov',     role:'DoIT Reviewer',   agency:'All (Read-only)', status:'Active', lastActive:'Today 08:30', avatar:'DR'},
     ];
-    // Force reset to defaults so any stale localStorage data doesn't show wrong users
-    (function() { try { var s = localStorage.getItem(IAM_USERS_KEY); if(s) { var u = JSON.parse(s); if(u.length !== DEFAULT_IAM_USERS.length || !u.find(x=>x.id==='u7')) { localStorage.removeItem(IAM_USERS_KEY); } } } catch(e) {} })();
+    // Reset stale localStorage if user list doesn't match current defaults
+    (function() { try { var s = localStorage.getItem(IAM_USERS_KEY); if(s) { var u = JSON.parse(s); if(u.length !== DEFAULT_IAM_USERS.length || u.find(x=>x.id==='u3'&&x.name==='R. Okafor')) { localStorage.removeItem(IAM_USERS_KEY); } } } catch(e) {} })();
 
     function getIamUsers() {
       const stored = localStorage.getItem(IAM_USERS_KEY);
@@ -2582,8 +2635,8 @@
           <td style="font-size:.75rem;color:var(--text-muted);">${u.lastActive}</td>
           <td>
             <div style="display:flex;gap:4px;">
-              <button class="btn btn-outline btn-sm" style="padding:3px 8px;font-size:.72rem;" onclick="resendInvite('${u.id}','${u.name}','${u.email}')">Resend</button>
-              <button class="btn btn-sm" style="padding:3px 8px;font-size:.72rem;background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;" onclick="deactivateUser('${u.id}')">Deactivate</button>
+              <button class="btn btn-outline btn-sm" style="padding:3px 8px;font-size:.72rem;" onclick="openEditUser('${u.id}')">Edit</button>
+              <button class="btn btn-sm" style="padding:3px 8px;font-size:.72rem;background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;" onclick="deleteUser('${u.id}','${u.name}')">Delete</button>
             </div>
           </td>
         </tr>`).join('');
@@ -2604,17 +2657,53 @@
       renderIamUsers(users);
     }
 
-    function resendInvite(id, name, email) {
-      notify(`Invitation resent to ${name} (${email})`);
-      const users = getIamUsers();
-      const u = users.find(x=>x.id===id);
-      if(u) { u.lastActive = 'Invite resent ' + new Date().toLocaleDateString(); saveIamUsers(users); renderIamUsers(users); }
+    function openEditUser(id) {
+      const u = getIamUsers().find(x => x.id === id);
+      if (!u) return;
+      document.getElementById('edit-user-id').value    = u.id;
+      document.getElementById('edit-user-name').value  = u.name;
+      document.getElementById('edit-user-email').value = u.email;
+      document.getElementById('edit-user-role').value  = u.role;
+      document.getElementById('edit-user-agency').value= u.agency;
+      document.getElementById('edit-user-status').value= u.status;
+      const modal = document.getElementById('edit-user-modal');
+      modal.style.display = 'flex';
     }
 
-    function deactivateUser(id) {
+    function closeEditUser() {
+      document.getElementById('edit-user-modal').style.display = 'none';
+    }
+
+    function saveEditUser() {
+      const id     = document.getElementById('edit-user-id').value;
+      const name   = document.getElementById('edit-user-name').value.trim();
+      const email  = document.getElementById('edit-user-email').value.trim();
+      const role   = document.getElementById('edit-user-role').value;
+      const agency = document.getElementById('edit-user-agency').value;
+      const status = document.getElementById('edit-user-status').value;
+      if (!name || !email) { notify('Name and email are required.'); return; }
       const users = getIamUsers();
-      const u = users.find(x=>x.id===id);
-      if(u) { u.status = 'Inactive'; saveIamUsers(users); renderIamUsers(users); notify(`${u.name} has been deactivated.`); }
+      const u = users.find(x => x.id === id);
+      if (u) {
+        u.name   = name;
+        u.email  = email;
+        u.role   = role;
+        u.agency = agency;
+        u.status = status;
+        u.avatar = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+        saveIamUsers(users);
+        renderIamUsers(users);
+        notify(`${name} updated successfully.`);
+      }
+      closeEditUser();
+    }
+
+    function deleteUser(id, name) {
+      if (!confirm(`Delete user "${name}"? This cannot be undone.`)) return;
+      const users = getIamUsers().filter(x => x.id !== id);
+      saveIamUsers(users);
+      renderIamUsers(users);
+      notify(`${name} has been removed.`);
     }
 
     function toggleAgencyField() {
