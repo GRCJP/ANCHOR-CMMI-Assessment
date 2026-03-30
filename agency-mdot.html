@@ -100,38 +100,38 @@
       <div style="font-size:.65rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); white-space:nowrap; margin-right:16px;">Assessment Pipeline:</div>
       <div style="display:flex; align-items:center; gap:0; flex:1; min-width:0;">
 
-        <div onclick="showSection('questionnaire',this)" style="display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;cursor:pointer;background:#dbeafe;border:1.5px solid #3b82f6;white-space:nowrap;" title="Intake &amp; Scoping — Complete">
+        <div id="pipe-step-intake" onclick="showSection('questionnaire',this)" style="display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;cursor:pointer;background:#dbeafe;border:1.5px solid #3b82f6;white-space:nowrap;" title="Intake &amp; Scoping — Complete">
           <span style="width:16px;height:16px;border-radius:50%;background:#3b82f6;color:#fff;font-size:.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;">✓</span>
           <span style="font-size:.72rem;font-weight:700;color:#1d4ed8;">Intake</span>
         </div>
-        <div style="width:24px;height:2px;background:#3b82f6;flex-shrink:0;"></div>
+        <div id="pipe-conn-1" style="width:24px;height:2px;background:#3b82f6;flex-shrink:0;"></div>
 
-        <div onclick="showSection('evidence',this)" style="display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;cursor:pointer;background:#fef3c7;border:1.5px solid #f59e0b;white-space:nowrap;" title="Evidence Collection — In Progress">
+        <div id="pipe-step-evidence" onclick="showSection('evidence',this)" style="display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;cursor:pointer;background:#fef3c7;border:1.5px solid #f59e0b;white-space:nowrap;" title="Evidence Collection — In Progress">
           <span style="width:16px;height:16px;border-radius:50%;background:#f59e0b;color:#fff;font-size:.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;">▶</span>
           <span style="font-size:.72rem;font-weight:700;color:#92400e;">Evidence</span>
-          <span style="font-size:.62rem;background:#f59e0b;color:#fff;padding:1px 5px;border-radius:10px;">Active</span>
+          <span class="pipe-active-badge" style="font-size:.62rem;background:#f59e0b;color:#fff;padding:1px 5px;border-radius:10px;">Active</span>
         </div>
-        <div style="width:24px;height:2px;background:#e2e8f0;flex-shrink:0;"></div>
+        <div id="pipe-conn-2" style="width:24px;height:2px;background:#e2e8f0;flex-shrink:0;"></div>
 
-        <div onclick="showSection('csf',this)" style="display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;cursor:pointer;background:#f8fafc;border:1.5px solid #cbd5e0;white-space:nowrap;" title="CSF Assessment — Pending">
+        <div id="pipe-step-csf" onclick="showSection('csf',this)" style="display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;cursor:pointer;background:#f8fafc;border:1.5px solid #cbd5e0;white-space:nowrap;" title="CSF Assessment — Pending">
           <span style="width:16px;height:16px;border-radius:50%;background:#94a3b8;color:#fff;font-size:.65rem;font-weight:800;display:flex;align-items:center;justify-content:center;">3</span>
           <span style="font-size:.72rem;font-weight:700;color:#64748b;">CSF Scoring</span>
         </div>
-        <div style="width:24px;height:2px;background:#e2e8f0;flex-shrink:0;"></div>
+        <div id="pipe-conn-3" style="width:24px;height:2px;background:#e2e8f0;flex-shrink:0;"></div>
 
-        <div onclick="showSection('risk',this)" style="display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;cursor:pointer;background:#f8fafc;border:1.5px solid #cbd5e0;white-space:nowrap;" title="Risk &amp; CMMI Scoring — Pending">
+        <div id="pipe-step-risk" onclick="showSection('risk',this)" style="display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;cursor:pointer;background:#f8fafc;border:1.5px solid #cbd5e0;white-space:nowrap;" title="Risk &amp; CMMI Scoring — Pending">
           <span style="width:16px;height:16px;border-radius:50%;background:#94a3b8;color:#fff;font-size:.65rem;font-weight:800;display:flex;align-items:center;justify-content:center;">4</span>
           <span style="font-size:.72rem;font-weight:700;color:#64748b;">Risk / CMMI</span>
         </div>
-        <div style="width:24px;height:2px;background:#e2e8f0;flex-shrink:0;"></div>
+        <div id="pipe-conn-4" style="width:24px;height:2px;background:#e2e8f0;flex-shrink:0;"></div>
 
-        <div onclick="showSection('poam',this)" style="display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;cursor:pointer;background:#f8fafc;border:1.5px solid #cbd5e0;white-space:nowrap;" title="POA&amp;M — Pending">
+        <div id="pipe-step-poam" onclick="showSection('poam',this)" style="display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;cursor:pointer;background:#f8fafc;border:1.5px solid #cbd5e0;white-space:nowrap;" title="POA&amp;M — Pending">
           <span style="width:16px;height:16px;border-radius:50%;background:#94a3b8;color:#fff;font-size:.65rem;font-weight:800;display:flex;align-items:center;justify-content:center;">5</span>
           <span style="font-size:.72rem;font-weight:700;color:#64748b;">POA&amp;M</span>
         </div>
-        <div style="width:24px;height:2px;background:#e2e8f0;flex-shrink:0;"></div>
+        <div id="pipe-conn-5" style="width:24px;height:2px;background:#e2e8f0;flex-shrink:0;"></div>
 
-        <div onclick="showSection('sar',this)" style="display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;cursor:pointer;background:#f8fafc;border:1.5px solid #cbd5e0;white-space:nowrap;" title="SAR — Pending">
+        <div id="pipe-step-sar" onclick="showSection('sar',this)" style="display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;cursor:pointer;background:#f8fafc;border:1.5px solid #cbd5e0;white-space:nowrap;" title="SAR — Pending">
           <span style="width:16px;height:16px;border-radius:50%;background:#94a3b8;color:#fff;font-size:.65rem;font-weight:800;display:flex;align-items:center;justify-content:center;">6</span>
           <span style="font-size:.72rem;font-weight:700;color:#64748b;">SAR</span>
         </div>
@@ -149,7 +149,7 @@
           <span style="font-size:1rem;">📅</span>
           <div>
             <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#1d4ed8;">Assessment Start</div>
-            <div style="font-size:.8rem;font-weight:800;color:#1e40af;">Apr 7, 2026</div>
+            <div id="tl-start-date" style="font-size:.8rem;font-weight:800;color:#1e40af;">Apr 7, 2026</div>
           </div>
         </div>
 
@@ -159,8 +159,8 @@
           <span style="font-size:1rem;">📋</span>
           <div>
             <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#92400e;">Evidence Due</div>
-            <div style="font-size:.8rem;font-weight:800;color:#92400e;">Apr 28, 2026</div>
-            <div style="font-size:.6rem;background:#f59e0b;color:#fff;padding:1px 5px;border-radius:8px;display:inline-block;margin-top:2px;">⚡ Active — 29 days left</div>
+            <div id="tl-evidence-date" style="font-size:.8rem;font-weight:800;color:#92400e;">Apr 28, 2026</div>
+            <div id="tl-evidence-status" style="font-size:.6rem;background:#f59e0b;color:#fff;padding:1px 5px;border-radius:8px;display:inline-block;margin-top:2px;">⚡ Active — 29 days left</div>
           </div>
         </div>
 
@@ -170,7 +170,7 @@
           <span style="font-size:1rem;">🏁</span>
           <div>
             <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#475569;">Est. Completion</div>
-            <div style="font-size:.8rem;font-weight:800;color:#334155;">May 19, 2026</div>
+            <div id="tl-completion-date" style="font-size:.8rem;font-weight:800;color:#334155;">May 19, 2026</div>
             <div style="font-size:.6rem;color:#64748b;margin-top:1px;">SAR delivery target</div>
           </div>
         </div>
@@ -353,10 +353,15 @@
             </div>
 
             <div class="btn-row">
-              <button class="btn btn-primary" onclick="confirmAssignmentAndLog()">Confirm Assignment</button>
-              <button class="btn btn-outline" onclick="confirmAssignmentAndLog(true)">Confirm &amp; Lock Schedule</button>
+              <button id="intake-draft-btn" class="btn btn-outline" onclick="saveIntakeDraft()">Save Draft</button>
+              <button id="intake-submit-btn" class="btn btn-primary" onclick="submitIntakeForm()">Save &amp; Submit Intake</button>
               <button class="btn btn-outline" onclick="notify('Kick-off presentation sent to l.harmon@mdot.maryland.gov')">Send Kick-Off Package</button>
               <button class="btn btn-outline" onclick="notify('Questionnaire exported: MDOT_PreAssess_Q.pdf')">Export PDF</button>
+            </div>
+            <div id="intake-locked-indicator" style="display:none;align-items:center;gap:10px;padding:10px 16px;background:#d1fae5;border:1px solid #6ee7b7;border-radius:8px;margin-top:8px;">
+              <span style="font-size:1rem;">✅</span>
+              <span style="font-size:.8rem;font-weight:700;color:#065f46;">Intake Submitted — Assessment advanced to Evidence Collection</span>
+              <button id="intake-unlock-btn" onclick="unlockIntakeForm()" style="display:none;margin-left:auto;font-size:.72rem;padding:4px 12px;border-radius:6px;border:1px solid #059669;background:#fff;color:#065f46;cursor:pointer;font-weight:600;">Unlock for Editing</button>
             </div>
           </div>
 
@@ -421,8 +426,9 @@
                   <tr><td style="padding:5px 4px; color:var(--text-muted); white-space:nowrap;">Maturity Group</td><td style="padding:5px 4px;"><select id="sq-matgroup" style="border:1px solid var(--border); border-radius:5px; padding:3px 7px; font-size:.78rem; width:100%;"><option>Group A (0.0–1.4)</option><option selected>Group B (1.5–2.5)</option><option>Group C (2.6–3.4)</option><option>Group D (3.5–4.4)</option><option>Group E (4.5–5.0)</option></select></td></tr>
                 </tbody>
               </table>
-              <div style="margin-top:10px;">
-                <button class="btn btn-primary btn-sm" onclick="confirmAssignmentAndLog()">Confirm Assignment</button>
+              <div style="margin-top:10px;display:flex;flex-direction:column;gap:5px;">
+                <button class="btn btn-primary btn-sm" onclick="submitIntakeForm()">Save &amp; Submit Intake</button>
+                <button class="btn btn-outline btn-sm" onclick="saveIntakeDraft()">Save Draft</button>
               </div>
             </div>
 
@@ -431,7 +437,7 @@
               <div style="font-size:.78rem; font-weight:800; color:#059669; text-transform:uppercase; letter-spacing:.5px; margin-bottom:10px;">Stage Actions</div>
               <div style="display:flex; flex-direction:column; gap:6px;">
                 <button class="btn btn-accent btn-sm" style="justify-content:flex-start;" onclick="notify('Kick-off presentation sent to l.harmon@mdot.maryland.gov')">Send Kick-Off Presentation</button>
-                <button class="btn btn-outline btn-sm" style="justify-content:flex-start;" onclick="confirmAssignmentAndLog(true)">Confirm Assignment &amp; Lock Schedule</button>
+                <button class="btn btn-outline btn-sm" style="justify-content:flex-start;" onclick="submitIntakeForm()">Submit Intake &amp; Advance Pipeline</button>
               </div>
             </div>
 
@@ -1083,6 +1089,8 @@
       }
     }
 
+    window.AGENCY_KEY = 'mdot';
+
     function confirmAssignmentAndLog(lockSchedule = false) {
       notify(lockSchedule
         ? 'Assignment confirmed and schedule locked.'
@@ -1727,5 +1735,6 @@
       }
     }
   </script>
+  <script src="src/js/intake-workflow.js"></script>
 </body>
 </html>

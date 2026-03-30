@@ -773,6 +773,8 @@
           <h1>Agency Selection &amp; Assessment Management</h1>
           <p>View, filter, and manage all agency assessments. Open any agency workspace to access intake, evidence, CSF scoring, risk analysis, POA&amp;M, and SAR delivery.</p>
         </div>
+        <!-- PM Notifications Banner -->
+        <div id="pm-notifications-banner" style="display:none;margin-bottom:16px;"></div>
         <div class="card" id="agency-table">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
             <div class="card-title" style="margin-bottom:0;">All Agencies — Assessment Tracker</div>
@@ -1367,6 +1369,7 @@
       if(topbar) topbar.innerHTML = `${titles[id]||'Dashboard'}<span>DoIT OSM · 3-Agency Demo Cohort</span>`;
       if(id==='sp') setTimeout(initPipelineCharts,100);
       if(id==='sai') setTimeout(initSaiPortal,100);
+      if(id==='sa') { renderPortfolio(); renderPMNotifications(); }
     }
 
     // ---- TAB SWITCHING ----
@@ -1573,6 +1576,10 @@
 
     // ---- PORTFOLIO TABLE ----
     function getIntakeStatus(agencyId) {
+      // Check functional intake submission first
+      const intake = JSON.parse(localStorage.getItem('anchor_intake_' + agencyId) || '{}');
+      if (intake.status === 'submitted') return 'Submitted';
+      if (intake.status === 'draft')     return 'Draft';
       const a = JSON.parse(localStorage.getItem(`assessment_${agencyId}`) || '{}');
       return a.status || 'Not Started';
     }
@@ -1616,6 +1623,39 @@
       return allAgencies;
     }
 
+    window.dismissPMNotification = function (id) {
+      try {
+        const notifs = JSON.parse(localStorage.getItem('pm_notifications') || '[]');
+        const updated = notifs.map(n => { if(n.id===id) n.dismissed=true; return n; });
+        localStorage.setItem('pm_notifications', JSON.stringify(updated));
+      } catch(e) {}
+      const el = document.getElementById('pm-notif-' + id);
+      if (el) el.style.display = 'none';
+      renderPMNotifications();
+    };
+
+    function renderPMNotifications() {
+      const banner = document.getElementById('pm-notifications-banner');
+      if (!banner) return;
+      var notifs = [];
+      try { notifs = JSON.parse(localStorage.getItem('pm_notifications') || '[]'); } catch(e) {}
+      const active = notifs.filter(function (n) { return !n.dismissed; });
+      if (!active.length) { banner.style.display = 'none'; return; }
+      banner.style.display = 'block';
+      banner.innerHTML = active.map(function (n) {
+        const ts = n.timestamp ? new Date(n.timestamp).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}) : '';
+        return '<div id="pm-notif-' + n.id + '" style="display:flex;align-items:center;gap:10px;padding:10px 16px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;margin-bottom:8px;">' +
+          '<span style="font-size:1rem;">🔔</span>' +
+          '<div style="flex:1;">' +
+            '<span style="font-size:.78rem;font-weight:700;color:#1e40af;">[NEW] ' + (n.agencyName || n.agencyKey.toUpperCase()) + '</span>' +
+            '<span style="font-size:.76rem;color:#334155;"> — ' + n.message + ' Assessment advanced to <strong>' + n.stage + '</strong>.' + (ts ? ' <span style="color:#94a3b8;">' + ts + '</span>' : '') + '</span>' +
+          '</div>' +
+          '<button onclick="openOverview(\'' + n.agencyKey + '\')" style="font-size:.72rem;padding:4px 10px;border-radius:6px;border:1px solid #3b82f6;background:#fff;color:#1d4ed8;cursor:pointer;font-weight:600;">Open</button>' +
+          '<button onclick="dismissPMNotification(\'' + n.id + '\')" style="font-size:.72rem;padding:4px 8px;border-radius:6px;border:1px solid #e2e8f0;background:#fff;color:#64748b;cursor:pointer;">Dismiss</button>' +
+        '</div>';
+      }).join('');
+    }
+
     function renderPortfolio() {
       const tb = document.getElementById('portfolio-body');
       if(!tb) return;
@@ -1623,7 +1663,7 @@
       tb.innerHTML = Object.entries(allAgencies).map(([id, a]) => {
         const intake = getIntakeStatus(id);
         const pod = getPod(id);
-        const intakeBadge = intake==='Created' ? 'badge-green' : 'badge-gray';
+        const intakeBadge = intake==='Submitted' ? 'badge-green' : intake==='Draft' ? 'badge-blue' : intake==='Created' ? 'badge-green' : 'badge-gray';
         return `<tr>
           <td style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${a.name}">${a.name}</td>
           <td><span class="badge ${statusBadge(a.status)}">${a.status}</span></td>

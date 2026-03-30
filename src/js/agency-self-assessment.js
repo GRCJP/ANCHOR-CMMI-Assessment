@@ -894,6 +894,9 @@
         if (!hasAnswers && !hasArtifact) return;
 
         const review = reviewState[ctrl.id] || 'new';
+        // Accepted items move to Evidence Tracker — hide from Submitted Artifacts
+        if (review === 'accepted') return;
+
         const reviewStyles = {
           accepted:  'background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;',
           returned:  'background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;',
@@ -923,7 +926,7 @@
           '</td>' +
           '<td style="padding:12px 14px;vertical-align:top;white-space:nowrap;">' +
             (hasArtifact
-              ? '<div style="font-size:.73rem;font-weight:600;color:#059669;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + d.evidence + '">' + d.evidence + '</div><div style="font-size:.65rem;color:#94a3b8;margin-top:2px;">Agency submitted</div>'
+              ? '<div style="font-size:.73rem;font-weight:600;color:#059669;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;text-decoration:underline;" title="' + d.evidence + '" onclick="showArtifactPreview(\'' + d.evidence.replace(/'/g,"\\'") + '\',\'' + ctrl.id + '\',\'' + ctrl.label.replace(/'/g,"\\'") + '\')">' + d.evidence + '</div><div style="font-size:.65rem;color:#94a3b8;margin-top:2px;">Click to preview</div>'
               : '<span style="font-size:.72rem;color:#f59e0b;font-weight:600;">Not yet uploaded</span>') +
           '</td>' +
           '<td style="padding:12px 14px;vertical-align:top;white-space:nowrap;">' +
@@ -943,7 +946,7 @@
     if (!rows) {
       container.innerHTML =
         '<div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:18px 22px;margin-bottom:20px;border-left:4px solid #e2e8f0;">' +
-          '<div style="font-size:.84rem;font-weight:700;color:#1e293b;margin-bottom:6px;">Agency Self-Assessment Submissions</div>' +
+          '<div style="font-size:.84rem;font-weight:700;color:#1e293b;margin-bottom:6px;">Submitted Artifacts</div>' +
           '<p style="font-size:.78rem;color:#94a3b8;margin:0;">No agency submissions received yet. The agency representative has not submitted responses or artifacts for this assessment cycle. Submissions will appear here as the agency completes their self-assessment questionnaire.</p>' +
         '</div>';
       return;
@@ -955,8 +958,8 @@
         // Header
         '<div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">' +
           '<div>' +
-            '<div style="font-size:.84rem;font-weight:700;color:#1e293b;">Agency Self-Assessment Submissions</div>' +
-            '<div style="font-size:.74rem;color:#64748b;margin-top:2px;">Live view of responses and artifacts submitted by the agency representative — read directly from the agency submission portal</div>' +
+            '<div style="font-size:.84rem;font-weight:700;color:#1e293b;">Submitted Artifacts</div>' +
+            '<div style="font-size:.74rem;color:#64748b;margin-top:2px;">Pending and under-review submissions from the agency representative — accepted artifacts move to Evidence Tracker</div>' +
           '</div>' +
           '<div style="display:flex;gap:10px;flex-wrap:wrap;">' +
             '<div style="text-align:center;padding:6px 14px;background:#f8fafc;border:1px solid var(--border);border-radius:7px;">' +
@@ -1002,8 +1005,104 @@
     reviewState[ctrlId] = status;
     localStorage.setItem(reviewKey, JSON.stringify(reviewState));
     renderAssessorSubmissionsCard();
-    const labels = { accepted: 'Submission accepted.', reviewing: 'Marked as Under Review.', returned: 'Submission returned for revision.' };
+    renderLiveEvidenceTracker && (function () {
+      // sync Evidence Tracker too
+      const cards = document.querySelectorAll('.content-card, .card');
+      cards.forEach(function (c) {
+        const t = c.querySelector('.card-title, h3, h4');
+        if (t && t.textContent.includes('Evidence Tracker')) {
+          renderLiveEvidenceTracker(c);
+          updateEvidenceLifecycleStats && updateEvidenceLifecycleStats();
+        }
+      });
+    })();
+    const labels = { accepted: 'Submission accepted — moved to Evidence Tracker.', reviewing: 'Marked as Under Review.', returned: 'Submission returned for revision.' };
     if (typeof notify === 'function') notify(labels[status] || 'Review status updated.');
+  };
+
+  // ── Artifact Preview Modal ────────────────────────────────────────────────
+  window.showArtifactPreview = function (filename, ctrlId, ctrlLabel) {
+    // Remove existing modal if any
+    var existing = document.getElementById('artifact-preview-overlay');
+    if (existing) existing.remove();
+
+    // Determine file icon / color based on extension
+    var ext = (filename.split('.').pop() || '').toLowerCase();
+    var iconMap = {
+      pdf:  { icon: '📄', color: '#dc2626', bg: '#fef2f2', label: 'PDF Document' },
+      xlsx: { icon: '📊', color: '#16a34a', bg: '#f0fdf4', label: 'Excel Spreadsheet' },
+      xls:  { icon: '📊', color: '#16a34a', bg: '#f0fdf4', label: 'Excel Spreadsheet' },
+      docx: { icon: '📝', color: '#2563eb', bg: '#eff6ff', label: 'Word Document' },
+      doc:  { icon: '📝', color: '#2563eb', bg: '#eff6ff', label: 'Word Document' },
+      pptx: { icon: '📑', color: '#ea580c', bg: '#fff7ed', label: 'PowerPoint' },
+      png:  { icon: '🖼️', color: '#7c3aed', bg: '#f5f3ff', label: 'Image' },
+      jpg:  { icon: '🖼️', color: '#7c3aed', bg: '#f5f3ff', label: 'Image' }
+    };
+    var meta = iconMap[ext] || { icon: '📎', color: '#64748b', bg: '#f8fafc', label: 'Document' };
+
+    // Simulated page count / size for realism
+    var fakeSizes = { pdf: '2.4 MB · 14 pages', xlsx: '890 KB · 3 sheets', xls: '890 KB · 3 sheets',
+      docx: '1.1 MB · 8 pages', doc: '1.1 MB · 8 pages', pptx: '3.2 MB · 22 slides',
+      png: '512 KB · image', jpg: '768 KB · image' };
+    var fakeSize = fakeSizes[ext] || '1.0 MB';
+
+    var overlay = document.createElement('div');
+    overlay.id = 'artifact-preview-overlay';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,0.65);z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);';
+    overlay.onclick = function (e) { if (e.target === overlay) overlay.remove(); };
+
+    overlay.innerHTML =
+      '<div style="background:#fff;border-radius:14px;box-shadow:0 25px 60px rgba(0,0,0,.35);width:520px;max-width:92vw;overflow:hidden;animation:fadeInUp .18s ease;">' +
+        // Modal header
+        '<div style="background:#1e293b;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;">' +
+          '<div style="display:flex;align-items:center;gap:10px;">' +
+            '<div style="width:32px;height:32px;border-radius:7px;background:#334155;display:flex;align-items:center;justify-content:center;font-size:1.1rem;">' + meta.icon + '</div>' +
+            '<div>' +
+              '<div style="font-size:.82rem;font-weight:700;color:#f8fafc;">Artifact Preview</div>' +
+              '<div style="font-size:.68rem;color:#94a3b8;">' + meta.label + ' · ' + fakeSize + '</div>' +
+            '</div>' +
+          '</div>' +
+          '<button onclick="document.getElementById(\'artifact-preview-overlay\').remove()" style="background:none;border:none;color:#94a3b8;font-size:1.2rem;cursor:pointer;padding:4px 8px;border-radius:5px;line-height:1;" title="Close">✕</button>' +
+        '</div>' +
+        // Document thumbnail area
+        '<div style="background:' + meta.bg + ';padding:28px 24px;display:flex;flex-direction:column;align-items:center;gap:16px;border-bottom:1px solid #e2e8f0;">' +
+          '<div style="width:260px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.1);overflow:hidden;">' +
+            // Simulated document header bar
+            '<div style="background:' + meta.color + ';height:8px;width:100%;"></div>' +
+            '<div style="padding:18px 20px;">' +
+              '<div style="height:10px;background:#1e293b;border-radius:3px;width:75%;margin-bottom:12px;"></div>' +
+              '<div style="height:7px;background:#94a3b8;border-radius:2px;width:55%;margin-bottom:18px;"></div>' +
+              '<div style="display:flex;gap:8px;margin-bottom:14px;">' +
+                '<div style="width:48px;height:48px;background:' + meta.bg + ';border-radius:6px;border:1px solid ' + meta.color + '40;display:flex;align-items:center;justify-content:center;font-size:1.5rem;">' + meta.icon + '</div>' +
+                '<div style="flex:1;padding-top:4px;">' +
+                  '<div style="height:7px;background:#cbd5e1;border-radius:2px;margin-bottom:6px;width:80%;"></div>' +
+                  '<div style="height:6px;background:#e2e8f0;border-radius:2px;width:60%;"></div>' +
+                '</div>' +
+              '</div>' +
+              '<div style="height:5px;background:#e2e8f0;border-radius:2px;margin-bottom:5px;"></div>' +
+              '<div style="height:5px;background:#e2e8f0;border-radius:2px;margin-bottom:5px;width:90%;"></div>' +
+              '<div style="height:5px;background:#e2e8f0;border-radius:2px;margin-bottom:5px;width:85%;"></div>' +
+              '<div style="height:5px;background:#e2e8f0;border-radius:2px;width:70%;"></div>' +
+            '</div>' +
+          '</div>' +
+          '<div style="font-size:.72rem;color:#475569;text-align:center;max-width:320px;">' +
+            '<span style="font-weight:700;color:#1e293b;">' + filename + '</span>' +
+          '</div>' +
+        '</div>' +
+        // Control info
+        '<div style="padding:14px 20px;background:#f8fafc;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;gap:10px;">' +
+          '<span style="font-size:.65rem;font-weight:800;color:' + meta.color + ';background:' + meta.bg + ';border:1px solid ' + meta.color + '40;padding:2px 8px;border-radius:3px;">' + ctrlId + '</span>' +
+          '<span style="font-size:.75rem;color:#334155;font-weight:600;">' + ctrlLabel + '</span>' +
+        '</div>' +
+        // Action footer
+        '<div style="padding:14px 20px;display:flex;justify-content:flex-end;gap:8px;">' +
+          '<button onclick="document.getElementById(\'artifact-preview-overlay\').remove()" style="font-size:.76rem;padding:7px 16px;border-radius:7px;border:1px solid #e2e8f0;background:#fff;color:#475569;cursor:pointer;font-weight:600;">Close</button>' +
+          '<button onclick="setSubmissionReview(\'' + ctrlId + '\',\'reviewing\');document.getElementById(\'artifact-preview-overlay\').remove();" style="font-size:.76rem;padding:7px 16px;border-radius:7px;border:1px solid #3b82f6;background:#eff6ff;color:#1d4ed8;cursor:pointer;font-weight:600;">Mark Under Review</button>' +
+          '<button onclick="setSubmissionReview(\'' + ctrlId + '\',\'accepted\');document.getElementById(\'artifact-preview-overlay\').remove();" style="font-size:.76rem;padding:7px 16px;border-radius:7px;border:none;background:#10b981;color:#fff;cursor:pointer;font-weight:700;">Accept Artifact</button>' +
+        '</div>' +
+      '</div>';
+
+    document.body.appendChild(overlay);
   };
 
   // ── Live Selectable Evidence Tracker (Assessor) ──────────────────────────
