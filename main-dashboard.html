@@ -142,7 +142,6 @@
     <div class="nav-item" role="button" tabindex="0" onclick="showSection('sw', this)">
       <div>Workflow Templates</div>
     </div>
-
     <div class="nav-section">System</div>
     <div class="nav-item" role="button" tabindex="0" onclick="showSection('settings', this)">
       <div>Settings</div>
@@ -192,6 +191,14 @@
           </div>
         </div>
 
+        <!-- PORTFOLIO TAB BAR -->
+        <div class="tab-bar" style="margin-bottom:20px;">
+          <div class="tab active" id="pf-tab-overview" onclick="switchPortfolioTab('overview')">📊 Portfolio Overview</div>
+          <div class="tab" id="pf-tab-compliance" onclick="switchPortfolioTab('compliance')">✅ Compliance Dashboard <span style="font-size:.65rem;opacity:.7;">(RFP §2.3.1.F)</span></div>
+        </div>
+
+        <!-- TAB 1: PORTFOLIO OVERVIEW -->
+        <div id="pf-overview">
         <!-- ---- STATEWIDE OVERVIEW METRICS ---- -->
         <div class="grid-4" style="margin-bottom:20px;" id="overview-stats">
           <!-- Stats will be populated by JavaScript -->
@@ -455,6 +462,251 @@
           </div>
 
         </div>
+        </div><!-- /pf-overview -->
+
+        <!-- TAB 2: COMPLIANCE DASHBOARD — RFP §2.3.1.F -->
+        <div id="pf-compliance" style="display:none;">
+        <div class="anchor-banner">
+          <div></div>
+          <div><strong>ANCHOR — REPORT Phase:</strong> The compliance dashboard aggregates maturity scores, constraints, and findings across all completed assessments. All five RFP §2.3.1.F metrics are displayed below and structured for direct import into the State's ServiceNow GRC platform.</div>
+        </div>
+
+        <!-- RFP metric reference badges -->
+        <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px; align-items:center;">
+          <span style="font-size:.72rem; font-weight:700; color:var(--primary);">RFP §2.3.1.F Required Metrics:</span>
+          <span class="badge badge-blue" style="font-size:.68rem; padding:3px 8px;">1 · Top Controls by Maturity</span>
+          <span class="badge badge-blue" style="font-size:.68rem; padding:3px 8px;">2 · Most Common Constraints</span>
+          <span class="badge badge-blue" style="font-size:.68rem; padding:3px 8px;">3 · Top Recommended Improvements</span>
+          <span class="badge badge-blue" style="font-size:.68rem; padding:3px 8px;">4 · CMMI 0-5 by CSF Function</span>
+          <span class="badge badge-blue" style="font-size:.68rem; padding:3px 8px;">5 · Top Findings/Risks by Agency</span>
+        </div>
+
+        <!-- View toggle -->
+        <div style="display:flex; gap:8px; align-items:center; margin-bottom:18px; flex-wrap:wrap;">
+          <label style="font-size:.82rem; font-weight:700; color:var(--primary);">View:</label>
+          <button class="btn btn-primary btn-sm" id="sc-view-statewide" onclick="setSCView('statewide')">Statewide (Aggregated)</button>
+          <button class="btn btn-outline btn-sm" id="sc-view-agency" onclick="setSCView('agency')">By Agency (Disaggregated)</button>
+          <select id="sc-agency-select" style="display:none; padding:5px 10px; border-radius:6px; border:1px solid var(--border); font-size:.78rem;" onchange="notify('📊 Showing agency-level view for selected agency')">
+            <option value="mdot">MDOT — In Progress</option>
+            <option value="dpscs">DPSCS — In Progress</option>
+            <option value="msde">MSDE — Complete</option>
+          </select>
+          <button class="btn btn-outline btn-sm" onclick="exportSCDashboard()">📤 Export to ServiceNow GRC</button>
+          <button class="btn btn-outline btn-sm" onclick="notify('📄 PDF generated: MD_Statewide_Compliance_Dashboard_2026.pdf')">Download PDF</button>
+        </div>
+
+        <!-- Summary KPIs -->
+        <div class="grid-4" style="margin-bottom:20px;">
+          <div class="stat-card accent"><div class="stat-label">Avg Statewide Maturity</div><div class="stat-value">2.9</div><div class="stat-sub">CMMI 0-5 · Up from 2.1 (Jan 2025)</div></div>
+          <div class="stat-card red"><div class="stat-label">Critical Control Gaps</div><div class="stat-value">47</div><div class="stat-sub">Across 23 completed agencies</div></div>
+          <div class="stat-card green"><div class="stat-label">Agencies at CMMI ≥ 3.0</div><div class="stat-value">8</div><div class="stat-sub">Meeting DoIT target baseline</div></div>
+          <div class="stat-card"><div class="stat-label">Open POA&amp;M Items</div><div class="stat-value">312</div><div class="stat-sub">Tracked across all agencies</div></div>
+        </div>
+
+        <!-- Metric 1 + Metric 4 -->
+        <div class="grid-2" style="margin-bottom:20px;">
+          <div class="card">
+            <div class="card-title">
+              <span style="background:#dbeafe;color:#1d4ed8;font-size:.65rem;font-weight:800;padding:2px 8px;border-radius:8px;margin-right:6px;">METRIC 1</span>
+              Top Control Categories by Maturity — Statewide
+            </div>
+            <div style="font-size:.74rem;color:var(--text-muted);margin-bottom:10px;">Highest and lowest performing NIST CSF subcategories across all completed assessments (green ≥ 3.0, amber ≥ 2.0, red &lt; 2.0)</div>
+            <div class="chart-wrap-sm"><canvas id="sc-metric1-chart"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <span style="background:#dbeafe;color:#1d4ed8;font-size:.65rem;font-weight:800;padding:2px 8px;border-radius:8px;margin-right:6px;">METRIC 4</span>
+              CMMI Maturity (0-5) by CSF Function — Statewide
+            </div>
+            <div style="font-size:.74rem;color:var(--text-muted);margin-bottom:10px;">Average CMMI score per NIST CSF 2.0 function across all agencies. Dashed line = DoIT target baseline (CMMI 3.0)</div>
+            <div class="chart-wrap-sm"><canvas id="sc-metric4-chart"></canvas></div>
+          </div>
+        </div>
+
+        <!-- Metric 2 + Metric 3 -->
+        <div class="grid-2" style="margin-bottom:20px;">
+          <div class="card">
+            <div class="card-title">
+              <span style="background:#fee2e2;color:#dc2626;font-size:.65rem;font-weight:800;padding:2px 8px;border-radius:8px;margin-right:6px;">METRIC 2</span>
+              Most Common Constraints Across All Agencies
+            </div>
+            <div style="font-size:.74rem;color:var(--text-muted);margin-bottom:10px;">Constraints documented during assessments limiting agencies' ability to achieve higher CMMI scores</div>
+            <div class="chart-wrap-sm"><canvas id="sc-metric2-chart"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <span style="background:#d4f4e2;color:#065f46;font-size:.65rem;font-weight:800;padding:2px 8px;border-radius:8px;margin-right:6px;">METRIC 3</span>
+              Top Recommended Areas of Improvement
+            </div>
+            <div style="font-size:.74rem;color:var(--text-muted);margin-bottom:12px;">CSF functions where the most agencies score below CMMI 3.0 target — ranked by improvement priority</div>
+            <div id="sc-metric3-list" style="display:flex;flex-direction:column;gap:10px;margin-top:4px;"></div>
+          </div>
+        </div>
+
+        <!-- Metric 5 table -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-title">
+            <span style="background:#fef3cd;color:#78350f;font-size:.65rem;font-weight:800;padding:2px 8px;border-radius:8px;margin-right:6px;">METRIC 5</span>
+            Top Findings, Risks &amp; Issues by Agency
+          </div>
+          <div style="font-size:.74rem;color:var(--text-muted);margin-bottom:10px;">Critical and high-severity findings across completed assessments with risk score, agency response status, and POA&amp;M tracking</div>
+          <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+            <select style="padding:4px 8px;border-radius:6px;border:1px solid var(--border);font-size:.75rem;" onchange="notify('🔍 Severity filter applied')">
+              <option>All Severities</option><option>Critical Only</option><option>High + Critical</option>
+            </select>
+            <select style="padding:4px 8px;border-radius:6px;border:1px solid var(--border);font-size:.75rem;" onchange="notify('🔍 Agency filter applied')">
+              <option>All Agencies</option><option>MDOT</option><option>DPSCS</option><option>MSDE</option>
+            </select>
+            <select style="padding:4px 8px;border-radius:6px;border:1px solid var(--border);font-size:.75rem;" onchange="notify('🔍 Function filter applied')">
+              <option>All CSF Functions</option><option>GOVERN</option><option>IDENTIFY</option><option>PROTECT</option><option>DETECT</option><option>RESPOND</option><option>RECOVER</option>
+            </select>
+            <button class="btn btn-outline btn-sm" onclick="notify('📥 Findings exported: MD_Top_Findings_2026.xlsx')">Export Findings</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Finding ID</th><th>Agency</th><th>CSF Function</th><th>Finding</th><th>Severity</th><th>Risk Score</th><th>Agency Response</th><th>POA&amp;M</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><code style="font-size:.7rem;">F-MDOT-001</code></td>
+                  <td><span class="badge badge-blue">MDOT</span></td>
+                  <td><span style="font-size:.68rem;background:#fef3cd;color:#78350f;padding:2px 5px;border-radius:4px;font-weight:700;">DETECT</span></td>
+                  <td style="font-size:.82rem;">No SIEM / Continuous Monitoring</td>
+                  <td><span class="badge badge-red">CRITICAL</span></td><td><strong>9.2</strong></td>
+                  <td><span class="badge badge-green">Concurred</span></td>
+                  <td><span class="badge badge-orange">In Progress</span></td>
+                </tr>
+                <tr>
+                  <td><code style="font-size:.7rem;">F-MDOT-002</code></td>
+                  <td><span class="badge badge-blue">MDOT</span></td>
+                  <td><span style="font-size:.68rem;background:#d4f4e2;color:#065f46;padding:2px 5px;border-radius:4px;font-weight:700;">PROTECT</span></td>
+                  <td style="font-size:.82rem;">MFA Not Enforced — Privileged Accounts</td>
+                  <td><span class="badge badge-red">CRITICAL</span></td><td><strong>8.8</strong></td>
+                  <td><span class="badge badge-green">Concurred</span></td>
+                  <td><span class="badge badge-blue">Remediation Active</span></td>
+                </tr>
+                <tr>
+                  <td><code style="font-size:.7rem;">F-DPSCS-001</code></td>
+                  <td><span class="badge badge-orange">DPSCS</span></td>
+                  <td><span style="font-size:.68rem;background:#ede9fe;color:#5b21b6;padding:2px 5px;border-radius:4px;font-weight:700;">GOVERN</span></td>
+                  <td style="font-size:.82rem;">Information Security Policy Not Current (&gt;2 yrs)</td>
+                  <td><span class="badge badge-red">CRITICAL</span></td><td><strong>8.1</strong></td>
+                  <td><span class="badge badge-orange">Pending</span></td>
+                  <td><span class="badge badge-gray">Not Started</span></td>
+                </tr>
+                <tr>
+                  <td><code style="font-size:.7rem;">F-DPSCS-002</code></td>
+                  <td><span class="badge badge-orange">DPSCS</span></td>
+                  <td><span style="font-size:.68rem;background:#fef3cd;color:#78350f;padding:2px 5px;border-radius:4px;font-weight:700;">DETECT</span></td>
+                  <td style="font-size:.82rem;">No Intrusion Detection / IDS Capability</td>
+                  <td><span class="badge badge-red">CRITICAL</span></td><td><strong>8.5</strong></td>
+                  <td><span class="badge badge-orange">Pending</span></td>
+                  <td><span class="badge badge-gray">Not Started</span></td>
+                </tr>
+                <tr>
+                  <td><code style="font-size:.7rem;">F-MSDE-001</code></td>
+                  <td><span class="badge badge-green">MSDE</span></td>
+                  <td><span style="font-size:.68rem;background:#d4f4e2;color:#065f46;padding:2px 5px;border-radius:4px;font-weight:700;">RECOVER</span></td>
+                  <td style="font-size:.82rem;">No Tested Disaster Recovery Plan</td>
+                  <td><span class="badge badge-orange">HIGH</span></td><td><strong>7.4</strong></td>
+                  <td><span class="badge badge-green">Concurred</span></td>
+                  <td><span class="badge badge-green">Complete</span></td>
+                </tr>
+                <tr>
+                  <td><code style="font-size:.7rem;">F-MDOT-005</code></td>
+                  <td><span class="badge badge-blue">MDOT</span></td>
+                  <td><span style="font-size:.68rem;background:#d4f4e2;color:#065f46;padding:2px 5px;border-radius:4px;font-weight:700;">PROTECT</span></td>
+                  <td style="font-size:.82rem;">Patch Cycle Exceeds 90 Days (avg 97 days)</td>
+                  <td><span class="badge badge-orange">HIGH</span></td><td><strong>6.8</strong></td>
+                  <td><span class="badge badge-orange">Pending</span></td>
+                  <td><span class="badge badge-gray">Not Started</span></td>
+                </tr>
+                <tr>
+                  <td><code style="font-size:.7rem;">F-MSDE-002</code></td>
+                  <td><span class="badge badge-green">MSDE</span></td>
+                  <td><span style="font-size:.68rem;background:#ede9fe;color:#5b21b6;padding:2px 5px;border-radius:4px;font-weight:700;">GOVERN</span></td>
+                  <td style="font-size:.82rem;">Third-Party Risk Management Program Absent</td>
+                  <td><span class="badge badge-orange">HIGH</span></td><td><strong>7.1</strong></td>
+                  <td><span class="badge badge-green">Concurred</span></td>
+                  <td><span class="badge badge-blue">Remediation Active</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-outline btn-sm" onclick="notify('🔗 Findings pushed to ServiceNow GRC Risk Register — 7 records synced')">Push to ServiceNow Risk Register</button>
+            <button class="btn btn-outline btn-sm" onclick="notify('📧 Executive findings summary emailed to DoIT OSM leadership')">Email to DoIT OSM</button>
+          </div>
+        </div>
+
+        <!-- GRC Export Readiness / ServiceNow Integration -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-title">GRC Export Readiness — ServiceNow Integration Architecture</div>
+          <div class="success-box" style="margin-bottom:16px;">✅ All 5 RFP §2.3.1.F metrics are structured for direct import into the State's ServiceNow GRC platform. Export available in JSON (API), CSV, and ServiceNow-native XML import format.</div>
+          <div class="grid-2" style="margin-bottom:16px;">
+            <div>
+              <div style="font-size:.8rem;font-weight:700;margin-bottom:10px;color:var(--primary);">Anchor → ServiceNow GRC Field Mapping</div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Anchor Platform Field</th><th>ServiceNow GRC Field</th><th>Module</th></tr></thead>
+                  <tbody>
+                    <tr><td><code style="font-size:.7rem;">agency_id</code></td><td><code style="font-size:.7rem;">u_org_unit_id</code></td><td>Risk Framework</td></tr>
+                    <tr><td><code style="font-size:.7rem;">csf_function</code></td><td><code style="font-size:.7rem;">u_control_category</code></td><td>Control Framework</td></tr>
+                    <tr><td><code style="font-size:.7rem;">cmmi_score</code></td><td><code style="font-size:.7rem;">u_maturity_level</code></td><td>Assessment Results</td></tr>
+                    <tr><td><code style="font-size:.7rem;">finding_severity</code></td><td><code style="font-size:.7rem;">risk_rating</code></td><td>Risk Register</td></tr>
+                    <tr><td><code style="font-size:.7rem;">poam_item_id</code></td><td><code style="font-size:.7rem;">u_remediation_task_id</code></td><td>Issue Management</td></tr>
+                    <tr><td><code style="font-size:.7rem;">constraint_type</code></td><td><code style="font-size:.7rem;">u_constraint_category</code></td><td>Assessment Results</td></tr>
+                    <tr><td><code style="font-size:.7rem;">recommendation</code></td><td><code style="font-size:.7rem;">u_improvement_action</code></td><td>Issue Management</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:.8rem;font-weight:700;margin-bottom:10px;color:var(--primary);">Sample GRC Export Payload (JSON)</div>
+              <div style="background:#1e293b;border-radius:8px;padding:12px;font-family:monospace;font-size:.67rem;color:#a3e635;overflow:auto;max-height:195px;line-height:1.65;">
+<pre style="margin:0;color:#a3e635;">{
+  "agency_id": "MDOT",
+  "assessment_id": "ACG-2026-MDOT-W1",
+  "csf_function": "DETECT",
+  "control_id": "DE.CM-01",
+  "cmmi_score": 1,
+  "cmmi_label": "Performed",
+  "finding_id": "F-MDOT-001",
+  "finding_severity": "CRITICAL",
+  "risk_score": 9.2,
+  "constraint_type": "Budget",
+  "recommendation": "Deploy SIEM (Splunk/MS Sentinel)",
+  "poam_due": "2026-09-30",
+  "grc_sync_ts": "2026-04-01T09:42:00Z"
+}</pre>
+              </div>
+            </div>
+          </div>
+          <div class="grid-2">
+            <div>
+              <div style="font-size:.8rem;font-weight:700;margin-bottom:8px;color:var(--primary);">State-Side Requirements (Oral Eval Q10a)</div>
+              <div class="info-box" style="margin:0;font-size:.78rem;">
+                <strong>What Maryland needs to provide:</strong><br>
+                • ServiceNow GRC instance URL + API credentials (OAuth 2.0)<br>
+                • Confirm u_org_unit and Risk Framework modules are active<br>
+                • Designate a ServiceNow admin for initial field mapping validation<br>
+                • Whitelist Anchor Platform IP for API access
+              </div>
+            </div>
+            <div>
+              <div style="font-size:.8rem;font-weight:700;margin-bottom:8px;color:var(--primary);">Custom Code Required (Oral Eval Q10b)</div>
+              <div class="info-box" style="margin:0;font-size:.78rem;">
+                <strong>Assurit provides:</strong> Anchor export API, field mapping documentation, ServiceNow import scripts (Python/REST)<br>
+                <strong>State custom code:</strong> None required — standard ServiceNow REST API import set. Optional: custom dashboard widget using delivered data.
+              </div>
+            </div>
+          </div>
+          <div class="btn-row" style="margin-top:14px;">
+            <button class="btn btn-primary btn-sm" onclick="runGRCExport()">Run Full GRC Export Now</button>
+            <button class="btn btn-outline btn-sm" onclick="notify('📋 GRC field mapping documentation downloaded')">Download Field Mapping Doc</button>
+            <button class="btn btn-outline btn-sm" onclick="notify('🔗 Test sync: 847 records validated, 0 errors — ServiceNow confirmed receipt')">Test GRC Connection</button>
+          </div>
+        </div>
+        </div><!-- /pf-compliance -->
       </section>
 
       <!-- ============================================================ CSF INTAKE & UPLOAD -->
@@ -868,7 +1120,6 @@
             </div>
           </div>
         </div>
-      </section>
 
       <!-- ============================================================ SETTINGS -->
       <section class="section" id="settings" aria-hidden="true">
@@ -1238,6 +1489,30 @@
       if(id==='sai') setTimeout(initSaiPortal,100);
     }
 
+    // ---- PORTFOLIO TAB SWITCHING ----
+    let scChartsInitialized = false;
+    function switchPortfolioTab(tab) {
+      const overview    = document.getElementById('pf-overview');
+      const compliance  = document.getElementById('pf-compliance');
+      const tabOverview = document.getElementById('pf-tab-overview');
+      const tabCompli   = document.getElementById('pf-tab-compliance');
+      if (tab === 'overview') {
+        if (overview)   overview.style.display   = '';
+        if (compliance) compliance.style.display = 'none';
+        if (tabOverview) { tabOverview.classList.add('active'); }
+        if (tabCompli)   { tabCompli.classList.remove('active'); }
+      } else {
+        if (overview)   overview.style.display   = 'none';
+        if (compliance) compliance.style.display = '';
+        if (tabOverview) { tabOverview.classList.remove('active'); }
+        if (tabCompli)   { tabCompli.classList.add('active'); }
+        if (!scChartsInitialized) {
+          setTimeout(initComplianceDashboard, 100);
+          scChartsInitialized = true;
+        }
+      }
+    }
+
     // ---- TAB SWITCHING ----
     function switchTab(el, id) {
       const bar = el.closest('.tab-bar');
@@ -1471,10 +1746,12 @@
       });
 
       // overlay base names/status with saved edits where available
+      // IMPORTANT: never downgrade a base agency that is already 'Complete'
       Object.keys(allAgencies).forEach(key => {
         const stored = JSON.parse(localStorage.getItem(`assessment_${key}`) || '{}');
         if(stored.agencyName) allAgencies[key].name = stored.agencyName;
-        if(stored.status === 'Created' || stored.status === 'Updated') {
+        const baseIsComplete = AGENCIES[key] && AGENCIES[key].status === 'Complete';
+        if(!baseIsComplete && (stored.status === 'Created' || stored.status === 'Updated')) {
           allAgencies[key].stage = 'Intake & Scoping';
           allAgencies[key].progress = '0%';
         }
@@ -2147,6 +2424,134 @@
       if (elMaturity) elMaturity.textContent = stats.avgMaturity;
     }
 
+    // ---- COMPLIANCE DASHBOARD ----
+    let scChartsInit = false;
+
+    function initComplianceDashboard() {
+      if (typeof Chart === 'undefined') return;
+      // Destroy any existing instances
+      ['sc-metric1-chart','sc-metric2-chart','sc-metric4-chart'].forEach(cid => {
+        const el = document.getElementById(cid);
+        if (el) { const ex = Chart.getChart(el); if (ex) ex.destroy(); }
+      });
+
+      // METRIC 1 — Top Control Categories by Maturity (horizontal bar)
+      const m1el = document.getElementById('sc-metric1-chart');
+      if (m1el) {
+        const vals = [3.4, 3.2, 3.1, 2.9, 2.7, 2.4, 2.3, 2.1, 1.8, 1.6];
+        new Chart(m1el, {
+          type: 'bar',
+          data: {
+            labels: ['GV.OC — Org Context','GV.PO — Policy','ID.AM — Asset Mgmt','PR.IR — Identity Mgmt','PR.DS — Data Security','RC.RP — Recovery Plan','RS.CO — IR Comms','RS.AN — Incident Analysis','DE.CM — Monitoring','DE.AE — Anomaly Events'],
+            datasets: [{
+              label: 'Avg CMMI Score',
+              data: vals,
+              backgroundColor: vals.map(v => v >= 3.0 ? '#16a34a' : v >= 2.0 ? '#d97706' : '#dc2626'),
+              borderRadius: 4
+            }]
+          },
+          options: {
+            indexAxis: 'y',
+            plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `CMMI ${ctx.raw.toFixed(1)} / 5.0` } } },
+            scales: { x: { min: 0, max: 5, ticks: { stepSize: 1 }, title: { display: true, text: 'Avg CMMI Score' } } },
+            responsive: true, maintainAspectRatio: false
+          }
+        });
+      }
+
+      // METRIC 2 — Most Common Constraints (horizontal bar)
+      const m2el = document.getElementById('sc-metric2-chart');
+      if (m2el) {
+        new Chart(m2el, {
+          type: 'bar',
+          data: {
+            labels: ['Budget / Funding Gaps','Staffing & Expertise Gaps','Legacy Systems','Security Tool Gaps','Policy / Process Immaturity','Third-Party Dependencies','Executive Prioritization','Documentation Gaps'],
+            datasets: [{
+              label: 'Agencies Reporting',
+              data: [61, 54, 48, 42, 38, 31, 27, 24],
+              backgroundColor: '#7c3aed',
+              borderRadius: 4
+            }]
+          },
+          options: {
+            indexAxis: 'y',
+            plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${ctx.raw} of 90 agencies` } } },
+            scales: { x: { beginAtZero: true, max: 90, title: { display: true, text: 'Number of Agencies' } } },
+            responsive: true, maintainAspectRatio: false
+          }
+        });
+      }
+
+      // METRIC 4 — CMMI by CSF Function (grouped bar + target line)
+      const m4el = document.getElementById('sc-metric4-chart');
+      if (m4el) {
+        new Chart(m4el, {
+          type: 'bar',
+          data: {
+            labels: ['GOVERN','IDENTIFY','PROTECT','DETECT','RESPOND','RECOVER'],
+            datasets: [
+              { label: 'Current Avg (Mar 2026)', data: [3.1, 2.9, 2.7, 1.8, 2.2, 2.4], backgroundColor: '#2563a8', borderRadius: 4 },
+              { label: 'Baseline (Jan 2025)',     data: [2.2, 2.0, 2.5, 1.4, 1.9, 1.7], backgroundColor: '#cbd5e0', borderRadius: 4 },
+              { label: 'DoIT Target (CMMI 3.0)',  data: [3,3,3,3,3,3], type: 'line', borderColor: '#16a34a', borderDash: [6,3], borderWidth: 2, pointRadius: 0, backgroundColor: 'transparent' }
+            ]
+          },
+          options: {
+            plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: CMMI ${ctx.raw}` } } },
+            scales: { y: { min: 0, max: 5, ticks: { stepSize: 1 }, title: { display: true, text: 'CMMI Score' } } },
+            responsive: true, maintainAspectRatio: false
+          }
+        });
+      }
+
+      // METRIC 3 — Top Recommended Improvements (rendered list)
+      const m3list = document.getElementById('sc-metric3-list');
+      if (m3list) {
+        const items = [
+          { rank:1, fn:'DETECT',   label:'Continuous Monitoring / SIEM Deployment',        pct:78, color:'#dc2626' },
+          { rank:2, fn:'GOVERN',   label:'Information Security Policy Modernization',       pct:65, color:'#d97706' },
+          { rank:3, fn:'PROTECT',  label:'MFA / Identity & Access Management',              pct:61, color:'#d97706' },
+          { rank:4, fn:'RESPOND',  label:'Incident Response Plan Testing (Annual)',          pct:54, color:'#d97706' },
+          { rank:5, fn:'RECOVER',  label:'Disaster Recovery / BCP Development & Testing',   pct:48, color:'#2563a8' },
+          { rank:6, fn:'IDENTIFY', label:'Software & Hardware Asset Inventory Completeness', pct:41, color:'#2563a8' },
+        ];
+        m3list.innerHTML = items.map(it => `
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:24px;height:24px;border-radius:50%;background:${it.color};color:#fff;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;flex-shrink:0;">${it.rank}</div>
+            <div style="flex:1;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+                <span style="font-size:.78rem;font-weight:700;">${it.label}</span>
+                <span style="font-size:.72rem;color:var(--text-muted);white-space:nowrap;margin-left:6px;">${it.pct}% of agencies</span>
+              </div>
+              <div style="background:#e5e7eb;border-radius:10px;height:7px;">
+                <div style="background:${it.color};width:${it.pct}%;border-radius:10px;height:7px;"></div>
+              </div>
+            </div>
+            <span style="font-size:.62rem;font-weight:800;padding:2px 6px;border-radius:4px;background:#e5e7eb;color:#374151;flex-shrink:0;font-family:monospace;">${it.fn}</span>
+          </div>`).join('');
+      }
+      scChartsInit = true;
+    }
+
+    function setSCView(view) {
+      const stBtn = document.getElementById('sc-view-statewide');
+      const agBtn = document.getElementById('sc-view-agency');
+      const agSel = document.getElementById('sc-agency-select');
+      if (stBtn) stBtn.className = view==='statewide' ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm';
+      if (agBtn) agBtn.className = view==='agency' ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm';
+      if (agSel) agSel.style.display = view==='agency' ? 'inline-block' : 'none';
+      notify(view==='statewide' ? '📊 Statewide aggregated view — all 23 completed agencies' : '📊 Agency-level view — select an agency to filter');
+    }
+
+    function exportSCDashboard() {
+      notify('🔗 Compliance dashboard exported to ServiceNow GRC — 312 POA&M + 47 findings queued for sync');
+      logActivity('GRC Dashboard Export', 'All Agencies', 'RFP §2.3.1.F Compliance Dashboard export triggered');
+    }
+
+    function runGRCExport() {
+      notify('🔗 Full GRC export complete: 47 findings + 312 POA&M + CMMI scores → ServiceNow. Sync ID: GRC-2026-0401-001');
+      logActivity('Full GRC Export', 'All Agencies', 'Complete payload push to ServiceNow GRC Risk Register & Issue Management');
+    }
+
     // ---- INIT ----
     renderPortfolio();
     updateOverviewStats();
@@ -2222,15 +2627,12 @@
     // ── IAM User Management ─────────────────────────────────────────────
     const IAM_USERS_KEY = 'iam_users';
     const DEFAULT_IAM_USERS = [
-      {id:'u1', name:'J. Williams', email:'j.williams@assurit.com', role:'Lead Assessor', agency:'All', status:'Active', lastActive:'Today 09:41', avatar:'JW'},
-      {id:'u2', name:'S. Patel', email:'s.patel@assurit.com', role:'Lead Assessor', agency:'All', status:'Active', lastActive:'Today 08:15', avatar:'SP'},
-      {id:'u3', name:'R. Okafor', email:'r.okafor@assurit.com', role:'Assessor', agency:'DPSCS', status:'Active', lastActive:'Today 09:15', avatar:'RO'},
-      {id:'u4', name:'M. Chen', email:'m.chen@assurit.com', role:'Assessor', agency:'MDOT', status:'Active', lastActive:'Yesterday', avatar:'MC'},
-      {id:'u5', name:'T. Adams', email:'t.adams@assurit.com', role:'Assessor', agency:'MSDE', status:'Active', lastActive:'Apr 20', avatar:'TA'},
-      {id:'u6', name:'Lisa Harmon', email:'l.harmon@mdot.maryland.gov', role:'Agency POC', agency:'MDOT', status:'Active', lastActive:'Yesterday', avatar:'LH'},
-      {id:'u7', name:'Angela Torres', email:'a.torres@dpscs.maryland.gov', role:'Agency POC', agency:'DPSCS', status:'Active', lastActive:'Today 09:38', avatar:'AT'},
-      {id:'u8', name:'DoIT Reviewer', email:'reviewer@doit.maryland.gov', role:'DoIT Reviewer', agency:'All (Read-only)', status:'Active', lastActive:'Apr 20', avatar:'DR'},
-      {id:'u9', name:'Patricia Hall', email:'p.hall@msde.maryland.gov', role:'Agency POC', agency:'MSDE', status:'Pending', lastActive:'Invite sent Apr 21', avatar:'PH'},
+      {id:'u1', name:'James Wilson',   email:'admin@anchor.com',                role:'Program Manager',  agency:'All',            status:'Active',  lastActive:'Today 09:41', avatar:'JW'},
+      {id:'u2', name:'J. Williams',    email:'j.williams@assurit.com',           role:'Lead Assessor',    agency:'All',            status:'Active',  lastActive:'Today 08:15', avatar:'JW'},
+      {id:'u3', name:'Lisa Harmon',    email:'l.harmon@mdot.maryland.gov',       role:'Agency POC',       agency:'MDOT',           status:'Active',  lastActive:'Yesterday',   avatar:'LH'},
+      {id:'u4', name:'Angela Torres',  email:'a.torres@dpscs.maryland.gov',      role:'Agency POC',       agency:'DPSCS',          status:'Active',  lastActive:'Today 09:38', avatar:'AT'},
+      {id:'u5', name:'Patricia Hall',  email:'p.hall@msde.maryland.gov',         role:'Agency POC',       agency:'MSDE',           status:'Pending', lastActive:'Invite sent', avatar:'PH'},
+      {id:'u6', name:'DoIT Reviewer',  email:'reviewer@doit.maryland.gov',       role:'DoIT Reviewer',    agency:'All (Read-only)', status:'Active',  lastActive:'Today',       avatar:'DR'},
     ];
 
     function getIamUsers() {

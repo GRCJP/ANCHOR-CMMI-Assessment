@@ -34,7 +34,7 @@
             width: 100vw;
             height: 100vh;
             background-color: transparent;
-            background-image: url('https://d2p72makkjzikf.cloudfront.net/Images/cityscape-full.svg?v=1');
+            background-image: url('https://d2p72makkjzikf.cloudfront.net/Images/ChatGPT%20Image%20Mar%2029%2C%202026%2C%2008_15_03%20PM.png?v=refresh999');
             background-position: center center;
             background-repeat: no-repeat;
             background-size: cover;
@@ -414,13 +414,17 @@
             </div>
             
             <div class="demo-section">
-                <h3>Quick Access (Demo)</h3>
-                <select id="demoAccountSelect" class="demo-dropdown" onchange="fillDemoAccount()">
-                    <option value="">— Select Demo Account —</option>
-                    <option value="admin@anchor.com|Anchor123!">Administrator (Full Access)</option>
-                    <option value="j.williams@assurit.com|Anchor123!">Lead Assessor (Assessment Management)</option>
-                    <option value="l.harmon@mdot.maryland.gov|Anchor123!">Agency POC — MDOT</option>
-                </select>
+                <h3>🚀 One-Click Demo Access</h3>
+                <p style="font-size:.75rem;color:#64748b;text-align:center;margin-bottom:12px;">Click any role below to enter the demo instantly — no password required.</p>
+                <div style="display:flex;flex-direction:column;gap:7px;">
+                  <button type="button" class="btn" style="background:#1e3a5c;color:#fff;padding:9px 14px;font-size:.82rem;border-radius:7px;text-align:left;border:none;cursor:pointer;" onclick="demoLogin('pm')">🛡️ Program Manager / Admin <span style="opacity:.6;font-size:.72rem;float:right;">Full access</span></button>
+                  <button type="button" class="btn" style="background:#2563a8;color:#fff;padding:9px 14px;font-size:.82rem;border-radius:7px;text-align:left;border:none;cursor:pointer;" onclick="demoLogin('assessor')">🔍 Lead Assessor — J. Williams <span style="opacity:.6;font-size:.72rem;float:right;">Dashboard + SRTM</span></button>
+                  <button type="button" class="btn" style="background:#0d9488;color:#fff;padding:9px 14px;font-size:.82rem;border-radius:7px;text-align:left;border:none;cursor:pointer;" onclick="demoLogin('mdot')">🏛️ Agency Rep — MDOT (L. Harmon) <span style="opacity:.6;font-size:.72rem;float:right;">→ agency-mdot.html</span></button>
+                  <button type="button" class="btn" style="background:#7c3aed;color:#fff;padding:9px 14px;font-size:.82rem;border-radius:7px;text-align:left;border:none;cursor:pointer;" onclick="demoLogin('dpscs')">🏛️ Agency Rep — DPSCS (A. Torres) <span style="opacity:.6;font-size:.72rem;float:right;">→ agency-dpscs.html</span></button>
+                  <button type="button" class="btn" style="background:#0891b2;color:#fff;padding:9px 14px;font-size:.82rem;border-radius:7px;text-align:left;border:none;cursor:pointer;" onclick="demoLogin('msde')">🏛️ Agency Rep — MSDE (P. Hall) <span style="opacity:.6;font-size:.72rem;float:right;">→ agency-msde.html</span></button>
+                  <button type="button" class="btn" style="background:#6b7280;color:#fff;padding:9px 14px;font-size:.82rem;border-radius:7px;text-align:left;border:none;cursor:pointer;" onclick="demoLogin('reviewer')">👁️ DoIT Executive Reviewer <span style="opacity:.6;font-size:.72rem;float:right;">Read-only</span></button>
+                </div>
+                <p style="font-size:.68rem;color:#94a3b8;text-align:center;margin-top:10px;">Or sign in above with your Cognito credentials</p>
             </div>
             
             <!-- System Use Notification - Compact, no AC-8 -->
@@ -464,22 +468,80 @@
     <script src="src/js/login.js"></script>
     
     <script>
-        // Demo account dropdown functionality
-        function fillDemoAccount() {
-            const select = document.getElementById('demoAccountSelect');
-            const value = select.value;
-            
-            if (value) {
-                const [email, password] = value.split('|');
-                document.getElementById('email').value = email;
-                document.getElementById('password').value = password;
-                
-                // Reset dropdown
-                select.value = '';
-                
-                // Focus password field
-                document.getElementById('password').focus();
-            }
+        // ── Demo bypass login — sets localStorage session directly, no Cognito needed ──
+        const DEMO_PERSONAS = {
+          pm: {
+            email: 'admin@anchor.com',
+            name: 'James Wilson',
+            role: 'admin',
+            display_role: 'Program Manager',
+            agency: '',
+            groups: ['Admins'],
+            landing: 'main-dashboard.html'
+          },
+          assessor: {
+            email: 'j.williams@assurit.com',
+            name: 'J. Williams',
+            role: 'lead_assessor',
+            display_role: 'Lead Assessor',
+            agency: '',
+            groups: ['LeadAssessors'],
+            landing: 'main-dashboard.html'
+          },
+          mdot: {
+            email: 'l.harmon@mdot.maryland.gov',
+            name: 'Lisa Harmon',
+            role: 'agency_rep',
+            display_role: 'Agency Representative',
+            agency: 'MDOT',
+            groups: ['AgencyPOCs'],
+            landing: 'agency-mdot.html'
+          },
+          dpscs: {
+            email: 'a.torres@dpscs.maryland.gov',
+            name: 'Angela Torres',
+            role: 'agency_rep',
+            display_role: 'Agency Representative',
+            agency: 'DPSCS',
+            groups: ['AgencyPOCs'],
+            landing: 'agency-dpscs.html'
+          },
+          msde: {
+            email: 'p.hall@msde.maryland.gov',
+            name: 'Patricia Hall',
+            role: 'agency_rep',
+            display_role: 'Agency Representative',
+            agency: 'MSDE',
+            groups: ['AgencyPOCs'],
+            landing: 'agency-msde.html'
+          },
+          reviewer: {
+            email: 'reviewer@doit.maryland.gov',
+            name: 'DoIT Reviewer',
+            role: 'doit_reviewer',
+            display_role: 'DoIT Executive Reviewer',
+            agency: '',
+            groups: ['DoITReviewers'],
+            landing: 'main-dashboard.html'
+          }
+        };
+
+        function demoLogin(personaKey) {
+          const p = DEMO_PERSONAS[personaKey];
+          if (!p) return;
+          const session = {
+            email:        p.email,
+            name:         p.name,
+            role:         p.role,
+            agency:       p.agency,
+            display_role: p.display_role,
+            groups:       p.groups,
+            idToken:      null,
+            loginTime:    new Date().toISOString(),
+            demoMode:     true
+          };
+          localStorage.setItem('anchor_session', JSON.stringify(session));
+          window.location.replace(p.landing);
         }
     </script>
 </body>
