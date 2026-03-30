@@ -21,7 +21,7 @@
             align-items: center;
             justify-content: center;
             position: relative;
-            overflow: hidden;
+            overflow-y: auto;
         }
         
         /* Background Cityscape - Full Page, Sharp, No Watermarks */
@@ -47,56 +47,56 @@
             position: relative;
             z-index: 1;
             width: 100%;
-            max-width: 520px;
-            padding: 20px;
+            max-width: 460px;
+            padding: 16px;
         }
-        
+
         .login-card {
             background: white;
             border-radius: 16px;
-            padding: 40px 45px;
+            padding: 28px 36px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
         }
-        
+
         .md-logo {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 14px;
         }
-        
+
         .md-logo img {
-            height: 45px;
+            height: 38px;
             width: auto;
         }
-        
+
         .login-title {
-            font-size: 1.75rem;
+            font-size: 1.5rem;
             font-weight: 800;
             color: #2c3e50;
             text-align: center;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
         }
-        
+
         .login-subtitle {
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             color: #64748b;
             text-align: center;
-            margin-bottom: 6px;
+            margin-bottom: 3px;
         }
-        
+
         .login-tagline {
-            font-size: 0.85rem;
+            font-size: 0.78rem;
             color: #94a3b8;
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 12px;
         }
-        
+
         .badge {
             display: inline-block;
-            padding: 5px 12px;
+            padding: 3px 10px;
             border-radius: 16px;
-            font-size: 0.7rem;
+            font-size: 0.68rem;
             font-weight: 600;
-            margin-bottom: 25px;
+            margin-bottom: 14px;
         }
         
         .badge-green {
@@ -110,11 +110,11 @@
         }
         
         .login-form {
-            margin-bottom: 20px;
+            margin-bottom: 14px;
         }
-        
+
         .form-group {
-            margin-bottom: 18px;
+            margin-bottom: 12px;
         }
         
         .form-group label {
@@ -127,10 +127,10 @@
         
         .form-group input {
             width: 100%;
-            padding: 11px 14px;
+            padding: 8px 12px;
             border: 2px solid #e2e8f0;
             border-radius: 8px;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             transition: all 0.2s ease;
             font-family: inherit;
         }
@@ -151,7 +151,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
         }
         
         .checkbox-label {
@@ -230,14 +230,14 @@
         
         .demo-section {
             border-top: 2px solid #f1f5f9;
-            padding-top: 20px;
-            margin-top: 20px;
+            padding-top: 14px;
+            margin-top: 14px;
         }
-        
+
         .demo-section h3 {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 700;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             color: #1e293b;
             text-align: center;
         }
@@ -259,34 +259,34 @@
             border-color: #3b82f6;
         }
         
-        /* System Notice - Compact */
+        /* System Notice - Compact, Centered */
         .system-notice {
-            margin-top: 20px;
-            padding: 12px;
+            margin-top: 14px;
+            padding: 10px 14px;
             background: #fef3c7;
             border: 1px solid #fbbf24;
             border-radius: 8px;
-            text-align: left;
+            text-align: center;
         }
-        
+
         .notice-title {
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             font-weight: 700;
             color: #92400e;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
-        
+
         .notice-text {
-            font-size: 0.7rem;
+            font-size: 0.68rem;
             color: #78350f;
-            line-height: 1.4;
+            line-height: 1.35;
         }
         
         .login-footer {
             text-align: center;
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             color: #64748b;
-            margin-top: 20px;
+            margin-top: 14px;
         }
         
         .security-notice {
@@ -304,8 +304,8 @@
         }
         
         .assurit-branding {
-            margin-top: 15px;
-            padding-top: 15px;
+            margin-top: 10px;
+            padding-top: 10px;
             border-top: 1px solid #f1f5f9;
         }
         
@@ -367,7 +367,7 @@
             <div class="login-tagline">Cybersecurity Assessment & Risk Management</div>
             
             <div class="badge-center">
-                <span class="badge badge-green">☁️ AWS Cloud Platform</span>
+                <span class="badge badge-green">AWS Cloud Platform</span>
             </div>
             
             <form id="loginForm" class="login-form">
@@ -409,38 +409,37 @@
             </form>
             
             <div id="loginError" class="error-message" style="display: none;">
-                <span class="error-icon">⚠️</span>
+                <span class="error-icon"></span>
                 <span class="error-text"></span>
             </div>
-            
+
             <div class="demo-section">
-                <h3>🚀 Demo Access</h3>
+                <h3>Demo Access</h3>
                 <p style="font-size:.75rem;color:#64748b;text-align:center;margin-bottom:12px;">Select a role and launch instantly — no password required.</p>
-                <select id="demo-persona-select" class="demo-dropdown" style="margin-bottom:10px;">
+                <select id="demo-persona-select" class="demo-dropdown" style="margin-bottom:8px;">
                   <option value="">— Select a demo account —</option>
-                  <option value="pm">🛡️  Program Manager / Admin — Full access</option>
-                  <option value="assessor">🔍  Lead Assessor — J. Williams</option>
-                  <option value="fieldassessor">📋  Assessor — R. Okafor</option>
-                  <option value="mdot">🏛️  Agency Rep — MDOT (L. Harmon)</option>
-                  <option value="dpscs">🏛️  Agency Rep — DPSCS (A. Torres)</option>
-                  <option value="msde">🏛️  Agency Rep — MSDE (P. Hall)</option>
-                  <option value="reviewer">👁️  DoIT Executive Reviewer — Read-only</option>
+                  <option value="pm">Program Manager / Admin — Full access</option>
+                  <option value="assessor">Lead Assessor — J. Williams</option>
+                  <option value="fieldassessor">Assessor — R. Okafor</option>
+                  <option value="mdot">Agency Rep — MDOT (L. Harmon)</option>
+                  <option value="dpscs">Agency Rep — DPSCS (A. Torres)</option>
+                  <option value="msde">Agency Rep — MSDE (P. Hall)</option>
+                  <option value="reviewer">DoIT Executive Reviewer — Read-only</option>
                 </select>
-                <button type="button" class="btn btn-primary" style="width:100%;padding:11px;font-size:.9rem;" onclick="launchDemoLogin()">Launch Demo →</button>
+                <button type="button" class="btn btn-primary" style="width:100%;padding:11px;font-size:.9rem;" onclick="launchDemoLogin()">Launch Demo</button>
                 <p style="font-size:.68rem;color:#94a3b8;text-align:center;margin-top:10px;">Or sign in above with your Cognito credentials</p>
             </div>
-            
-            <!-- System Use Notification - Compact, no AC-8 -->
+
+            <!-- System Use Notification -->
             <div class="system-notice">
-                <div class="notice-title">⚠️ System Use Notification</div>
+                <div class="notice-title">System Use Notification</div>
                 <div class="notice-text">
                     You are accessing a U.S. Government information system. Use of this system constitutes consent to monitoring, interception, recording, and disclosure. Unauthorized use may result in criminal or civil penalties.
                 </div>
             </div>
-            
+
             <div class="login-footer">
                 <div class="security-notice">
-                    <span>🔒</span>
                     <span>Secure login powered by AWS Cognito</span>
                 </div>
                 <div class="platform-info">

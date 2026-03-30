@@ -283,7 +283,85 @@
 
   const STORAGE_KEY = 'anchor_selfassessment_' + getAgencySlug();
 
+  /* ── Demo seed data — realistic answers for the first 8 controls ────────── */
+  var DEMO_SEEDS = {
+    mdot: {
+      'GV.OC-01': { answers: [
+        'Yes. MDOT maintains an approved Information Security Policy, currently at version 4.1, last reviewed and signed by the Deputy Secretary for IT on October 3, 2024. The policy aligns with NIST SP 800-53 Rev. 5 and DOIT-ITRM-POLICY-001.',
+        'The agency CISO (Ms. Lisa Harmon) is the policy owner and is responsible for annual review, updates, and enforcement. The policy review process involves the IT Security team, Legal, HR, and senior agency leadership. Reviews are conducted annually or when a material change occurs.',
+        'Sections covering cloud security addenda and AI/ML governance are currently being updated to reflect the adoption of AWS GovCloud and Azure Government in FY2024. Target completion is Q1 2026 pending legal review.'
+      ], evidence: 'MDOT_InfoSec_Policy_v4.1_2024.pdf' },
+      'GV.RM-01': { answers: [
+        'Yes. MDOT maintains a formal Risk Register organized by business function and system tier. The register currently tracks 47 active risk items across three impact categories: Enterprise IT, Transportation Systems (OT/ICS), and Third-Party/Vendor risks.',
+        'The Risk Register is reviewed quarterly by the IT Security team and presented to the CIO at the biannual IT Governance Committee meeting. The CISO and system owners participate in risk scoring updates. Emergency reviews are triggered by significant incidents or system changes.',
+        'Top three current risks: (1) Ransomware targeting legacy OT/ICS systems — mitigation is active network segmentation project, 70% complete. (2) Third-party vendor access control gaps — mitigation is vendor access review underway. (3) Unpatched systems in decommission queue — mitigation is accelerated patching sprint ongoing.'
+      ], evidence: 'MDOT_Risk_Register_Q4_2024.xlsx' },
+      'GV.RR-01': { answers: [
+        'Formally assigned cybersecurity roles include: CISO (Lisa Harmon), IT Security Officer (2 FTEs), System Owners (14 designated), Privacy Officer, and a Security Operations team of 4. Contractors performing privileged functions are required to sign individual Role Acknowledgment forms.',
+        'All employees — including contractors — complete annual security awareness training through the statewide DoIT LMS platform and must sign a Rules of Behavior agreement before system access is granted. Annual re-attestation is required.',
+        'The CISO has sole authority to declare a Severity 1 or Severity 2 cybersecurity incident. In her absence, the IT Security Officer assumes that authority. The incident declaration authority and escalation chain are documented in IRP-v4.1 and communicated to all system owners annually.'
+      ], evidence: 'MDOT_Cybersecurity_RACI_2024.pdf' },
+      'GV.PO-01': { answers: [
+        'MDOT maintains a formal Policy Management Framework requiring all security policies to be reviewed annually. This schedule is documented in the Policy Governance Standard (PGS-2023-001) and tracked in the agency\'s policy register maintained by the CISO office.',
+        'Policy updates are approved by the CISO, reviewed by legal counsel, and require Deputy Secretary sign-off for Tier 1 policies. Approved updates are communicated to all staff via the agency intranet, email notification, and annual security training refresh.',
+        'The last comprehensive policy review cycle was completed in October 2024. Updates were made to the Cloud Acceptable Use Policy and the Remote Access Policy to reflect expanded use of Azure Government and mandatory MFA requirements for privileged accounts.'
+      ], evidence: 'MDOT_Policy_Review_Log_2024.pdf' },
+      'ID.AM-01': { answers: [
+        'MDOT maintains a centralized hardware and software asset inventory managed through ServiceNow CMDB. The inventory covers 847 hardware assets, 1,243 licensed software titles, and 18 cloud service subscriptions. Last full reconciliation was completed November 2024.',
+        'The current network diagram (updated September 2024) reflects three network segments: Administrative, Operations, and DMZ. The OT/ICS network interfaces are documented with isolation controls. Network diagrams are maintained by the Network Architecture team in the IT asset repository.',
+        'Top three current risks in inventory management: legacy servers in decommission queue (47 systems), shadow IT SaaS adoption in two business units (under review), and OT asset documentation gaps for field sensor equipment (remediation plan in place).'
+      ], evidence: 'MDOT_Asset_Inventory_Nov2024.xlsx' },
+      'PR.AA-01': { answers: [
+        'MDOT uses Microsoft Active Directory with Role-Based Access Control (RBAC) for all enterprise systems. Privileged access is managed through CyberArk PAM. Access provisioning requires supervisor approval via ServiceNow ticket and is reviewed by the Security team within 24 hours.',
+        'User access is reviewed quarterly for privileged accounts and annually for standard users. The most recent privileged access review (Q4 2024) resulted in 23 accounts being modified and 8 terminated. Reviews are documented in the access management log.',
+        'MFA is currently enforced for all remote access via Cisco AnyConnect with Duo Security. On-premises access for standard users is pending MFA rollout (Phase 2 — target Q2 2026). All administrative and cloud accounts are MFA-protected.'
+      ], evidence: 'MDOT_Access_Control_Config_2024.docx' },
+      'DE.CM-01': { answers: [
+        'MDOT deployed CrowdStrike Falcon for endpoint detection on all 847 managed endpoints (100% coverage). A Splunk SIEM receives logs from network devices, endpoints, and cloud platforms. The Security Operations team monitors alerts during business hours; after-hours monitoring is escalated via automated paging.',
+        'In Q4 2024, the SIEM generated 1,247 security alerts. All were triaged and documented. Three were escalated to incident status: two phishing attempts (contained) and one unauthorized external access attempt (blocked by firewall). MTTR for Severity 1 was 2.4 hours.',
+        'Vulnerability scanning is performed weekly using Tenable.io across all internet-facing systems and monthly for internal systems. The most recent scan (December 2024) identified 12 critical findings — 9 remediated, 3 in active remediation with POA&M entries created.'
+      ], evidence: 'MDOT_SOC_Q4_2024_Report.pdf' }
+    },
+    dpscs: {
+      'GV.OC-01': { answers: [
+        'DPSCS maintains an approved Information Security Policy at version 3.2, last formally reviewed and approved by the CIO on August 15, 2024. The policy incorporates CJIS Security Policy requirements given the agency\'s law enforcement data obligations.',
+        'The IT Security Director serves as policy owner and coordinates with the CJIS Compliance Officer for any CJIS-related provisions. Policy review involves IT leadership, Legal, HR, and the Maryland Statewide Criminal Justice Information Systems (CJIS) liaison.',
+        'A new section on cloud data residency for CJIS data is currently under development following the agency\'s planned migration of non-CJIS workloads to Azure Government. Target approval is Q2 2026.'
+      ], evidence: 'DPSCS_InfoSec_Policy_v3.2.pdf' },
+      'GV.RM-01': { answers: [
+        'DPSCS maintains a Risk Register tracking 61 items categorized by system (Offender Management System, Network Infrastructure, CJIS Systems, Physical Security Integration). Risk owners are assigned at the system level.',
+        'Risk reviews occur monthly for CJIS-related items (per CJIS policy requirement) and quarterly for all other risks. The CIO chairs a monthly IT Risk Review meeting. The CJIS Compliance Officer conducts separate biannual CJIS-specific risk assessments.',
+        'Priority risks: (1) CJIS data exposure through non-compliant mobile devices — mitigation is MDM rollout in progress. (2) Offender Management System end-of-life in 2027 — migration planning underway. (3) Insider threat from correctional staff with system access — privileged access review enhanced quarterly.'
+      ], evidence: 'DPSCS_Risk_Register_2024.xlsx' }
+    },
+    msde: {
+      'GV.OC-01': { answers: [
+        'MSDE maintains an approved Information Security Policy version 2.8, last reviewed September 10, 2024, and signed by the Deputy State Superintendent for Operations. The policy reflects FERPA obligations and student data privacy requirements under Maryland\'s Student Data Privacy Act.',
+        'The Chief Information Security Officer (CISO) and the Student Data Privacy Officer jointly maintain the policy. Annual reviews involve IT, Legal, the Privacy team, and the Superintendent\'s office. Staff sign annual acknowledgment forms through the MSDE HR system.',
+        'The section on AI/ML tools in educational settings is being expanded following increased adoption of AI tutoring platforms. A separate AI Acceptable Use Policy is in draft and targeted for Q1 2026 Board approval.'
+      ], evidence: 'MSDE_InfoSec_Policy_v2.8_2024.pdf' },
+      'GV.RM-01': { answers: [
+        'MSDE maintains a Risk Register with 38 active risk items organized by category: Student Data Systems, Administrative IT, Third-Party Ed-Tech Vendors, and Physical/Network Infrastructure. Risks are rated using a 5x5 likelihood-impact matrix.',
+        'Risk reviews are conducted biannually — in January and July — by the CISO, Privacy Officer, and IT leadership. Critical risks trigger monthly status reviews. The Board of Education receives an annual cybersecurity risk summary.',
+        'Current top risks: (1) Ed-tech vendor compliance gaps — 12 of 34 vendors have not completed required privacy assessments. (2) Phishing targeting school administrators — addressed through enhanced awareness training. (3) Student information system (SIS) unpatched components — vendor patch applied Q3 2024, verified complete.'
+      ], evidence: 'MSDE_Risk_Register_Q4_2024.xlsx' }
+    }
+  };
+
+  function seedDemoAnswersIfEmpty(slug) {
+    try {
+      var existing = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+      if (existing && Object.keys(existing).length > 0) return; // already has data
+      var sess = JSON.parse(localStorage.getItem('anchor_session') || '{}');
+      if (!sess.demoMode) return; // only seed in demo mode
+      var seeds = DEMO_SEEDS[slug];
+      if (!seeds) return;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(seeds));
+    } catch(e) {}
+  }
+
   function loadAnswers() {
+    seedDemoAnswersIfEmpty(getAgencySlug());
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
     catch (e) { return {}; }
   }
@@ -1021,84 +1099,172 @@
   };
 
   // ── Artifact Preview Modal ────────────────────────────────────────────────
+  /* ── Artifact content templates keyed by control function prefix ───────── */
+  var ARTIFACT_CONTENT = {
+    'GV': { title:'Governance & Risk Policy', section:'Policy Document', rows:[
+      ['Document ID','GOV-POL-2024-001'],['Classification','INTERNAL — CONTROLLED'],
+      ['Effective Date','January 1, 2024'],['Review Cycle','Annual'],
+      ['Owner','CISO / Deputy Secretary for IT'],['Status','APPROVED']
+    ], body:'This policy establishes the governance framework for cybersecurity risk management across all agency systems and data assets. All personnel with access to state information systems are subject to the requirements outlined herein. The agency Head shall designate an Information Security Officer (ISO) responsible for policy implementation and oversight. Risk assessments shall be conducted annually or upon significant system change.' },
+    'ID': { title:'Asset Inventory & Risk Assessment', section:'Assessment Report', rows:[
+      ['Report ID','RA-2024-Q4-001'],['Assessment Type','Annual Risk Assessment'],
+      ['Scope','All agency information systems'],['Assessor','Information Security Team'],
+      ['Completion Date','December 15, 2024'],['Risk Rating','MODERATE']
+    ], body:'This document identifies and catalogs hardware and software assets within the agency environment. A total of 847 assets have been inventoried across 14 network segments. Critical systems include the Benefits Management System (BMS) classified as HIGH impact per FIPS 199. Threat scenarios were evaluated using NIST SP 800-30 methodology. Three high-severity findings require immediate remediation action.' },
+    'PR': { title:'Access Control & Protection Procedures', section:'Standard Operating Procedure', rows:[
+      ['SOP Number','SOP-PR-2024-007'],['Version','3.2'],
+      ['Last Reviewed','November 8, 2024'],['Approved By','Deputy CISO'],
+      ['Applies To','All privileged and standard user accounts'],['Next Review','November 2025']
+    ], body:'This procedure governs the provisioning, modification, and termination of user access to agency systems. All access requests must be submitted via the ServiceNow ticketing system with supervisor approval. Privileged accounts require secondary approval from the ISO and must be reviewed quarterly. Multi-factor authentication (MFA) is mandatory for all remote access and cloud platform logins. Access logs are retained for a minimum of 365 days.' },
+    'DE': { title:'Continuous Monitoring & Detection Log', section:'Security Operations Report', rows:[
+      ['Report Period','Q4 2024 (Oct–Dec)'],['Tool','Splunk SIEM + CrowdStrike EDR'],
+      ['Alerts Generated','1,247'],['Investigated','1,247 (100%)'],
+      ['Escalated Incidents','3'],['False Positive Rate','94.2%']
+    ], body:'Continuous monitoring is performed 24×7 via automated SIEM correlation rules. During Q4, three security incidents were escalated to the Computer Security Incident Response Team (CSIRT): two phishing attempts (contained) and one unauthorized access attempt (blocked by firewall rule). All indicators of compromise (IOCs) were shared with the Maryland Cybersecurity Operations Center (MCOC) within the required 2-hour window. Vulnerability scans are executed weekly on all agency-facing systems.' },
+    'RS': { title:'Incident Response Plan & After-Action Report', section:'IR Documentation', rows:[
+      ['Plan Version','IRP-v4.1'],['Last Tabletop Exercise','October 22, 2024'],
+      ['Incident Categories Covered','7 of 7'],['RTO','4 hours (Tier 1 systems)'],
+      ['Stakeholder Notification SLA','2 hours to MCOC, 24 hours to Agency Head'],['Next Review','Q1 2025']
+    ], body:'The Agency Incident Response Plan (IRP) defines roles, responsibilities, and procedures for detecting, containing, eradicating, and recovering from cybersecurity incidents. Four incident response retainers are active with Assurit Consulting Group for forensic support. After-action reports are required within 5 business days of any Severity 1 or Severity 2 incident. The October 2024 tabletop exercise revealed a gap in third-party notification procedures — remediation is in progress (POA&M Item IR-2024-11).' },
+    'RC': { title:'Business Continuity & Disaster Recovery Plan', section:'BC/DR Documentation', rows:[
+      ['Plan ID','BCDR-2024-001'],['Last Full Test','September 14, 2024'],
+      ['Recovery Point Objective','4 hours'],['Recovery Time Objective','8 hours'],
+      ['Backup Frequency','Daily incremental / Weekly full'],['Off-Site Storage','AWS S3 GovCloud (us-gov-east-1)']
+    ], body:'This plan documents the procedures required to restore agency mission-critical systems following a disruptive event. All Tier 1 applications have documented runbooks stored in the agency Configuration Management Database (CMDB). Backup restoration was successfully tested on September 14, 2024 with a 6.5-hour actual recovery time — within the 8-hour RTO. The next DR test is scheduled for March 2025 to validate updated runbooks following the network segmentation project.' }
+  };
+
   window.showArtifactPreview = function (filename, ctrlId, ctrlLabel) {
-    // Remove existing modal if any
     var existing = document.getElementById('artifact-preview-overlay');
     if (existing) existing.remove();
 
-    // Determine file icon / color based on extension
     var ext = (filename.split('.').pop() || '').toLowerCase();
     var iconMap = {
-      pdf:  { icon: '📄', color: '#dc2626', bg: '#fef2f2', label: 'PDF Document' },
-      xlsx: { icon: '📊', color: '#16a34a', bg: '#f0fdf4', label: 'Excel Spreadsheet' },
-      xls:  { icon: '📊', color: '#16a34a', bg: '#f0fdf4', label: 'Excel Spreadsheet' },
-      docx: { icon: '📝', color: '#2563eb', bg: '#eff6ff', label: 'Word Document' },
-      doc:  { icon: '📝', color: '#2563eb', bg: '#eff6ff', label: 'Word Document' },
-      pptx: { icon: '📑', color: '#ea580c', bg: '#fff7ed', label: 'PowerPoint' },
-      png:  { icon: '🖼️', color: '#7c3aed', bg: '#f5f3ff', label: 'Image' },
-      jpg:  { icon: '🖼️', color: '#7c3aed', bg: '#f5f3ff', label: 'Image' }
+      pdf:  { icon: '📄', color: '#dc2626', bg: '#fef2f2', label: 'PDF Document',        badge: '#dc2626' },
+      xlsx: { icon: '📊', color: '#16a34a', bg: '#f0fdf4', label: 'Excel Spreadsheet',   badge: '#16a34a' },
+      xls:  { icon: '📊', color: '#16a34a', bg: '#f0fdf4', label: 'Excel Spreadsheet',   badge: '#16a34a' },
+      docx: { icon: '📝', color: '#2563eb', bg: '#eff6ff', label: 'Word Document',        badge: '#2563eb' },
+      doc:  { icon: '📝', color: '#2563eb', bg: '#eff6ff', label: 'Word Document',        badge: '#2563eb' },
+      pptx: { icon: '📑', color: '#ea580c', bg: '#fff7ed', label: 'PowerPoint',           badge: '#ea580c' },
+      png:  { icon: '🖼️', color: '#7c3aed', bg: '#f5f3ff', label: 'Image',                badge: '#7c3aed' },
+      jpg:  { icon: '🖼️', color: '#7c3aed', bg: '#f5f3ff', label: 'Image',                badge: '#7c3aed' }
     };
-    var meta = iconMap[ext] || { icon: '📎', color: '#64748b', bg: '#f8fafc', label: 'Document' };
-
-    // Simulated page count / size for realism
-    var fakeSizes = { pdf: '2.4 MB · 14 pages', xlsx: '890 KB · 3 sheets', xls: '890 KB · 3 sheets',
-      docx: '1.1 MB · 8 pages', doc: '1.1 MB · 8 pages', pptx: '3.2 MB · 22 slides',
-      png: '512 KB · image', jpg: '768 KB · image' };
+    var meta = iconMap[ext] || { icon: '📎', color: '#64748b', bg: '#f8fafc', label: 'Document', badge: '#64748b' };
+    var fakeSizes = { pdf:'2.4 MB · 14 pages', xlsx:'890 KB · 3 sheets', xls:'890 KB · 3 sheets',
+      docx:'1.1 MB · 8 pages', doc:'1.1 MB · 8 pages', pptx:'3.2 MB · 22 slides',
+      png:'512 KB', jpg:'768 KB' };
     var fakeSize = fakeSizes[ext] || '1.0 MB';
+
+    // Pick document content by control function prefix (GV, ID, PR, DE, RS, RC)
+    var fnKey = (ctrlId || '').split('.')[0].toUpperCase();
+    var content = ARTIFACT_CONTENT[fnKey] || ARTIFACT_CONTENT['GV'];
+
+    // Build metadata table rows
+    var metaRows = content.rows.map(function (r) {
+      return '<tr><td style="padding:3px 10px 3px 0;font-size:.68rem;font-weight:700;color:#64748b;white-space:nowrap;">' + r[0] + '</td>' +
+             '<td style="padding:3px 0;font-size:.68rem;color:#1e293b;font-weight:600;">' + r[1] + '</td></tr>';
+    }).join('');
+
+    // Build spreadsheet grid for xlsx/xls
+    var isSpreadsheet = (ext === 'xlsx' || ext === 'xls');
+    var spreadsheetHTML = '';
+    if (isSpreadsheet) {
+      var headers = ['Control ID','Requirement','Status','Evidence Ref','Last Tested','Finding'];
+      var sampleData = [
+        [ctrlId,'Access controls enforced','Implemented','AD-Policy-v3.2','2024-11-20','No Finding'],
+        ['PR.AA-02','Least privilege applied','Partially Impl','Access-Review-Q4','2024-10-15','Minor Gap'],
+        ['PR.AA-03','MFA enforced for remote','Implemented','MFA-Config-2024','2024-12-01','No Finding'],
+        ['PR.DS-01','Data-at-rest encrypted','Implemented','Encrypt-Config','2024-09-30','No Finding'],
+        ['PR.DS-02','Data-in-transit secured','Implemented','TLS-Audit-2024','2024-11-05','No Finding']
+      ];
+      spreadsheetHTML = '<table style="width:100%;border-collapse:collapse;font-size:.6rem;">' +
+        '<tr style="background:#16a34a;color:#fff;">' + headers.map(function(h){
+          return '<th style="padding:4px 6px;text-align:left;font-weight:700;white-space:nowrap;">' + h + '</th>';
+        }).join('') + '</tr>' +
+        sampleData.map(function(row, i) {
+          return '<tr style="background:' + (i%2===0?'#fff':'#f0fdf4') + ';">' +
+            row.map(function(cell, ci) {
+              var color = ci===5 ? (cell==='No Finding'?'#16a34a':'#d97706') : '#1e293b';
+              var fw = ci===0||ci===2 ? '700' : '400';
+              return '<td style="padding:3px 6px;border-bottom:1px solid #e2e8f0;color:'+color+';font-weight:'+fw+';">' + cell + '</td>';
+            }).join('') + '</tr>';
+        }).join('') + '</table>';
+    }
+
+    var docPreviewHTML = isSpreadsheet
+      ? '<div style="overflow-x:auto;">' + spreadsheetHTML + '</div>'
+      : '<div style="font-size:.68rem;line-height:1.55;color:#374151;">' + content.body + '</div>';
 
     var overlay = document.createElement('div');
     overlay.id = 'artifact-preview-overlay';
-    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,0.65);z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,0.72);z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);padding:20px;';
     overlay.onclick = function (e) { if (e.target === overlay) overlay.remove(); };
 
     overlay.innerHTML =
-      '<div style="background:#fff;border-radius:14px;box-shadow:0 25px 60px rgba(0,0,0,.35);width:520px;max-width:92vw;overflow:hidden;animation:fadeInUp .18s ease;">' +
-        // Modal header
-        '<div style="background:#1e293b;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;">' +
+      '<div style="background:#fff;border-radius:14px;box-shadow:0 25px 60px rgba(0,0,0,.4);width:640px;max-width:96vw;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;">' +
+        // Header bar
+        '<div style="background:#1e293b;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">' +
           '<div style="display:flex;align-items:center;gap:10px;">' +
-            '<div style="width:32px;height:32px;border-radius:7px;background:#334155;display:flex;align-items:center;justify-content:center;font-size:1.1rem;">' + meta.icon + '</div>' +
+            '<div style="width:34px;height:34px;border-radius:8px;background:' + meta.color + ';display:flex;align-items:center;justify-content:center;font-size:1.1rem;">' + meta.icon + '</div>' +
             '<div>' +
-              '<div style="font-size:.82rem;font-weight:700;color:#f8fafc;">Artifact Preview</div>' +
-              '<div style="font-size:.68rem;color:#94a3b8;">' + meta.label + ' · ' + fakeSize + '</div>' +
+              '<div style="font-size:.85rem;font-weight:700;color:#f8fafc;max-width:380px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + filename + '</div>' +
+              '<div style="font-size:.68rem;color:#94a3b8;">' + meta.label + ' &nbsp;·&nbsp; ' + fakeSize + ' &nbsp;·&nbsp; Uploaded via Anchor Portal</div>' +
             '</div>' +
           '</div>' +
-          '<button onclick="document.getElementById(\'artifact-preview-overlay\').remove()" style="background:none;border:none;color:#94a3b8;font-size:1.2rem;cursor:pointer;padding:4px 8px;border-radius:5px;line-height:1;" title="Close">✕</button>' +
+          '<button onclick="document.getElementById(\'artifact-preview-overlay\').remove()" style="background:rgba(255,255,255,.1);border:none;color:#e2e8f0;font-size:1rem;cursor:pointer;padding:5px 9px;border-radius:6px;line-height:1;font-weight:700;" title="Close">✕</button>' +
         '</div>' +
-        // Document thumbnail area
-        '<div style="background:' + meta.bg + ';padding:28px 24px;display:flex;flex-direction:column;align-items:center;gap:16px;border-bottom:1px solid #e2e8f0;">' +
-          '<div style="width:260px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.1);overflow:hidden;">' +
-            // Simulated document header bar
-            '<div style="background:' + meta.color + ';height:8px;width:100%;"></div>' +
-            '<div style="padding:18px 20px;">' +
-              '<div style="height:10px;background:#1e293b;border-radius:3px;width:75%;margin-bottom:12px;"></div>' +
-              '<div style="height:7px;background:#94a3b8;border-radius:2px;width:55%;margin-bottom:18px;"></div>' +
-              '<div style="display:flex;gap:8px;margin-bottom:14px;">' +
-                '<div style="width:48px;height:48px;background:' + meta.bg + ';border-radius:6px;border:1px solid ' + meta.color + '40;display:flex;align-items:center;justify-content:center;font-size:1.5rem;">' + meta.icon + '</div>' +
-                '<div style="flex:1;padding-top:4px;">' +
-                  '<div style="height:7px;background:#cbd5e1;border-radius:2px;margin-bottom:6px;width:80%;"></div>' +
-                  '<div style="height:6px;background:#e2e8f0;border-radius:2px;width:60%;"></div>' +
+        // Control info strip
+        '<div style="background:#f1f5f9;padding:9px 20px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;gap:10px;flex-shrink:0;">' +
+          '<span style="font-size:.62rem;font-weight:800;background:' + meta.color + ';color:#fff;padding:2px 8px;border-radius:3px;letter-spacing:.03em;">' + ctrlId + '</span>' +
+          '<span style="font-size:.75rem;color:#334155;font-weight:700;">' + ctrlLabel + '</span>' +
+          '<span style="margin-left:auto;font-size:.65rem;color:#64748b;">Evidence submission — pending assessor review</span>' +
+        '</div>' +
+        // Document preview
+        '<div style="flex:1;overflow-y:auto;background:#fafafa;">' +
+          // Document page
+          '<div style="margin:20px auto;width:94%;max-width:580px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,.08);overflow:hidden;">' +
+            // Document top bar (letterhead)
+            '<div style="background:' + meta.color + ';height:6px;"></div>' +
+            '<div style="padding:20px 24px 16px;">' +
+              // Agency letterhead
+              '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #e2e8f0;">' +
+                '<div>' +
+                  '<div style="font-size:.62rem;font-weight:700;color:#64748b;letter-spacing:.08em;text-transform:uppercase;">State of Maryland — DoIT</div>' +
+                  '<div style="font-size:.9rem;font-weight:800;color:#1e293b;margin-top:2px;">' + content.title + '</div>' +
+                  '<div style="font-size:.68rem;color:#64748b;margin-top:2px;">' + content.section + ' &nbsp;|&nbsp; Anchor Platform Assessment</div>' +
+                '</div>' +
+                '<div style="text-align:right;">' +
+                  '<div style="font-size:.62rem;color:#94a3b8;">Assessment ID</div>' +
+                  '<div style="font-size:.7rem;font-weight:700;color:#1e293b;">ANCH-2024-MD-001</div>' +
+                  '<div style="margin-top:4px;font-size:.6rem;background:#dcfce7;color:#15803d;padding:2px 7px;border-radius:3px;font-weight:700;display:inline-block;">CONTROLLED DOCUMENT</div>' +
                 '</div>' +
               '</div>' +
-              '<div style="height:5px;background:#e2e8f0;border-radius:2px;margin-bottom:5px;"></div>' +
-              '<div style="height:5px;background:#e2e8f0;border-radius:2px;margin-bottom:5px;width:90%;"></div>' +
-              '<div style="height:5px;background:#e2e8f0;border-radius:2px;margin-bottom:5px;width:85%;"></div>' +
-              '<div style="height:5px;background:#e2e8f0;border-radius:2px;width:70%;"></div>' +
+              // Metadata table
+              '<div style="margin-bottom:14px;">' +
+                '<div style="font-size:.65rem;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Document Information</div>' +
+                '<table>' + metaRows + '</table>' +
+              '</div>' +
+              // Divider
+              '<div style="border-top:1px dashed #e2e8f0;margin-bottom:14px;"></div>' +
+              // Body content
+              '<div>' +
+                '<div style="font-size:.65rem;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">' +
+                  (isSpreadsheet ? 'Control Compliance Matrix — Sample Data' : 'Document Summary') +
+                '</div>' +
+                docPreviewHTML +
+              '</div>' +
+              // Footer watermark
+              '<div style="margin-top:18px;padding-top:10px;border-top:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">' +
+                '<div style="font-size:.58rem;color:#cbd5e1;">Generated by Anchor Platform · Assurit Consulting Group · Maryland DoIT</div>' +
+                '<div style="font-size:.58rem;color:#cbd5e1;">Page 1 of ' + (isSpreadsheet ? '3' : '14') + '</div>' +
+              '</div>' +
             '</div>' +
           '</div>' +
-          '<div style="font-size:.72rem;color:#475569;text-align:center;max-width:320px;">' +
-            '<span style="font-weight:700;color:#1e293b;">' + filename + '</span>' +
-          '</div>' +
-        '</div>' +
-        // Control info
-        '<div style="padding:14px 20px;background:#f8fafc;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;gap:10px;">' +
-          '<span style="font-size:.65rem;font-weight:800;color:' + meta.color + ';background:' + meta.bg + ';border:1px solid ' + meta.color + '40;padding:2px 8px;border-radius:3px;">' + ctrlId + '</span>' +
-          '<span style="font-size:.75rem;color:#334155;font-weight:600;">' + ctrlLabel + '</span>' +
         '</div>' +
         // Action footer
-        '<div style="padding:14px 20px;display:flex;justify-content:flex-end;gap:8px;">' +
+        '<div style="padding:12px 20px;border-top:1px solid #e2e8f0;display:flex;justify-content:flex-end;gap:8px;flex-shrink:0;background:#fff;">' +
           '<button onclick="document.getElementById(\'artifact-preview-overlay\').remove()" style="font-size:.76rem;padding:7px 16px;border-radius:7px;border:1px solid #e2e8f0;background:#fff;color:#475569;cursor:pointer;font-weight:600;">Close</button>' +
           '<button onclick="setSubmissionReview(\'' + ctrlId + '\',\'reviewing\');document.getElementById(\'artifact-preview-overlay\').remove();" style="font-size:.76rem;padding:7px 16px;border-radius:7px;border:1px solid #3b82f6;background:#eff6ff;color:#1d4ed8;cursor:pointer;font-weight:600;">Mark Under Review</button>' +
-          '<button onclick="setSubmissionReview(\'' + ctrlId + '\',\'accepted\');document.getElementById(\'artifact-preview-overlay\').remove();" style="font-size:.76rem;padding:7px 16px;border-radius:7px;border:none;background:#10b981;color:#fff;cursor:pointer;font-weight:700;">Accept Artifact</button>' +
+          '<button onclick="setSubmissionReview(\'' + ctrlId + '\',\'accepted\');document.getElementById(\'artifact-preview-overlay\').remove();" style="font-size:.76rem;padding:7px 16px;border-radius:7px;border:none;background:#10b981;color:#fff;cursor:pointer;font-weight:700;">Accept Artifact ✓</button>' +
         '</div>' +
       '</div>';
 
@@ -1424,6 +1590,16 @@
       }
     });
     observer.observe(srtmContents, { childList: true });
+
+    // Fallback: if SRTM was already initialized before observer was set up
+    if (srtmContents.children.length > 0 && !injected) {
+      injected = true;
+      observer.disconnect();
+      setTimeout(function () {
+        injectSrtmResponsePanels();
+        renderAgencyResponsesIQTab();
+      }, 80);
+    }
   }
 
   // Injects a "Agency Submitted" response panel at the top of each

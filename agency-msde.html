@@ -1063,9 +1063,11 @@
       {id:20, fn:'RECOVER', q:'Are backup restoration tests performed at least quarterly?', role:'Backup Admin / Storage Team'},
     ];
 
-    const srtmState = {};
+    let srtmState = {};
+    try { srtmState = JSON.parse(localStorage.getItem('anchor_srtm_msde') || '{}'); } catch(e) { srtmState = {}; }
     const iqState = {};
     let srtmInit = false;
+    function _saveSrtmState() { try { localStorage.setItem('anchor_srtm_msde', JSON.stringify(srtmState)); } catch(e) {} }
 
     function initSrtm() {
       if(srtmInit) return;
@@ -1157,6 +1159,7 @@
       if(!srtmState[ctrlId]) srtmState[ctrlId] = {result:'',cmmi:'',procs:{}};
       if(!srtmState[ctrlId].procs[procId]) srtmState[ctrlId].procs[procId] = {};
       srtmState[ctrlId].procs[procId][field] = value;
+      _saveSrtmState();
     }
 
     function updateCtrlResult(ctrlId, value) {
@@ -1167,12 +1170,14 @@
       const pill = document.getElementById('spill-'+safe);
       if(el) { el.classList.remove('met','not-met','na','unscored'); el.classList.add(value==='MET'?'met':value==='NOT MET'?'not-met':value==='N/A'?'na':'unscored'); }
       if(pill) { pill.className='srtm-pill '+(value==='MET'?'srtm-pill-met':value==='NOT MET'?'srtm-pill-notmet':value==='N/A'?'srtm-pill-na':'srtm-pill-unscored'); pill.textContent=value||'Unscored'; }
+      _saveSrtmState();
       updateSrtmScoring();
     }
 
     function updateCtrlCmmi(ctrlId, value) {
       if(!srtmState[ctrlId]) srtmState[ctrlId] = {result:'',cmmi:'',procs:{}};
       srtmState[ctrlId].cmmi = value===''?'':parseInt(value);
+      _saveSrtmState();
       updateSrtmScoring();
     }
 

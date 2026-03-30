@@ -68,7 +68,7 @@
 
     var authUser = '';
     try {
-      var sess = JSON.parse(localStorage.getItem('anchorSession') || '{}');
+      var sess = JSON.parse(localStorage.getItem('anchor_session') || '{}');
       authUser = sess.name || sess.displayName || sess.user || 'Assessor';
     } catch(e) {}
 
