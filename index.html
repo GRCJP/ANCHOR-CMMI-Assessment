@@ -421,8 +421,11 @@
                   <option value="pm">Program Manager / Admin — Full access</option>
                   <option value="assessor">Lead Assessor — J. Williams</option>
                   <option value="mdot">Agency Rep — MDOT (L. Harmon)</option>
+                  <option value="mdh">Agency Rep — MDH (R. Osei)</option>
                   <option value="dpscs">Agency Rep — DPSCS (A. Torres)</option>
                   <option value="msde">Agency Rep — MSDE (P. Hall)</option>
+                  <option value="labor">Agency Rep — Labor (D. Kim)</option>
+                  <option value="comptroller">Agency Rep — Comptroller (M. Chen)</option>
                   <option value="reviewer">DoIT Executive Reviewer — Read-only</option>
                 </select>
                 <button type="button" class="btn btn-primary" style="width:100%;padding:11px;font-size:.9rem;" onclick="launchDemoLogin()">Launch Demo</button>
@@ -515,6 +518,33 @@
             agency: 'MSDE',
             groups: ['AgencyPOCs'],
             landing: 'agency-msde.html'
+          },
+          mdh: {
+            email: 'r.osei@mdh.maryland.gov',
+            name: 'Richard Osei',
+            role: 'agency_rep',
+            display_role: 'Agency Representative',
+            agency: 'MDH',
+            groups: ['AgencyPOCs'],
+            landing: 'agency-mdh.html'
+          },
+          labor: {
+            email: 'd.kim@labor.maryland.gov',
+            name: 'Dana Kim',
+            role: 'agency_rep',
+            display_role: 'Agency Representative',
+            agency: 'Labor',
+            groups: ['AgencyPOCs'],
+            landing: 'agency-labor.html'
+          },
+          comptroller: {
+            email: 'm.chen@comp.maryland.gov',
+            name: 'Michelle Chen',
+            role: 'agency_rep',
+            display_role: 'Agency Representative',
+            agency: 'Comptroller',
+            groups: ['AgencyPOCs'],
+            landing: 'agency-comptroller.html'
           },
           reviewer: {
             email: 'reviewer@doit.maryland.gov',

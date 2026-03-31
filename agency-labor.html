@@ -11,15 +11,16 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
   <!-- CSS files -->
-  <link rel="stylesheet" href="src/css/main.css?v=2">
-  <link rel="stylesheet" href="src/css/components.css?v=2">
-  <link rel="stylesheet" href="src/css/accessibility.css?v=2">
+  <link rel="stylesheet" href="src/css/main.css?v=4">
+  <link rel="stylesheet" href="src/css/components.css?v=4">
+  <link rel="stylesheet" href="src/css/accessibility.css?v=4">
 
   <!-- Auth -->
-  <script src="src/js/aws-auth.js?v=2"></script>
-  <script src="src/js/auth-guard.js?v=2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6.3.0/dist/amazon-cognito-identity.min.js"></script>
+  <script src="src/js/aws-auth.js?v=3"></script>
+  <script src="src/js/auth-guard.js?v=3"></script>
 </head>
-<body data-require-auth="true" data-require-agency="LABOR">
+<body class="has-agency-bar" data-require-auth="true" data-require-agency="LABOR">
 
   <!-- APP HEADER -->
   <header class="app-header">
@@ -59,17 +60,29 @@
         <div class="brand-sub">Maryland DoIT Assessment Platform</div>
       </div>
     </div>
-    <div style="font-size:.8rem;color:rgba(255,255,255,.75);font-weight:600;">Maryland Department of Labor Assessment</div>
     <div class="app-header-right">
-      <div class="avatar" aria-label="Lead Assessor" style="background:rgba(255,255,255,.15);color:#fff;">MC</div>
+      <div class="avatar" id="user-avatar" aria-label="Logged-in user" title="" style="background:rgba(255,255,255,.2);color:#fff;cursor:default;">?</div>
+      <button class="btn btn-outline btn-sm" data-action="logout" style="color:#fff;border-color:rgba(255,255,255,.5);font-size:.75rem;font-weight:600;">Sign Out</button>
+      <span id="user-name" style="display:none;"></span>
+      <span id="user-role" style="display:none;"></span>
     </div>
   </header>
+
+  <!-- AGENCY CONTEXT BANNER -->
+  <div class="agency-context-bar" role="banner" aria-label="Agency under review">
+    <span class="acb-flag">Agency Under Review</span>
+    <div class="acb-divider"></div>
+    <strong class="acb-name">Maryland Department of Labor (MDOL)</strong>
+    <div class="acb-divider"></div>
+    <span class="acb-badge">Wave 2 &middot; Q2 2026</span>
+  </div>
 
   <!-- TOP NAVIGATION -->
   <nav class="topnav" role="navigation" aria-label="Main navigation">
     <div class="topnav-inner">
       <a class="nav-item" href="main-dashboard.html" data-visible-to="admin lead_assessor assessor doit_reviewer" style="color:#64748b;border-right:1px solid #e2e8f0;margin-right:8px;padding-right:20px;">← Dashboard</a>
       <button class="nav-item active" onclick="showSection('questionnaire', this)" data-visible-to="admin lead_assessor assessor">Intake &amp; Scoping</button>
+      <button class="nav-item" onclick="showSection('self-assessment', this)" data-visible-to="agency_rep">Agency Questionnaire</button>
       <button class="nav-item" onclick="showSection('evidence', this)" data-visible-to="admin lead_assessor assessor doit_reviewer agency_rep">Evidence Collection</button>
       <button class="nav-item" onclick="showSection('csf', this)" data-visible-to="admin lead_assessor assessor doit_reviewer">CSF Assessment</button>
       <button class="nav-item" onclick="showSection('mapping', this)" data-visible-to="admin lead_assessor assessor doit_reviewer">CSF Mapping</button>
@@ -84,7 +97,7 @@
     <div class="content">
 
       <!-- QUESTIONNAIRE + INTAKE & SCOPING SECTION -->
-      <section class="section active" id="questionnaire" aria-hidden="false">
+      <section class="section active" id="questionnaire" aria-hidden="false" data-visible-to="admin lead_assessor assessor">
         <div class="page-header">
           <div class="step-tag">Step 1 | ANCHOR Phase 0&#8211;1</div>
           <h1>Agency Setup &amp; Intake</h1>
@@ -389,41 +402,41 @@
         <div style="background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:10px 20px 14px; margin-bottom:14px;">
           <div style="font-size:.62rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px;">CSF Assessment Progress</div>
           <div class="h-stepper" style="margin:0;">
-            <div class="h-step done">
-              <div class="h-step-circle">&#10003;</div>
+            <div class="h-step" id="csf-step-GOVERN">
+              <div class="h-step-circle">1</div>
               <div class="h-step-label">GOVERN</div>
               <div class="h-step-date">5 controls</div>
             </div>
-            <div class="h-step active">
+            <div class="h-step" id="csf-step-IDENTIFY">
               <div class="h-step-circle">2</div>
               <div class="h-step-label">IDENTIFY</div>
               <div class="h-step-date">4 controls</div>
             </div>
-            <div class="h-step">
+            <div class="h-step" id="csf-step-PROTECT">
               <div class="h-step-circle">3</div>
               <div class="h-step-label">PROTECT</div>
               <div class="h-step-date">5 controls</div>
             </div>
-            <div class="h-step">
+            <div class="h-step" id="csf-step-DETECT">
               <div class="h-step-circle">4</div>
               <div class="h-step-label">DETECT</div>
               <div class="h-step-date">3 controls</div>
             </div>
-            <div class="h-step">
+            <div class="h-step" id="csf-step-RESPOND">
               <div class="h-step-circle">5</div>
               <div class="h-step-label">RESPOND</div>
               <div class="h-step-date">3 controls</div>
             </div>
-            <div class="h-step">
+            <div class="h-step" id="csf-step-RECOVER">
               <div class="h-step-circle">6</div>
               <div class="h-step-label">RECOVER</div>
               <div class="h-step-date">3 controls</div>
             </div>
           </div>
           <div style="background:#e5e7eb; border-radius:6px; height:8px; overflow:hidden; margin-top:12px;">
-            <div style="width:28%; height:100%; background:linear-gradient(90deg,var(--primary),var(--accent)); border-radius:6px; transition:width .4s;"></div>
+            <div id="srtm-progress-bar" style="width:0%; height:100%; background:linear-gradient(90deg,var(--primary),var(--accent)); border-radius:6px; transition:width .4s;"></div>
           </div>
-          <div style="font-size:.72rem; color:var(--text-muted); margin-top:6px; text-align:right;">6 of 23 controls assessed (28%)</div>
+          <div id="srtm-progress-text" style="font-size:.72rem; color:var(--text-muted); margin-top:6px; text-align:right;">0 of 23 controls assessed (0%)</div>
         </div>
 
         <div class="tab-bar">
@@ -564,11 +577,55 @@
         </div>
       </section>
 
+      <!-- AGENCY SELF-ASSESSMENT SECTION (agency_rep only) -->
+      <section class="section" id="self-assessment" aria-hidden="true"></section>
+
       <!-- EVIDENCE COLLECTION SECTION -->
       <section class="section" id="evidence" aria-hidden="true">
         <div class="page-header">
           <h1>Evidence Collection &#8212; LABOR</h1>
           <p>Track all evidence across documentation, interviews, and automated tools. Each item progresses through the full collection lifecycle ensuring assessment-ready completeness.</p>
+        </div>
+
+        <div class="card" data-visible-to="agency_rep" style="margin-bottom:20px;">
+          <div class="card-title">Submit Documents to Assessor</div>
+          <p style="font-size:.82rem;color:var(--text-muted);margin-bottom:14px;">Upload your evidence files below. Supported formats: PDF, DOCX, XLSX, PNG, JPG. Max 50 MB per file.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+            <div>
+              <label style="font-size:.78rem;font-weight:700;display:block;margin-bottom:6px;">Evidence Category</label>
+              <select id="ev-category" style="width:100%;border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:.82rem;font-family:inherit;">
+                <option value="">— Select —</option>
+                <option>Information Security Policy</option><option>System Security Plan (SSP)</option>
+                <option>Asset Inventory</option><option>Network Diagram</option>
+                <option>Access Control Policy</option><option>Incident Response Plan</option>
+                <option>Business Continuity / DRP</option><option>Vulnerability Scan Report</option>
+                <option>Training Records</option><option>Audit Logs</option><option>Other</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:.78rem;font-weight:700;display:block;margin-bottom:6px;">NIST CSF Function</label>
+              <select id="ev-nist-fn" style="width:100%;border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:.82rem;font-family:inherit;">
+                <option value="">— Select —</option>
+                <option>GOVERN — Policy &amp; Risk Management</option>
+                <option>IDENTIFY — Asset &amp; Risk Management</option>
+                <option>PROTECT — Access Control &amp; Training</option>
+                <option>DETECT — Monitoring &amp; Detection</option>
+                <option>RESPOND — Incident Response</option>
+                <option>RECOVER — Recovery Planning</option>
+              </select>
+            </div>
+          </div>
+          <input type="file" id="ev-file-input" multiple accept=".pdf,.docx,.xlsx,.png,.jpg,.jpeg" style="display:none" onchange="handleEvFiles(this)">
+          <div onclick="agencyUploadClick()" style="border:2px dashed var(--border);border-radius:8px;padding:28px;text-align:center;cursor:pointer;background:#fafbfd;transition:all .2s;" onmouseover="this.style.borderColor='var(--primary-light)'" onmouseout="this.style.borderColor='var(--border)'">
+            <div style="font-size:1.8rem;margin-bottom:8px;">📎</div>
+            <div style="font-size:.88rem;font-weight:600;color:var(--primary);">Click to browse or drag &amp; drop files here</div>
+            <div style="font-size:.75rem;color:var(--text-muted);margin-top:4px;">Supported: PDF, DOCX, XLSX, PNG, JPG | Max 50MB per file</div>
+          </div>
+          <div id="ev-uploaded-files" style="margin-top:10px;"></div>
+          <div class="btn-row" style="margin-top:14px;">
+            <button class="btn btn-primary" onclick="agencySubmitEvidence()">Submit to Assessor</button>
+            <button class="btn btn-outline" onclick="typeof notify==='function'&&notify('Draft saved.')">Save Draft</button>
+          </div>
         </div>
 
         <div class="grid-4" style="margin-bottom:20px;">
@@ -584,11 +641,14 @@
             <table>
               <thead><tr><th>#</th><th>Evidence Item</th><th>NIST Function</th><th>Category</th><th>Source</th><th>Status</th><th>Collected By</th><th>Notes</th></tr></thead>
               <tbody>
-                <tr><td>E-001</td><td>Information Security Policy</td><td><span class="fn-tag fn-govern">GOVERN</span></td><td>Policy</td><td>Documentation</td><td><span class="badge badge-orange">Pending</span></td><td>&#8212;</td><td style="font-size:.76rem; color:var(--text-muted);">Requested May 5</td></tr>
-                <tr><td>E-002</td><td>Risk Management Plan</td><td><span class="fn-tag fn-govern">GOVERN</span></td><td>Policy</td><td>Documentation</td><td><span class="badge badge-orange">Pending</span></td><td>&#8212;</td><td style="font-size:.76rem; color:var(--text-muted);">Requested May 5</td></tr>
-                <tr><td>E-003</td><td>Hardware Asset Inventory (CMDB)</td><td><span class="fn-tag fn-identify">IDENTIFY</span></td><td>Technical</td><td>Tool</td><td><span class="badge badge-orange">Pending</span></td><td>&#8212;</td><td style="font-size:.76rem; color:var(--text-muted);">Requested May 5</td></tr>
-                <tr><td>E-004</td><td>Access Control Policy</td><td><span class="fn-tag fn-protect">PROTECT</span></td><td>Policy</td><td>Documentation</td><td><span class="badge badge-orange">Pending</span></td><td>&#8212;</td><td style="font-size:.76rem; color:var(--text-muted);"></td></tr>
-                <tr><td>E-005</td><td>Incident Response Plan</td><td><span class="fn-tag fn-respond">RESPOND</span></td><td>Policy</td><td>Documentation</td><td><span class="badge badge-orange">Pending</span></td><td>&#8212;</td><td style="font-size:.76rem; color:var(--text-muted);"></td></tr>
+                <tr><td>E-001</td><td>Information Security Policy (UI/Workforce Systems)</td><td><span class="fn-tag fn-govern">GOVERN</span></td><td>Policy</td><td>Agency</td><td><span class="badge badge-green">Accepted</span></td><td>J. Williams</td><td style="font-size:.76rem; color:var(--text-muted);">LABOR_UnemploymentIns_InfoSecPolicy_v3.0_2025.pdf &middot; 3.0 MB &middot; Nov 30, 2025</td></tr>
+                <tr><td>E-002</td><td>PII/Financial Data Risk Register</td><td><span class="fn-tag fn-govern">GOVERN</span></td><td>Technical</td><td>Agency</td><td><span class="badge badge-green">Accepted</span></td><td>S. Patel</td><td style="font-size:.76rem; color:var(--text-muted);">LABOR_PII_RiskRegister_2025.xlsx &middot; 1.3 MB &middot; Jan 5, 2026</td></tr>
+                <tr><td>E-003</td><td>Workforce &amp; Unemployment Systems Asset Inventory</td><td><span class="fn-tag fn-identify">IDENTIFY</span></td><td>Technical</td><td>Agency</td><td><span class="badge badge-green">Accepted</span></td><td>R. Okafor</td><td style="font-size:.76rem; color:var(--text-muted);">LABOR_WorkforceSystemsInventory_2026.xlsx &middot; 2.9 MB &middot; Feb 12, 2026</td></tr>
+                <tr><td>E-004</td><td>IAM Configuration Review (Unemployment Insurance Portal)</td><td><span class="fn-tag fn-protect">PROTECT</span></td><td>Technical</td><td>Assessor</td><td><span class="badge badge-green">Accepted</span></td><td>J. Williams</td><td style="font-size:.76rem; color:var(--text-muted);">LABOR_IAM_ConfigReview_UIPortal_2026.pdf &middot; 2.2 MB &middot; Feb 8, 2026</td></tr>
+                <tr><td>E-005</td><td>Unemployment Claims Data Encryption Audit</td><td><span class="fn-tag fn-protect">PROTECT</span></td><td>Technical</td><td>Assessor</td><td><span class="badge badge-orange">Under Review</span></td><td>R. Okafor</td><td style="font-size:.76rem; color:var(--text-muted);">LABOR_UnemploymentClaims_Encryption_Audit_2025.pdf &middot; 2.5 MB &middot; Jan 28, 2026</td></tr>
+                <tr><td>E-006</td><td>Unemployment Insurance System Access Monitoring</td><td><span class="fn-tag fn-detect">DETECT</span></td><td>Technical</td><td>Agency</td><td><span class="badge badge-green">Accepted</span></td><td>S. Patel</td><td style="font-size:.76rem; color:var(--text-muted);">LABOR_UISystemAccess_Monitoring_Q4_2025.pdf &middot; 1.8 MB &middot; Feb 5, 2026</td></tr>
+                <tr><td>E-007</td><td>Incident Response Plan &amp; Test Results</td><td><span class="fn-tag fn-respond">RESPOND</span></td><td>Policy</td><td>Agency</td><td><span class="badge badge-green">Accepted</span></td><td>J. Williams</td><td style="font-size:.76rem; color:var(--text-muted);">LABOR_SecurityIncident_Response_2025.pdf &middot; 1.9 MB &middot; Dec 15, 2025</td></tr>
+                <tr><td>E-008</td><td>Backup Verification &amp; Restoration Testing</td><td><span class="fn-tag fn-recover">RECOVER</span></td><td>Technical</td><td>Assessor</td><td><span class="badge badge-green">Accepted</span></td><td>R. Okafor</td><td style="font-size:.76rem; color:var(--text-muted);">LABOR_BackupIntegrity_Test_Report_2026.pdf &middot; 1.4 MB &middot; Feb 1, 2026</td></tr>
               </tbody>
             </table>
           </div>
@@ -730,6 +790,7 @@
         targetSection.classList.add('active');
         targetSection.setAttribute('aria-hidden', 'false');
         if(id==='csf') initSrtm();
+        if(id==='risk' || id==='sar') setTimeout(initAgencyCharts, 50);
       }
       if (el) {
         el.classList.add('active');
@@ -738,6 +799,26 @@
       if (window.agencyAssessment) { window.agencyAssessment.initializeSection(id); }
     }
 
+
+    function agencyUploadClick() {
+      const input = document.getElementById('ev-file-input');
+      if (input) input.click();
+    }
+    function handleEvFiles(input) {
+      const files = Array.from(input.files || []);
+      if (!files.length) return;
+      if (!window.evUploaded) window.evUploaded = [];
+      files.forEach(f => { if (!evUploaded.includes(f.name)) evUploaded.push(f.name); });
+      const container = document.getElementById('ev-uploaded-files');
+      if (container) {
+        container.innerHTML = evUploaded.map(f =>
+          '<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid #d1fae5;border-radius:6px;background:#f0fdf4;margin-bottom:6px;">' +
+          '<span>📄</span><span style="flex:1;font-size:.82rem;font-weight:600;">' + f + '</span>' +
+          '<span style="font-size:.72rem;color:#16a34a;font-weight:700;">Ready</span></div>'
+        ).join('');
+      }
+      if (typeof notify === 'function') notify(files.length + ' file(s) selected.');
+    }
     function notify(msg) {
       const notif = document.getElementById('notif');
       if (notif) { notif.textContent = msg; notif.style.display = 'block'; setTimeout(() => { notif.style.display = 'none'; }, 3000); }
@@ -1012,12 +1093,28 @@
       const ring = document.getElementById('s2-ring');
       if(ring) ring.style.borderColor = scoredCmmi>0 ? cmmiColors[ml] : 'var(--border)';
       setText('s2-ring-label', scoredCmmi>0 ? 'ML'+ml+' \u2014 '+cmmiLabels[ml] : 'No controls scored');
+      const assessPct = totalCtrls>0 ? Math.round(assessed/totalCtrls*100) : 0;
+      const progBar = document.getElementById('srtm-progress-bar');
+      const progTxt = document.getElementById('srtm-progress-text');
+      if(progBar) progBar.style.width = assessPct+'%';
+      if(progTxt) progTxt.textContent = assessed+' of '+totalCtrls+' controls assessed ('+assessPct+'%)';
       Object.keys(fnScores).forEach(fn => {
         const fs = fnScores[fn];
         const pct = fs.cmmiCnt>0 ? (fs.cmmiSum/fs.cmmiCnt/5*100).toFixed(0) : 0;
         const barEl = document.getElementById('s2bar-'+fn); const val = document.getElementById('s2pct-'+fn);
         if(barEl) barEl.style.width = pct+'%';
         if(val) val.textContent = fs.cmmiCnt>0 ? (fs.cmmiSum/fs.cmmiCnt).toFixed(1) : '\u2014';
+      });
+      ['GOVERN','IDENTIFY','PROTECT','DETECT','RESPOND','RECOVER'].forEach((fn, i) => {
+        const el = document.getElementById('csf-step-' + fn);
+        if (!el) return;
+        const fs = fnScores[fn] || {total:0, met:0, notmet:0, na:0};
+        const assessedFn = (fs.met||0) + (fs.notmet||0) + (fs.na||0);
+        const circle = el.querySelector('.h-step-circle');
+        el.classList.remove('done','active');
+        if (fs.total > 0 && assessedFn >= fs.total) { el.classList.add('done'); if (circle) circle.textContent = '✓'; }
+        else if (assessedFn > 0) { el.classList.add('active'); if (circle) circle.textContent = String(i+1); }
+        else { if (circle) circle.textContent = String(i+1); }
       });
     }
 
@@ -1075,5 +1172,8 @@
       }
     }
   </script>
+  <script src="src/js/agency-self-assessment.js?v=3"></script>
+  <script>window.AGENCY_KEY = 'labor';</script>
+  <script src="src/js/intake-workflow.js?v=2"></script>
 </body>
 </html>

@@ -8,10 +8,6 @@
 
   // Fast unauthenticated check — no DOM needed, runs immediately
   if (!auth.isAuthenticated()) {
-    // Hide body immediately to prevent flash of protected content
-    document.addEventListener('DOMContentLoaded', () => {
-      document.body.style.display = 'none';
-    });
     // Use a tiny inline style injection to hide body before DOMContentLoaded
     const style = document.createElement('style');
     style.textContent = 'body { visibility: hidden !important; }';

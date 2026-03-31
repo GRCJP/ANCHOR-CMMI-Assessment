@@ -39,8 +39,69 @@ body {
 }
 .app-brand { display: flex; align-items: center; gap: 10px; }
 .brand-text .brand-name { font-size: .95rem; font-weight: 800; color: #fff; line-height: 1.1; }
-.brand-text .brand-sub  { font-size: .65rem; color: rgba(255,255,255,.6); letter-spacing: .02em; }
+.brand-text .brand-sub  { font-size: .65rem; color: rgba(255,255,255,.75); letter-spacing: .02em; }
 .app-header-right { display: flex; align-items: center; gap: 10px; }
+.agency-title-pill {
+  flex: 1; text-align: center;
+  font-size: 1rem; color: #fff; font-weight: 700; letter-spacing: .01em;
+  text-shadow: 0 1px 3px rgba(0,0,0,.3);
+  background: rgba(255,255,255,.1);
+  padding: 6px 16px; border-radius: 6px;
+  border: 1px solid rgba(255,255,255,.2);
+}
+
+/* ── AGENCY CONTEXT BAR ──────────────────────── */
+.agency-context-bar {
+  position: fixed;
+  top: 56px; left: 0; right: 0;
+  z-index: 1060;
+  height: 42px;
+  background: #fff;
+  border-top: 1px solid rgba(0,0,0,.08);
+  border-bottom: 3px solid #1e3a5f;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+}
+.acb-flag {
+  font-size: .6rem;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #fff;
+  background: #1e3a5f;
+  padding: 5px 12px;
+  border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.acb-name {
+  font-size: .95rem;
+  font-weight: 700;
+  color: #0f2d4e;
+  letter-spacing: .01em;
+  white-space: nowrap;
+}
+.acb-divider {
+  width: 1px;
+  height: 22px;
+  background: #cbd5e1;
+  flex-shrink: 0;
+}
+.acb-badge {
+  font-size: .7rem;
+  font-weight: 600;
+  background: #dbeafe;
+  color: #1e40af;
+  padding: 3px 10px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+/* Adjust layout when agency context bar is present */
+body.has-agency-bar .topnav { top: 98px; }
+body.has-agency-bar #main-content { margin-top: 142px; min-height: calc(100vh - 142px); }
 
 /* ── TOP NAV ─────────────────────────────────── */
 .topnav {
@@ -456,8 +517,9 @@ html, body {
   .topbar-right { gap: 6px; }
   .badge { font-size: 0.6rem; padding: 2px 6px; }
   .card { padding: 16px; }
-  .topnav-inner { padding: 0 12px; }
-  .nav-item { padding: 0 10px; font-size: .75rem; }
+  .topnav-inner { padding: 0 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .nav-item { padding: 0 10px; font-size: .75rem; white-space: nowrap; }
+  .agency-questionnaire-grid { grid-template-columns: 1fr !important; }
 }
 
 @media (max-width: 480px) {

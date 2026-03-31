@@ -9,16 +9,16 @@
   
   <!-- External dependencies -->
   <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6.3.0/dist/amazon-cognito-identity.min.js"></script>
-  <script src="src/js/aws-auth.js?v=2"></script>
-  <script src="src/js/auth-guard.js?v=2"></script>
+  <script src="src/js/aws-auth.js?v=3"></script>
+  <script src="src/js/auth-guard.js?v=3"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   
   <!-- CSS files -->
-  <link rel="stylesheet" href="src/css/main.css?v=2">
-  <link rel="stylesheet" href="src/css/components.css?v=2">
-  <link rel="stylesheet" href="src/css/accessibility.css?v=2">
+  <link rel="stylesheet" href="src/css/main.css?v=4">
+  <link rel="stylesheet" href="src/css/components.css?v=4">
+  <link rel="stylesheet" href="src/css/accessibility.css?v=4">
 </head>
-<body data-require-auth="true" data-require-agency="MDOT">
+<body class="has-agency-bar" data-require-auth="true" data-require-agency="MDOT">
 
   <!-- APP HEADER -->
   <header class="app-header">
@@ -58,16 +58,22 @@
         <div class="brand-sub">Maryland DoIT Assessment Platform</div>
       </div>
     </div>
-    <div style="font-size:.8rem;color:rgba(255,255,255,.75);font-weight:600;">Maryland Dept. of Transportation (MDOT) Assessment</div>
     <div class="app-header-right">
-      <div style="text-align:right;line-height:1.2;">
-        <div id="user-name" style="font-size:.75rem;font-weight:600;color:#fff;">Loading...</div>
-        <div id="user-role" style="font-size:.65rem;color:rgba(255,255,255,.65);"></div>
-      </div>
-      <div class="avatar" id="user-avatar" aria-label="Logged-in user" style="background:rgba(255,255,255,.15);color:#fff;">JW</div>
-      <button class="btn btn-outline btn-sm" data-action="logout" style="color:#fff;border-color:rgba(255,255,255,.4);font-size:.75rem;">Sign Out</button>
+      <div class="avatar" id="user-avatar" aria-label="Logged-in user" title="" style="background:rgba(255,255,255,.2);color:#fff;cursor:default;">?</div>
+      <button class="btn btn-outline btn-sm" data-action="logout" style="color:#fff;border-color:rgba(255,255,255,.5);font-size:.75rem;font-weight:600;">Sign Out</button>
+      <span id="user-name" style="display:none;"></span>
+      <span id="user-role" style="display:none;"></span>
     </div>
   </header>
+
+  <!-- AGENCY CONTEXT BANNER -->
+  <div class="agency-context-bar" role="banner" aria-label="Agency under review">
+    <span class="acb-flag">Agency Under Review</span>
+    <div class="acb-divider"></div>
+    <strong class="acb-name">Maryland Dept. of Transportation (MDOT)</strong>
+    <div class="acb-divider"></div>
+    <span class="acb-badge">Wave 1 &middot; Q1&ndash;Q2 2026</span>
+  </div>
 
   <!-- TOP NAVIGATION -->
   <nav class="topnav" role="navigation" aria-label="Main navigation">
@@ -262,7 +268,7 @@
             <div class="btn-row">
               <button id="intake-draft-btn" class="btn btn-outline" onclick="saveIntakeDraft()">Save Draft</button>
               <button id="intake-submit-btn" class="btn btn-primary" onclick="submitIntakeForm()">Save &amp; Submit Intake</button>
-              <button class="btn btn-outline" onclick="notify('Kick-off presentation sent to l.harmon@mdot.maryland.gov')">Send Kick-Off Package</button>
+              <button class="btn btn-outline" onclick="if(window.advancePAStep)advancePAStep(3); notify('Kick-off presentation sent to l.harmon@mdot.maryland.gov')">Send Kick-Off Package</button>
               <button class="btn btn-outline" onclick="notify('Questionnaire exported: MDOT_PreAssess_Q.pdf')">Export PDF</button>
             </div>
             <div id="intake-locked-indicator" style="display:none;align-items:center;gap:10px;padding:10px 16px;background:#d1fae5;border:1px solid #6ee7b7;border-radius:8px;margin-top:8px;">
@@ -343,7 +349,7 @@
             <div style="background:var(--card-bg); border:1px solid var(--border); border-left:4px solid #059669; border-radius:8px; padding:14px 16px; box-shadow:0 1px 4px rgba(0,0,0,.04);">
               <div style="font-size:.78rem; font-weight:800; color:#059669; text-transform:uppercase; letter-spacing:.5px; margin-bottom:10px;">Stage Actions</div>
               <div style="display:flex; flex-direction:column; gap:6px;">
-                <button class="btn btn-accent btn-sm" style="justify-content:flex-start;" onclick="notify('Kick-off presentation sent to l.harmon@mdot.maryland.gov')">Send Kick-Off Presentation</button>
+                <button class="btn btn-accent btn-sm" style="justify-content:flex-start;" onclick="if(window.advancePAStep)advancePAStep(3); notify('Kick-off presentation sent to l.harmon@mdot.maryland.gov')">Send Kick-Off Presentation</button>
                 <button class="btn btn-outline btn-sm" style="justify-content:flex-start;" onclick="submitIntakeForm()">Submit Intake &amp; Advance Pipeline</button>
               </div>
             </div>
@@ -365,32 +371,32 @@
         <div style="background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:10px 20px 14px; margin-bottom:14px;">
           <div style="font-size:.62rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px;">CSF Assessment Progress</div>
           <div class="h-stepper" style="margin:0;">
-            <div class="h-step done">
-              <div class="h-step-circle">✓</div>
+            <div class="h-step" id="csf-step-GOVERN">
+              <div class="h-step-circle">1</div>
               <div class="h-step-label">GOVERN</div>
               <div class="h-step-date">Apr 14–16</div>
             </div>
-            <div class="h-step done">
-              <div class="h-step-circle">✓</div>
+            <div class="h-step" id="csf-step-IDENTIFY">
+              <div class="h-step-circle">2</div>
               <div class="h-step-label">IDENTIFY</div>
               <div class="h-step-date">Apr 17–21</div>
             </div>
-            <div class="h-step active">
+            <div class="h-step" id="csf-step-PROTECT">
               <div class="h-step-circle">3</div>
               <div class="h-step-label">PROTECT</div>
               <div class="h-step-date">Apr 22–28</div>
             </div>
-            <div class="h-step">
+            <div class="h-step" id="csf-step-DETECT">
               <div class="h-step-circle">4</div>
               <div class="h-step-label">DETECT</div>
               <div class="h-step-date">Apr 29–May 1</div>
             </div>
-            <div class="h-step">
+            <div class="h-step" id="csf-step-RESPOND">
               <div class="h-step-circle">5</div>
               <div class="h-step-label">RESPOND</div>
               <div class="h-step-date">May 2–5</div>
             </div>
-            <div class="h-step">
+            <div class="h-step" id="csf-step-RECOVER">
               <div class="h-step-circle">6</div>
               <div class="h-step-label">RECOVER</div>
               <div class="h-step-date">May 6–9</div>
@@ -632,18 +638,14 @@
             <table>
               <thead><tr><th>#</th><th>Evidence Item</th><th>NIST Function</th><th>Category</th><th>Source</th><th>Status</th><th>Collected By</th><th>Notes</th></tr></thead>
               <tbody>
-                <tr><td>E-001</td><td>Information Security Policy</td><td><span class="fn-tag fn-govern">GOVERN</span></td><td>Policy</td><td>Documentation</td><td><span class="badge badge-green">Collected</span></td><td>S. Patel</td><td style="font-size:.76rem; color:var(--text-muted);">Last updated Jan 2025</td></tr>
-                <tr><td>E-002</td><td>Risk Management Plan</td><td><span class="fn-tag fn-govern">GOVERN</span></td><td>Policy</td><td>Documentation</td><td><span class="badge badge-green">Collected</span></td><td>J. Williams</td><td style="font-size:.76rem; color:var(--text-muted);">Covers enterprise risk</td></tr>
-                <tr><td>E-003</td><td>Hardware Asset Inventory (CMDB)</td><td><span class="fn-tag fn-identify">IDENTIFY</span></td><td>Technical</td><td>Tool</td><td><span class="badge badge-green">Collected</span></td><td>R. Okafor</td><td style="font-size:.76rem; color:var(--text-muted);">~40% gap estimated</td></tr>
-                <tr><td>E-004</td><td>Software Inventory</td><td><span class="fn-tag fn-identify">IDENTIFY</span></td><td>Technical</td><td>Tool</td><td><span class="badge badge-orange">Pending</span></td><td>—</td><td style="font-size:.76rem; color:var(--text-muted);">Requested Apr 14, no response</td></tr>
-                <tr><td>E-005</td><td>Network Diagram</td><td><span class="fn-tag fn-identify">IDENTIFY</span></td><td>Technical</td><td>Documentation</td><td><span class="badge badge-green">Collected</span></td><td>R. Okafor</td><td style="font-size:.76rem; color:var(--text-muted);">Received Apr 15</td></tr>
-                <tr><td>E-006</td><td>Access Control Policy</td><td><span class="fn-tag fn-protect">PROTECT</span></td><td>Policy</td><td>Documentation</td><td><span class="badge badge-green">Collected</span></td><td>S. Patel</td><td style="font-size:.76rem; color:var(--text-muted);"></td></tr>
-                <tr><td>E-007</td><td>AD Configuration Review</td><td><span class="fn-tag fn-protect">PROTECT</span></td><td>Technical</td><td>Tool</td><td><span class="badge badge-green">Collected</span></td><td>R. Okafor</td><td style="font-size:.76rem; color:var(--text-muted);">MFA gaps confirmed</td></tr>
-                <tr><td>E-008</td><td>Patch Management Logs (90d)</td><td><span class="fn-tag fn-protect">PROTECT</span></td><td>Technical</td><td>Documentation</td><td><span class="badge badge-green">Collected</span></td><td>J. Williams</td><td style="font-size:.76rem; color:var(--text-muted);">97-day avg CVE patch</td></tr>
-                <tr><td>E-009</td><td>SIEM/Log Management Config</td><td><span class="fn-tag fn-detect">DETECT</span></td><td>Technical</td><td>Tool</td><td><span class="badge badge-red">Not Available</span></td><td>—</td><td style="font-size:.76rem; color:var(--text-muted);">No SIEM deployed — critical gap</td></tr>
-                <tr><td>E-010</td><td>Vulnerability Scan Results</td><td><span class="fn-tag fn-detect">DETECT</span></td><td>Tool</td><td>Tool</td><td><span class="badge badge-green">Collected</span></td><td>R. Okafor</td><td style="font-size:.76rem; color:var(--text-muted);">Nessus scan Apr 21</td></tr>
-                <tr><td>E-011</td><td>Incident Response Plan</td><td><span class="fn-tag fn-respond">RESPOND</span></td><td>Policy</td><td>Documentation</td><td><span class="badge badge-green">Collected</span></td><td>J. Williams</td><td style="font-size:.76rem; color:var(--text-muted);">Dated 2022 — not tested</td></tr>
-                <tr><td>E-012</td><td>Business Continuity / DRP</td><td><span class="fn-tag fn-recover">RECOVER</span></td><td>Policy</td><td>Documentation</td><td><span class="badge badge-green">Collected</span></td><td>S. Patel</td><td style="font-size:.76rem; color:var(--text-muted);"></td></tr>
+                <tr><td>E-001</td><td>Information Security Policy v4.1</td><td><span class="fn-tag fn-govern">GOVERN</span></td><td>Policy</td><td>Agency</td><td><span class="badge badge-green">Accepted</span></td><td>S. Patel</td><td style="font-size:.76rem; color:var(--text-muted);">MDOT_InfoSecPolicy_v4.1_2025.pdf &middot; 2.8 MB &middot; Nov 20, 2025</td></tr>
+                <tr><td>E-002</td><td>Enterprise Risk Register Q4 2025</td><td><span class="fn-tag fn-govern">GOVERN</span></td><td>Technical</td><td>Agency</td><td><span class="badge badge-green">Accepted</span></td><td>J. Williams</td><td style="font-size:.76rem; color:var(--text-muted);">MDOT_RiskRegister_Q4_2025.xlsx &middot; 1.2 MB &middot; Dec 15, 2025</td></tr>
+                <tr><td>E-003</td><td>Hardware/Software Asset Inventory Export</td><td><span class="fn-tag fn-identify">IDENTIFY</span></td><td>Technical</td><td>Agency</td><td><span class="badge badge-green">Accepted</span></td><td>R. Okafor</td><td style="font-size:.76rem; color:var(--text-muted);">MDOT_AssetInventory_CMDB_Jan2026.xlsx &middot; 3.4 MB &middot; Jan 22, 2026</td></tr>
+                <tr><td>E-004</td><td>Vulnerability Assessment Report (Tenable Nessus)</td><td><span class="fn-tag fn-identify">IDENTIFY</span></td><td>Technical</td><td>Assessor</td><td><span class="badge badge-green">Accepted</span></td><td>R. Okafor</td><td style="font-size:.76rem; color:var(--text-muted);">MDOT_VulnScan_Tenable_Q4_2025.pdf &middot; 3.2 MB &middot; Jan 18, 2026</td></tr>
+                <tr><td>E-005</td><td>MFA Implementation Screenshots &amp; Config Review</td><td><span class="fn-tag fn-protect">PROTECT</span></td><td>Technical</td><td>Agency</td><td><span class="badge badge-green">Accepted</span></td><td>S. Patel</td><td style="font-size:.76rem; color:var(--text-muted);">MDOT_MFA_Configuration_Review_Feb2026.png &middot; 0.8 MB &middot; Feb 14, 2026</td></tr>
+                <tr><td>E-006</td><td>Security Operations Center Monitoring Report</td><td><span class="fn-tag fn-detect">DETECT</span></td><td>Technical</td><td>Agency</td><td><span class="badge badge-green">Accepted</span></td><td>R. Okafor</td><td style="font-size:.76rem; color:var(--text-muted);">MDOT_SOC_MonitoringReport_Q4_2025.pdf &middot; 2.1 MB &middot; Jan 10, 2026</td></tr>
+                <tr><td>E-007</td><td>Incident Response Plan v3.0 with 2025 Updates</td><td><span class="fn-tag fn-respond">RESPOND</span></td><td>Policy</td><td>Agency</td><td><span class="badge badge-orange">Under Review</span></td><td>J. Williams</td><td style="font-size:.76rem; color:var(--text-muted);">MDOT_IncidentResponse_Plan_v3.0_2025.pdf &middot; 1.9 MB &middot; Dec 1, 2025</td></tr>
+                <tr><td>E-008</td><td>Business Continuity / Disaster Recovery Plan</td><td><span class="fn-tag fn-recover">RECOVER</span></td><td>Policy</td><td>Agency</td><td><span class="badge badge-green">Accepted</span></td><td>S. Patel</td><td style="font-size:.76rem; color:var(--text-muted);">MDOT_BCDR_Plan_v2.3_2025.pdf &middot; 2.6 MB &middot; Oct 30, 2025</td></tr>
               </tbody>
             </table>
           </div>
@@ -694,6 +696,7 @@
             <label style="font-size:.78rem; font-weight:700; display:block; margin-bottom:6px;">Description / Notes</label>
             <textarea id="ev-notes" rows="2" placeholder="Describe what this document covers and the time period it applies to..." style="width:100%; border:1px solid var(--border); border-radius:6px; padding:8px 10px; font-size:.82rem; font-family:inherit; resize:vertical;"></textarea>
           </div>
+          <input type="file" id="ev-file-input" multiple accept=".pdf,.docx,.xlsx,.png,.jpg,.jpeg" style="display:none" onchange="handleEvFiles(this)">
           <div onclick="agencyUploadClick()" style="border:2px dashed var(--border); border-radius:8px; padding:28px; text-align:center; cursor:pointer; background:#fafbfd; transition:all .2s;" onmouseover="this.style.borderColor='var(--primary-light)'" onmouseout="this.style.borderColor='var(--border)'">
             <div style="font-size:1.8rem; margin-bottom:8px;">📎</div>
             <div style="font-size:.88rem; font-weight:600; color:var(--primary);">Click to browse or drag &amp; drop files here</div>
@@ -835,7 +838,7 @@
           <div class="stat-card accent"><div class="stat-label">Overall Maturity</div><div class="stat-value">2.5 / 5</div><div class="stat-sub">Managed → Defined</div></div>
           <div class="stat-card red"><div class="stat-label">Critical Findings</div><div class="stat-value">4</div><div class="stat-sub">Immediate action required</div></div>
           <div class="stat-card"><div class="stat-label">High Findings</div><div class="stat-value">9</div><div class="stat-sub">30-day remediation</div></div>
-          <div class="stat-card green"><div class="stat-label">Controls Assessed</div><div class="stat-value">106</div><div class="stat-sub">Full CSF 2.0 coverage</div></div>
+          <div class="stat-card green"><div class="stat-label">Controls Assessed</div><div class="stat-value">21</div><div class="stat-sub">Priority CSF 2.0 subset</div></div>
         </div>
 
         <div class="grid-2">
@@ -856,10 +859,10 @@
               <thead><tr><th>Finding ID</th><th>Control Ref</th><th>Function</th><th>Description</th><th>CMMI</th><th>Risk</th></tr></thead>
               <tbody>
                 <tr><td>F-001</td><td>DE.CM-01</td><td><span class="fn-tag fn-detect">DETECT</span></td><td>No SIEM or continuous monitoring capability deployed</td><td><strong>1</strong></td><td><span class="badge badge-red">Critical</span></td></tr>
-                <tr><td>F-002</td><td>PR.AC-06</td><td><span class="fn-tag fn-protect">PROTECT</span></td><td>MFA not enforced for privileged / administrative accounts</td><td><strong>1</strong></td><td><span class="badge badge-red">Critical</span></td></tr>
+                <tr><td>F-002</td><td>PR.AA-01</td><td><span class="fn-tag fn-protect">PROTECT</span></td><td>MFA not enforced for privileged / administrative accounts</td><td><strong>1</strong></td><td><span class="badge badge-red">Critical</span></td></tr>
                 <tr><td>F-003</td><td>ID.AM-01</td><td><span class="fn-tag fn-identify">IDENTIFY</span></td><td>Hardware asset inventory has ~40% gap (CMDB incomplete)</td><td><strong>2</strong></td><td><span class="badge badge-red">Critical</span></td></tr>
-                <tr><td>F-004</td><td>RS.RP-01</td><td><span class="fn-tag fn-respond">RESPOND</span></td><td>Incident response plan not tested or exercised since 2022</td><td><strong>2</strong></td><td><span class="badge badge-red">Critical</span></td></tr>
-                <tr><td>F-005</td><td>PR.IP-12</td><td><span class="fn-tag fn-protect">PROTECT</span></td><td>Patch cycle averages 97 days — exceeds 30-day SLA</td><td><strong>2</strong></td><td><span class="badge badge-orange">High</span></td></tr>
+                <tr><td>F-004</td><td>RS.MA-01</td><td><span class="fn-tag fn-respond">RESPOND</span></td><td>Incident response plan not tested or exercised since 2022</td><td><strong>2</strong></td><td><span class="badge badge-red">Critical</span></td></tr>
+                <tr><td>F-005</td><td>PR.PS-01</td><td><span class="fn-tag fn-protect">PROTECT</span></td><td>Patch cycle averages 97 days — exceeds 30-day SLA</td><td><strong>2</strong></td><td><span class="badge badge-orange">High</span></td></tr>
                 <tr><td>F-006</td><td>GV.SC-01</td><td><span class="fn-tag fn-govern">GOVERN</span></td><td>No formal third-party risk management (TPRM) program</td><td><strong>0</strong></td><td><span class="badge badge-orange">High</span></td></tr>
               </tbody>
             </table>
@@ -1182,9 +1185,11 @@
 
     let srtmState = {};
     try { srtmState = JSON.parse(localStorage.getItem('anchor_srtm_mdot') || '{}'); } catch(e) { srtmState = {}; }
-    const iqState = {};
+    let iqState = {};
+    try { iqState = JSON.parse(localStorage.getItem('anchor_iq_mdot') || '{}'); } catch(e) { iqState = {}; }
     let srtmInit = false;
     function _saveSrtmState() { try { localStorage.setItem('anchor_srtm_mdot', JSON.stringify(srtmState)); } catch(e) {} }
+    function _saveIqState() { try { localStorage.setItem('anchor_iq_mdot', JSON.stringify(iqState)); } catch(e) {} }
 
     function initSrtm() {
       if(srtmInit) return;
@@ -1441,6 +1446,24 @@
         if(bar) bar.style.width = pct+'%';
         if(val) val.textContent = fs.cmmiCnt>0 ? (fs.cmmiSum/fs.cmmiCnt).toFixed(1) : '—';
       });
+      // Update CSF function h-stepper based on actual scoring progress
+      ['GOVERN','IDENTIFY','PROTECT','DETECT','RESPOND','RECOVER'].forEach((fn, i) => {
+        const el = document.getElementById('csf-step-' + fn);
+        if (!el) return;
+        const fs = fnScores[fn] || {total:0, met:0, notmet:0, na:0};
+        const assessedFn = (fs.met||0) + (fs.notmet||0) + (fs.na||0);
+        const circle = el.querySelector('.h-step-circle');
+        el.classList.remove('done','active');
+        if (fs.total > 0 && assessedFn >= fs.total) {
+          el.classList.add('done');
+          if (circle) circle.textContent = '✓';
+        } else if (assessedFn > 0) {
+          el.classList.add('active');
+          if (circle) circle.textContent = String(i+1);
+        } else {
+          if (circle) circle.textContent = String(i+1);
+        }
+      });
     }
 
     function buildIQ() {
@@ -1458,10 +1481,19 @@
             <input placeholder="Personnel Name / Role (default: ${q.role})" onchange="updateIQMeta(${q.id},this.value)">
           </div>
         </div>`).join('');
+      // Restore saved IQ answers from localStorage
+      container.querySelectorAll('.srtm-iq-row').forEach(row => {
+        const id = parseInt(row.id.replace('iq-row-',''));
+        const ta = row.querySelector('textarea');
+        if(ta && iqState[id]) ta.value = iqState[id];
+      });
+      const answered = Object.values(iqState).filter(v=>v&&v.trim()).length;
       const totalEl = document.getElementById('iq-total');
+      const answeredEl = document.getElementById('iq-answered');
       const pendingEl = document.getElementById('iq-pending');
       if(totalEl) totalEl.textContent = SRTM_IQ.length;
-      if(pendingEl) pendingEl.textContent = SRTM_IQ.length;
+      if(answeredEl) answeredEl.textContent = answered;
+      if(pendingEl) pendingEl.textContent = SRTM_IQ.length - answered;
     }
 
     function filterIQ(fn) {
@@ -1472,6 +1504,7 @@
 
     function updateIQ(id, val) {
       iqState[id] = val;
+      _saveIqState();
       const answered = Object.values(iqState).filter(v=>v&&v.trim()).length;
       const answeredEl = document.getElementById('iq-answered');
       const pendingEl = document.getElementById('iq-pending');
@@ -1718,20 +1751,31 @@
     // ── Agency Rep Evidence Submission ────────────────────────────────────────
     const evUploaded = [];
     function agencyUploadClick() {
-      const fakeFiles = ['MDOT_Policy_v2.pdf', 'MDOT_AssetInventory_Apr2026.xlsx', 'MDOT_NetworkDiagram.vsdx', 'MDOT_IRPlan_2026.pdf', 'MDOT_ScanReport_Q1.pdf'];
-      const file = fakeFiles[Math.floor(Math.random() * fakeFiles.length)];
-      evUploaded.push(file);
+      const input = document.getElementById('ev-file-input');
+      if (input) { input.click(); return; }
+      // Fallback: create a temporary input if not present in HTML
+      const tmp = document.createElement('input');
+      tmp.type = 'file'; tmp.multiple = true;
+      tmp.accept = '.pdf,.docx,.xlsx,.png,.jpg,.jpeg';
+      tmp.onchange = function() { handleEvFiles(tmp); };
+      tmp.click();
+    }
+    function handleEvFiles(input) {
+      const files = Array.from(input.files || []);
+      if (!files.length) return;
+      if (!window.evUploaded) window.evUploaded = [];
+      files.forEach(f => { if (!evUploaded.includes(f.name)) evUploaded.push(f.name); });
       const container = document.getElementById('ev-uploaded-files');
       if (container) {
         container.innerHTML = evUploaded.map(f =>
-          `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid #d1fae5;border-radius:6px;background:#f0fdf4;margin-bottom:6px;">
-            <span style="font-size:1rem;">📄</span>
-            <span style="flex:1;font-size:.82rem;font-weight:600;">${f}</span>
-            <span style="font-size:.72rem;color:#16a34a;font-weight:700;">Ready to submit</span>
-          </div>`
+          '<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid #d1fae5;border-radius:6px;background:#f0fdf4;margin-bottom:6px;">' +
+          '<span style="font-size:1rem;">📄</span>' +
+          '<span style="flex:1;font-size:.82rem;font-weight:600;">' + f + '</span>' +
+          '<span style="font-size:.72rem;color:#16a34a;font-weight:700;">Ready to submit</span>' +
+          '</div>'
         ).join('');
       }
-      notify('File selected: ' + file);
+      if (typeof notify === 'function') notify(files.length + ' file' + (files.length > 1 ? 's' : '') + ' selected.');
     }
 
     function agencySubmitEvidence() {
@@ -1818,7 +1862,7 @@
       }
     }
   </script>
-  <script src="src/js/intake-workflow.js"></script>
+  <script src="src/js/intake-workflow.js?v=2"></script>
 
   <!-- SAR Preview Modal -->
   <div id="sar-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;overflow-y:auto;padding:32px 16px;">
@@ -1925,10 +1969,10 @@
             </thead>
             <tbody>
               <tr style="background:#fef2f2;"><td style="padding:5px 10px;border:1px solid #e2e8f0;font-weight:700;">F-001</td><td style="padding:5px 10px;border:1px solid #e2e8f0;">DE.CM-01</td><td style="padding:5px 10px;border:1px solid #e2e8f0;"><span style="background:#dc2626;color:#fff;padding:1px 7px;border-radius:10px;font-size:.75rem;">Critical</span></td><td style="padding:5px 10px;border:1px solid #e2e8f0;">No SIEM or continuous monitoring solution deployed for enterprise network activity.</td><td style="padding:5px 10px;border:1px solid #e2e8f0;font-weight:700;color:#dc2626;">30 days</td></tr>
-              <tr><td style="padding:5px 10px;border:1px solid #e2e8f0;font-weight:700;">F-002</td><td style="padding:5px 10px;border:1px solid #e2e8f0;">PR.AC-06</td><td style="padding:5px 10px;border:1px solid #e2e8f0;"><span style="background:#dc2626;color:#fff;padding:1px 7px;border-radius:10px;font-size:.75rem;">Critical</span></td><td style="padding:5px 10px;border:1px solid #e2e8f0;">MFA not enforced for privileged accounts and remote access sessions.</td><td style="padding:5px 10px;border:1px solid #e2e8f0;font-weight:700;color:#dc2626;">30 days</td></tr>
+              <tr><td style="padding:5px 10px;border:1px solid #e2e8f0;font-weight:700;">F-002</td><td style="padding:5px 10px;border:1px solid #e2e8f0;">PR.AA-01</td><td style="padding:5px 10px;border:1px solid #e2e8f0;"><span style="background:#dc2626;color:#fff;padding:1px 7px;border-radius:10px;font-size:.75rem;">Critical</span></td><td style="padding:5px 10px;border:1px solid #e2e8f0;">MFA not enforced for privileged accounts and remote access sessions.</td><td style="padding:5px 10px;border:1px solid #e2e8f0;font-weight:700;color:#dc2626;">30 days</td></tr>
               <tr style="background:#fffbeb;"><td style="padding:5px 10px;border:1px solid #e2e8f0;font-weight:700;">F-003</td><td style="padding:5px 10px;border:1px solid #e2e8f0;">ID.AM-01</td><td style="padding:5px 10px;border:1px solid #e2e8f0;"><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:10px;font-size:.75rem;">High</span></td><td style="padding:5px 10px;border:1px solid #e2e8f0;">Hardware asset inventory has not been fully updated since FY2023; cloud assets not included.</td><td style="padding:5px 10px;border:1px solid #e2e8f0;font-weight:700;color:#d97706;">60 days</td></tr>
-              <tr><td style="padding:5px 10px;border:1px solid #e2e8f0;font-weight:700;">F-004</td><td style="padding:5px 10px;border:1px solid #e2e8f0;">RS.RP-01</td><td style="padding:5px 10px;border:1px solid #e2e8f0;"><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:10px;font-size:.75rem;">High</span></td><td style="padding:5px 10px;border:1px solid #e2e8f0;">Incident response plan not tested in over 24 months; tabletop exercise overdue.</td><td style="padding:5px 10px;border:1px solid #e2e8f0;font-weight:700;color:#d97706;">60 days</td></tr>
-              <tr style="background:#fffbeb;"><td style="padding:5px 10px;border:1px solid #e2e8f0;font-weight:700;">F-005</td><td style="padding:5px 10px;border:1px solid #e2e8f0;">PR.IP-12</td><td style="padding:5px 10px;border:1px solid #e2e8f0;"><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:10px;font-size:.75rem;">High</span></td><td style="padding:5px 10px;border:1px solid #e2e8f0;">Patch cycle averages 97 days for critical vulnerabilities; exceeds 30-day DoIT policy requirement.</td><td style="padding:5px 10px;border:1px solid #e2e8f0;font-weight:700;color:#d97706;">90 days</td></tr>
+              <tr><td style="padding:5px 10px;border:1px solid #e2e8f0;font-weight:700;">F-004</td><td style="padding:5px 10px;border:1px solid #e2e8f0;">RS.MA-01</td><td style="padding:5px 10px;border:1px solid #e2e8f0;"><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:10px;font-size:.75rem;">High</span></td><td style="padding:5px 10px;border:1px solid #e2e8f0;">Incident response plan not tested in over 24 months; tabletop exercise overdue.</td><td style="padding:5px 10px;border:1px solid #e2e8f0;font-weight:700;color:#d97706;">60 days</td></tr>
+              <tr style="background:#fffbeb;"><td style="padding:5px 10px;border:1px solid #e2e8f0;font-weight:700;">F-005</td><td style="padding:5px 10px;border:1px solid #e2e8f0;">PR.PS-01</td><td style="padding:5px 10px;border:1px solid #e2e8f0;"><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:10px;font-size:.75rem;">High</span></td><td style="padding:5px 10px;border:1px solid #e2e8f0;">Patch cycle averages 97 days for critical vulnerabilities; exceeds 30-day DoIT policy requirement.</td><td style="padding:5px 10px;border:1px solid #e2e8f0;font-weight:700;color:#d97706;">90 days</td></tr>
               <tr><td style="padding:5px 10px;border:1px solid #e2e8f0;font-weight:700;">F-006</td><td style="padding:5px 10px;border:1px solid #e2e8f0;">GV.SC-01</td><td style="padding:5px 10px;border:1px solid #e2e8f0;"><span style="background:#ca8a04;color:#fff;padding:1px 7px;border-radius:10px;font-size:.75rem;">Medium</span></td><td style="padding:5px 10px;border:1px solid #e2e8f0;">No formal third-party risk management program; vendor security reviews not conducted.</td><td style="padding:5px 10px;border:1px solid #e2e8f0;font-weight:700;color:#ca8a04;">120 days</td></tr>
             </tbody>
           </table>

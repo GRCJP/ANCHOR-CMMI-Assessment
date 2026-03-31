@@ -134,8 +134,8 @@
     // Update agency timeline bar dates
     updateAgencyTimelineBar(data);
 
-    // Advance h-stepper (steps 1–2 done, step 3 active)
-    advanceHStepper(1);
+    // Advance h-stepper — all pre-assessment steps done on submission
+    window.advancePAStep(4);
 
     // Write back to assessment key so dashboard picks it up
     writeBackToDashboard(key, data);
@@ -263,6 +263,18 @@
     });
   }
 
+  /* ── Public: Advance Pre-Assessment Stepper (with localStorage) ──── */
+  window.advancePAStep = function (upToIndex) {
+    var key = getAgencyKey();
+    var current = -1;
+    try { current = parseInt(localStorage.getItem('anchor_pa_step_' + key) || '-1', 10); } catch(e) {}
+    if (upToIndex <= current) return; // never regress
+    advanceHStepper(upToIndex);
+    if (key) {
+      try { localStorage.setItem('anchor_pa_step_' + key, String(upToIndex)); } catch(e) {}
+    }
+  };
+
   /* ── Write Back to Dashboard ─────────────────────────────────────── */
   function writeBackToDashboard(agencyKey, intakeData) {
     var dashKey = 'assessment_' + agencyKey;
@@ -351,6 +363,12 @@
     var data = {};
     try { data = JSON.parse(localStorage.getItem('anchor_intake_' + key) || '{}'); } catch(e) {}
 
+    // Always restore PA stepper step regardless of intake status
+    try {
+      var s = localStorage.getItem('anchor_pa_step_' + key);
+      if (s !== null) advanceHStepper(parseInt(s, 10));
+    } catch(e) {}
+
     if (!data.status) return; // Nothing saved yet
 
     // Restore form field values
@@ -377,8 +395,20 @@
       // Restore submitted state visuals
       updatePipelineTracker('evidence');
       updateAgencyTimelineBar(data);
-      advanceHStepper(1);
+      // Restore saved stepper step, default to 4 (all done) if not recorded
+      var savedStep = 4;
+      try {
+        var s = localStorage.getItem('anchor_pa_step_' + key);
+        if (s !== null) savedStep = parseInt(s, 10);
+      } catch(e) {}
+      advanceHStepper(savedStep);
       lockIntakeForm();
+    } else if (data.status === 'draft') {
+      // Restore stepper to wherever we last advanced it
+      try {
+        var s = localStorage.getItem('anchor_pa_step_' + key);
+        if (s !== null) advanceHStepper(parseInt(s, 10));
+      } catch(e) {}
     }
   };
 

@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
   if (params.get('logout') === 'true')     showBanner('info',    'You have been signed out.');
   if (params.get('session') === 'expired') showBanner('warning', 'Your session expired. Please sign in again.');
+  if (params.get('error') === 'no_agency') showBanner('error',   'Your account has no agency assigned. Contact your administrator.');
 
   // Fill demo credential buttons
   document.querySelectorAll('.btn-fill-demo').forEach(btn => {

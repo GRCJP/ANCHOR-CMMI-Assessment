@@ -489,7 +489,7 @@ class AgencyAssessment {
       timestamp: new Date().toISOString(),
       action: action,
       section: section,
-      user: 'J. Williams', // Would get from auth system
+      user: (window.anchorAuth && window.anchorAuth.getSession()?.name) || 'Unknown',
       agencyId: this.agencyId
     };
 
@@ -588,7 +588,7 @@ class AgencyAssessment {
     }));
 
     // Navigate back to master tracker
-    window.location.href = 'index-master.html';
+    window.location.href = 'main-dashboard.html';
   }
 
   // Data management methods
@@ -607,7 +607,7 @@ class AgencyAssessment {
     const exportData = {
       agency: this.agencyData,
       timestamp: new Date().toISOString(),
-      exportedBy: 'J. Williams'
+      exportedBy: (window.anchorAuth && window.anchorAuth.getSession()?.name) || 'Unknown'
     };
 
     const dataStr = JSON.stringify(exportData, null, 2);

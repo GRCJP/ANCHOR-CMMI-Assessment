@@ -124,7 +124,8 @@ class AnchorAuth {
   getLandingPage() {
     const role   = this.getRole();
     const agency = this.getAgency();
-    if (role === 'agency_rep' && agency) {
+    if (role === 'agency_rep') {
+      if (!agency) return 'index.html?error=no_agency';
       const agencySlug = agency.toLowerCase().replace(/[^a-z]/g, '');
       return `agency-${agencySlug}.html`;
     }
@@ -167,8 +168,26 @@ class AnchorAuth {
     set('user-role',   s.display_role || s.role);
     set('user-avatar', initials);
 
-    const av = document.querySelector('.avatar');
-    if (av) av.textContent = initials;
+    const av = document.getElementById('user-avatar') || document.querySelector('.avatar');
+    if (av) {
+      av.textContent = initials;
+      av.title = `${s.name} · ${s.display_role || s.role}`;
+    }
+  }
+
+  // ── API helper methods (used by aws-api.js) ───────────────────────────────
+  getAuthHeaders() {
+    const s = this.getSession();
+    const token = s?.idToken || '';
+    return {
+      'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+    };
+  }
+
+  getCurrentUserId() {
+    const s = this.getSession();
+    return s?.email || s?.sub || null;
   }
 }
 

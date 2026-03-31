@@ -1,5 +1,5 @@
 // Anchor Platform — Agency Self-Assessment (NIST CSF 2.0)
-// 21 controls. Each has an assessor-interview context paragraph,
+// 20 controls. Each has an assessor-interview context paragraph,
 // 2–4 targeted questions, and a clearly specified artifact requirement.
 // Agency reps answer in their own words — assessors do the scoring.
 
@@ -858,7 +858,7 @@
     view.innerHTML = `
       <div class="page-header">
         <h1>Evidence Submission Tracker</h1>
-        <p>Upload one supporting artifact for each of the 21 NIST CSF controls in your self-assessment. Your assessor uses these documents alongside your written responses to evaluate each control. Track your progress toward the submission deadline below.</p>
+        <p>Upload one supporting artifact for each of the 20 NIST CSF controls in your self-assessment. Your assessor uses these documents alongside your written responses to evaluate each control. Track your progress toward the submission deadline below.</p>
       </div>
 
       <!-- Summary stats -->
@@ -959,7 +959,7 @@
         </div>
         <div id="ev-uploaded-files" style="margin-top:10px;"></div>
         <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px;">
-          <button class="btn btn-outline btn-sm" onclick="notify('Draft saved.')">Save Draft</button>
+          <button class="btn btn-outline btn-sm" onclick="typeof notify==='function'&&notify('Draft saved.')">Save Draft</button>
           <button class="btn btn-primary btn-sm" onclick="agencySubmitEvidence()">Submit to Assessor</button>
         </div>
       </div>
@@ -1555,7 +1555,7 @@
       // Review state badge
       const rStyles = {
         accepted:  'background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;',
-        returning: 'background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;',
+        returned:  'background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;',
         reviewing: 'background:#dbeafe;color:#1d4ed8;border:1px solid #93c5fd;',
         new:       'background:#f1f5f9;color:#94a3b8;border:1px solid #e2e8f0;'
       };
@@ -2013,3 +2013,17 @@
   });
 
 })();
+
+// ── Global fallbacks for evidence section onclick handlers ────────────────
+// These are defined here as defaults; individual agency pages may override them.
+if (typeof window.agencyUploadClick !== 'function') {
+  window.agencyUploadClick = function () {
+    const input = document.getElementById('agency-evidence-upload');
+    if (input) input.click();
+  };
+}
+if (typeof window.agencySubmitEvidence !== 'function') {
+  window.agencySubmitEvidence = function () {
+    if (typeof notify === 'function') notify('Submitting evidence to assessor…');
+  };
+}
