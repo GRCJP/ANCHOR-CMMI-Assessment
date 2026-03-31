@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DPSCS Assessment | Anchor Platform</title>
+  <title>DPSCS Assessment | ANCHOR Platform</title>
   <meta name="description" content="MD Dept. of Public Safety &amp; Correctional Services Cybersecurity Assessment">
-  <meta name="author" content="Anchor Platform">
+  <meta name="author" content="ANCHOR Platform">
 
   <!-- External dependencies -->
   <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6.3.0/dist/amazon-cognito-identity.min.js"></script>
@@ -54,7 +54,7 @@
         <polygon points="21,21 28,21 28,28" fill="#000"/>
       </svg>
       <div class="brand-text">
-        <div class="brand-name">Anchor Platform</div>
+        <div class="brand-name">ANCHOR Platform</div>
         <div class="brand-sub">Maryland DoIT Assessment Platform</div>
       </div>
     </div>
@@ -1088,7 +1088,7 @@
               <div class="card-title">Assessment Team</div>
               <div class="table-wrap"><table><thead><tr><th>Role</th><th>Name</th><th>Organization</th><th>Assessment Dates</th></tr></thead><tbody>
                 <tr><td>Lead Assessor</td><td>J. Williams</td><td>Assurit</td><td>Jun 1 &#8211; Jul 15, 2026</td></tr>
-                <tr><td>Technical Assessor</td><td>TBD</td><td>Assurit</td><td>TBD</td></tr>
+                <tr><td>Technical Assessor</td><td>R. Okafor</td><td>Assurit</td><td>Mar 10 &#8211; Jun 14, 2026</td></tr>
                 <tr><td>DoIT Program Manager</td><td>S. Patel</td><td>DoIT OSM</td><td>Jun 1 &#8211; Jul 15, 2026</td></tr>
                 <tr><td>Agency CISO (POC)</td><td>D. Kim</td><td>DPSCS</td><td>TBD</td></tr>
               </tbody></table></div>
@@ -1962,7 +1962,7 @@
     <div style="max-width:780px;margin:0 auto;background:#fff;border-radius:10px;box-shadow:0 8px 40px rgba(0,0,0,.3);overflow:hidden;">
       <!-- Modal toolbar -->
       <div style="background:#1e3a5f;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;">
-        <span style="color:#fff;font-weight:700;font-size:.9rem;">&#128196; DPSCS_SAR_Q2-Q3_2026.pdf — Preview</span>
+        <span style="color:#fff;font-weight:700;font-size:.9rem;">&#128196; DPSCS_SAR_Q1-Q2_2026.pdf — Preview</span>
         <div style="display:flex;gap:8px;">
           <button onclick="window.print()" style="background:#2563a8;color:#fff;border:none;padding:5px 14px;border-radius:5px;cursor:pointer;font-size:.8rem;">&#128424; Print</button>
           <button onclick="document.getElementById('sar-modal-dpscs').style.display='none';document.body.style.overflow='';" style="background:#64748b;color:#fff;border:none;padding:5px 14px;border-radius:5px;cursor:pointer;font-size:.8rem;">&#10005; Close</button>
@@ -1984,9 +1984,9 @@
         </div>
         <!-- Report title block -->
         <div style="text-align:center;margin-bottom:28px;">
-          <div style="font-size:1.25rem;font-weight:800;color:#1e3a5f;font-family:Arial,sans-serif;letter-spacing:.5px;">SYSTEM ASSESSMENT REPORT</div>
+          <div style="font-size:1.25rem;font-weight:800;color:#1e3a5f;font-family:Arial,sans-serif;letter-spacing:.5px;">SECURITY ASSESSMENT REPORT</div>
           <div style="font-size:.95rem;color:#374151;margin-top:4px;">MD Dept. of Public Safety &amp; Correctional Services (DPSCS)</div>
-          <div style="font-size:.8rem;color:#64748b;margin-top:4px;">Assessment Period: March 10 – June 14, 2026 &nbsp;|&nbsp; Wave 1, Q2–Q3 2026</div>
+          <div style="font-size:.8rem;color:#64748b;margin-top:4px;">Assessment Period: March 10 – June 14, 2026 &nbsp;|&nbsp; Wave 1, Q1–Q2 2026</div>
         </div>
         <!-- Metadata table -->
         <table style="width:100%;border-collapse:collapse;font-size:.82rem;margin-bottom:28px;font-family:Arial,sans-serif;">
@@ -2080,7 +2080,7 @@
           <div>
             <div style="font-weight:700;color:#1e3a5f;margin-bottom:4px;">DoIT Program Manager</div>
             <div style="border-bottom:1px solid #374151;margin-bottom:4px;height:28px;"></div>
-            <div>James Wilson, DoIT OSM</div>
+            <div>S. Patel, DoIT OSM</div>
             <div style="color:#64748b;">Date: _______________</div>
           </div>
         </div>
@@ -2261,10 +2261,10 @@
         findingSource: 'ANCHOR Assessment MD-DPSCS-2026-001, Pending',
         poc: 'D. Kim, CISO',
         resourcesReq: 'IT Security Team (2 FTE), Contracted MSSP/MDR Provider',
-        initialCompDate: 'TBD',
-        milestones: '(1) Complete assessment and identify monitoring gaps TBD\n(2) Issue RFQ for SIEM/MSSP solution TBD\n(3) Deploy centralized monitoring TBD',
+        initialCompDate: 'Aug 15, 2026',
+        milestones: '(1) Complete assessment and identify monitoring gaps — Target: Aug 2026\n(2) Issue RFQ for SIEM/MSSP solution — Target: Sep 2026\n(3) Deploy centralized monitoring — Target: Nov 2026',
         milestoneChanges: 'N/A',
-        updatedCompDate: 'TBD',
+        updatedCompDate: 'Sep 30, 2026',
         actualCompDate: '',
         findingStatus: 'Ongoing',
         riskLevel: 'High',
@@ -2279,11 +2279,8 @@
       var dataObj = window['POAM_DATA_' + agencyKey];
       if (!dataObj) {
         if (typeof POAM_DATA_MDOT !== 'undefined') dataObj = POAM_DATA_MDOT;
-        else if (typeof POAM_DATA_MDH !== 'undefined') dataObj = POAM_DATA_MDH;
         else if (typeof POAM_DATA_DPSCS !== 'undefined') dataObj = POAM_DATA_DPSCS;
         else if (typeof POAM_DATA_MSDE !== 'undefined') dataObj = POAM_DATA_MSDE;
-        else if (typeof POAM_DATA_LABOR !== 'undefined') dataObj = POAM_DATA_LABOR;
-        else if (typeof POAM_DATA_COMP !== 'undefined') dataObj = POAM_DATA_COMP;
       }
       var d = dataObj ? dataObj[poamId] : null;
       if (!d) { notify('POA\u0026M item not found: ' + poamId); return; }
@@ -2409,7 +2406,7 @@
       setTimeout(renderAdditionalFindings,300);
     })();
 
-    // Out-of-Framework capture from within CSF Assessment
+    // Additional Findings capture from within CSF Assessment
     window.toggleCSFCapture = function() {
       var form = document.getElementById('csf-capture-form');
       var btn  = document.getElementById('csf-capture-toggle');

@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MSDE Assessment | Anchor Platform</title>
+  <title>MSDE Assessment | ANCHOR Platform</title>
   <meta name="description" content="Maryland State Department of Education Cybersecurity Assessment">
-  <meta name="author" content="Anchor Platform">
+  <meta name="author" content="ANCHOR Platform">
 
   <!-- External dependencies -->
   <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6.3.0/dist/amazon-cognito-identity.min.js"></script>
@@ -54,7 +54,7 @@
         <polygon points="21,21 28,21 28,28" fill="#000"/>
       </svg>
       <div class="brand-text">
-        <div class="brand-name">Anchor Platform</div>
+        <div class="brand-name">ANCHOR Platform</div>
         <div class="brand-sub">Maryland DoIT Assessment Platform</div>
       </div>
     </div>
@@ -1118,9 +1118,9 @@
               <div class="card-title">Assessment Team</div>
               <div class="table-wrap"><table><thead><tr><th>Role</th><th>Name</th><th>Organization</th><th>Assessment Dates</th></tr></thead><tbody>
                 <tr><td>Lead Assessor</td><td>J. Williams</td><td>Assurit</td><td>Mar 3 &#8211; Apr 1, 2026</td></tr>
-                <tr><td>Technical Assessor</td><td>TBD</td><td>Assurit</td><td>Mar 3 &#8211; Mar 20, 2026</td></tr>
+                <tr><td>Technical Assessor</td><td>R. Okafor</td><td>Assurit</td><td>Mar 3 &#8211; Mar 20, 2026</td></tr>
                 <tr><td>DoIT Program Manager</td><td>S. Patel</td><td>DoIT OSM</td><td>Mar 3 &#8211; Apr 1, 2026</td></tr>
-                <tr><td>Agency CISO (POC)</td><td>P. Hall</td><td>MSDE</td><td>TBD</td></tr>
+                <tr><td>Agency CISO (POC)</td><td>P. Hall</td><td>MSDE</td><td>Mar 3 &#8211; Apr 1, 2026</td></tr>
               </tbody></table></div>
             </div>
             <div class="card">
@@ -2136,11 +2136,8 @@
       var dataObj = window['POAM_DATA_' + agencyKey];
       if (!dataObj) {
         if (typeof POAM_DATA_MDOT !== 'undefined') dataObj = POAM_DATA_MDOT;
-        else if (typeof POAM_DATA_MDH !== 'undefined') dataObj = POAM_DATA_MDH;
         else if (typeof POAM_DATA_DPSCS !== 'undefined') dataObj = POAM_DATA_DPSCS;
         else if (typeof POAM_DATA_MSDE !== 'undefined') dataObj = POAM_DATA_MSDE;
-        else if (typeof POAM_DATA_LABOR !== 'undefined') dataObj = POAM_DATA_LABOR;
-        else if (typeof POAM_DATA_COMP !== 'undefined') dataObj = POAM_DATA_COMP;
       }
       var d = dataObj ? dataObj[poamId] : null;
       if (!d) { notify('POA\u0026M item not found: ' + poamId); return; }
@@ -2414,7 +2411,7 @@
       setTimeout(renderAdditionalFindings,300);
     })();
 
-    // Out-of-Framework capture from within CSF Assessment
+    // Additional Findings capture from within CSF Assessment
     window.toggleCSFCapture = function() {
       var form = document.getElementById('csf-capture-form');
       var btn  = document.getElementById('csf-capture-toggle');

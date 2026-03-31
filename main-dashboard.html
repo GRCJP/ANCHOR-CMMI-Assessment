@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Anchor Platform | ANCHOR Portfolio Dashboard</title>
+  <title>ANCHOR Platform | ANCHOR Portfolio Dashboard</title>
   <meta name="description" content="Main portfolio dashboard for 6-agency demo cohort.">
   <link rel="stylesheet" href="src/css/main.css?v=10">
   <link rel="stylesheet" href="src/css/components.css?v=4">
@@ -149,7 +149,7 @@
         <polygon points="21,21 28,21 28,28" fill="#000"/>
       </svg>
       <div class="brand-text">
-        <div class="brand-name">Anchor Platform</div>
+        <div class="brand-name">ANCHOR Platform</div>
         <div class="brand-sub">Maryland DoIT Assessment Platform</div>
       </div>
     </div>
@@ -297,7 +297,7 @@
               <tbody>
                 <tr>
                   <td><strong>MDOT</strong></td><td><span class="badge badge-red">Large</span></td>
-                  <td>Jan 15, 2026</td><td>Apr 18, 2026</td><td>71</td><td>—</td>
+                  <td>Apr 7, 2026</td><td>May 19, 2026</td><td>71</td><td>—</td>
                   <td>SAR Delivered</td>
                   <td>
                     <div style="display:flex; gap:2px; align-items:center;">
@@ -331,7 +331,7 @@
                 </tr>
                 <tr>
                   <td><strong>MSDE</strong></td><td><span class="badge badge-orange">Medium</span></td>
-                  <td>Jan 6, 2026</td><td>Feb 28, 2026</td><td>—</td><td>—</td>
+                  <td>Jan 6, 2026</td><td>Mar 14, 2026</td><td>—</td><td>—</td>
                   <td>SAR Delivered</td>
                   <td>
                     <div style="display:flex; gap:2px; align-items:center;">
@@ -1029,7 +1029,7 @@
       <section class="section" id="settings" aria-hidden="true">
         <div class="page-header">
           <h1>Settings</h1>
-          <p>Platform user management, system integrations, and activity monitoring for the Anchor Platform.</p>
+          <p>Platform user management, system integrations, and activity monitoring for the ANCHOR Platform.</p>
         </div>
 
         <!-- Top-level Settings tabs -->
@@ -1150,15 +1150,15 @@
                   <div style="background:#1e3a5f; color:#fff; padding:10px 14px; font-size:.72rem;">
                     <div>From: noreply@anchor.maryland-doit.gov</div>
                     <div id="prev-to">To: —</div>
-                    <div id="prev-subject" style="font-weight:700; margin-top:4px;">Subject: You've been invited to the Anchor Platform</div>
+                    <div id="prev-subject" style="font-weight:700; margin-top:4px;">Subject: You've been invited to the ANCHOR Platform</div>
                   </div>
                   <div style="padding:14px;" id="email-preview-body">
                     <div style="text-align:center; background:#f1f5f9; border-radius:6px; padding:12px; margin-bottom:12px;">
-                      <div style="font-weight:800; font-size:1rem; color:#1e3a5f;">Anchor Platform</div>
+                      <div style="font-weight:800; font-size:1rem; color:#1e3a5f;">ANCHOR Platform</div>
                       <div style="font-size:.7rem; color:#64748b;">Maryland DoIT Cybersecurity Assessment Program</div>
                     </div>
                     <p style="color:#374151;">Dear [Recipient Name],</p>
-                    <p style="color:#374151;">You have been invited to join the <strong>Anchor Platform</strong> — Maryland's statewide cybersecurity assessment system powered by Assurit Consulting Group.</p>
+                    <p style="color:#374151;">You have been invited to join the <strong>ANCHOR Platform</strong> — Maryland's statewide cybersecurity assessment system powered by Assurit Consulting Group.</p>
                     <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:10px; margin:10px 0; font-size:.74rem;">
                       <strong>Your Access Details:</strong><br>
                       Role: —<br>
@@ -1170,7 +1170,7 @@
                       <span style="background:#2563eb; color:#fff; padding:8px 18px; border-radius:6px; font-size:.78rem; font-weight:700;">Accept Invitation &amp; Set Password</span>
                     </div>
                     <div style="font-size:.68rem; color:#94a3b8; text-align:center; border-top:1px solid #e2e8f0; padding-top:8px;">
-                      Anchor Platform · Assurit Consulting Group · Maryland DoIT<br>
+                      ANCHOR Platform · Assurit Consulting Group · Maryland DoIT<br>
                       <em id="inv-expiry-note">This invitation expires in 72 hours.</em>
                     </div>
                   </div>
@@ -1271,7 +1271,7 @@
               <div style="font-size:.8rem;font-weight:700;margin-bottom:10px;color:var(--primary);">Anchor → ServiceNow GRC Field Mapping</div>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th>Anchor Platform Field</th><th>ServiceNow GRC Field</th><th>Module</th></tr></thead>
+                  <thead><tr><th>ANCHOR Platform Field</th><th>ServiceNow GRC Field</th><th>Module</th></tr></thead>
                   <tbody>
                     <tr><td><code style="font-size:.7rem;">agency_id</code></td><td><code style="font-size:.7rem;">u_org_unit_id</code></td><td>Risk Framework</td></tr>
                     <tr><td><code style="font-size:.7rem;">csf_function</code></td><td><code style="font-size:.7rem;">u_control_category</code></td><td>Control Framework</td></tr>
@@ -3061,11 +3061,11 @@
       if(!bodyEl) return;
 
       if(toEl) toEl.textContent = 'To: ' + (email || '—');
-      if(subEl) subEl.textContent = `Subject: You've been invited to the Anchor Platform${role?' as '+role:''}`;
+      if(subEl) subEl.textContent = `Subject: You've been invited to the ANCHOR Platform${role?' as '+role:''}`;
 
       const roleMessages = {
         'Program Manager': 'You have been granted full Program Manager access to all agency assessments.',
-        'Lead Assessor': 'You have been assigned as Lead Assessor on the Anchor Platform. You can manage and score assessments for all assigned agencies.',
+        'Lead Assessor': 'You have been assigned as Lead Assessor on the ANCHOR Platform. You can manage and score assessments for all assigned agencies.',
         'Assessor': `You have been assigned as an Assessor${agency?' for '+agency:''}. You can score controls, collect evidence, and collaborate with the assessment team.`,
         'Agency POC': `You are the Point of Contact for <strong>${agency||'your agency'}</strong>. You can complete your pre-assessment questionnaire and upload supporting evidence artifacts.`,
         'DoIT Reviewer': 'You have been granted read-only Reviewer access as a Maryland DoIT Overwatch. You can view all agency assessments, maturity scores, and SAR deliverables.',
@@ -3073,7 +3073,7 @@
 
       bodyEl.innerHTML = `
         <p>Dear <strong>${name||'[Recipient Name]'}</strong>,</p>
-        <p>${roleMessages[role]||'You have been invited to join the <strong>Anchor Platform</strong> — Maryland\'s statewide cybersecurity assessment system powered by Assurit Consulting Group.'}</p>
+        <p>${roleMessages[role]||'You have been invited to join the <strong>ANCHOR Platform</strong> — Maryland\'s statewide cybersecurity assessment system powered by Assurit Consulting Group.'}</p>
         ${msg ? `<p style="background:#f0f9ff;border-left:3px solid #2563eb;padding:8px 12px;font-style:italic;border-radius:0 4px 4px 0;">"${msg}"</p>` : ''}
         <p style="font-size:.78rem;background:#f8fafc;border:1px solid #e5e7eb;border-radius:6px;padding:10px 12px;">
           <strong>Your Access Details:</strong><br>
@@ -3137,7 +3137,7 @@
         const res  = await fetch(INVITE_API, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, email, role: 'Assessor', agency: 'ALL', message: 'This is a test invitation from the Anchor Platform.' })
+          body: JSON.stringify({ name, email, role: 'Assessor', agency: 'ALL', message: 'This is a test invitation from the ANCHOR Platform.' })
         });
         const data = await res.json();
         notify(data.success ? ` Test email sent to ${email} — check inbox` : `⚠️ ${data.error}`);

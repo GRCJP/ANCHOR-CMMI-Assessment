@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MDOT Assessment | Anchor Platform</title>
+  <title>MDOT Assessment | ANCHOR Platform</title>
   <meta name="description" content="Maryland Dept. of Transportation Cybersecurity Assessment">
-  <meta name="author" content="Anchor Platform">
+  <meta name="author" content="ANCHOR Platform">
   
   <!-- External dependencies -->
   <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6.3.0/dist/amazon-cognito-identity.min.js"></script>
@@ -54,7 +54,7 @@
         <polygon points="21,21 28,21 28,28" fill="#000"/>
       </svg>
       <div class="brand-text">
-        <div class="brand-name">Anchor Platform</div>
+        <div class="brand-name">ANCHOR Platform</div>
         <div class="brand-sub">Maryland DoIT Assessment Platform</div>
       </div>
     </div>
@@ -1184,7 +1184,7 @@
               <div class="table-wrap"><table><thead><tr><th>Role</th><th>Name</th><th>Organization</th><th>Assessment Dates</th></tr></thead><tbody>
                 <tr><td>Lead Assessor</td><td>J. Williams</td><td>Assurit</td><td>Apr 7 &#8211; May 19, 2026</td></tr>
                 <tr><td>Technical Assessor</td><td>R. Chen</td><td>Assurit</td><td>Apr 7 &#8211; May 2, 2026</td></tr>
-                <tr><td>DoIT Program Manager</td><td>James Wilson</td><td>DoIT OSM</td><td>Apr 7 &#8211; May 19, 2026</td></tr>
+                <tr><td>DoIT Program Manager</td><td>S. Patel</td><td>DoIT OSM</td><td>Apr 7 &#8211; May 19, 2026</td></tr>
                 <tr><td>Agency CISO (POC)</td><td>L. Harmon</td><td>MDOT</td><td>Apr 7 &#8211; May 19, 2026</td></tr>
               </tbody></table></div>
             </div>
@@ -2365,7 +2365,7 @@
         </div>
         <!-- Report title block -->
         <div style="text-align:center;margin-bottom:28px;">
-          <div style="font-size:1.25rem;font-weight:800;color:#1e3a5f;font-family:Arial,sans-serif;letter-spacing:.5px;">SYSTEM ASSESSMENT REPORT</div>
+          <div style="font-size:1.25rem;font-weight:800;color:#1e3a5f;font-family:Arial,sans-serif;letter-spacing:.5px;">SECURITY ASSESSMENT REPORT</div>
           <div style="font-size:.95rem;color:#374151;margin-top:4px;">Maryland Department of Transportation (MDOT)</div>
           <div style="font-size:.8rem;color:#64748b;margin-top:4px;">Assessment Period: April 7 – May 19, 2026 &nbsp;|&nbsp; Wave 1, Q1–Q2 2026</div>
         </div>
@@ -2462,7 +2462,7 @@
           <div>
             <div style="font-weight:700;color:#1e3a5f;margin-bottom:4px;">DoIT Program Manager</div>
             <div style="border-bottom:1px solid #374151;margin-bottom:4px;height:28px;"></div>
-            <div>James Wilson, DoIT OSM</div>
+            <div>S. Patel, DoIT OSM</div>
             <div style="color:#64748b;">Date: _______________</div>
           </div>
         </div>
@@ -2795,11 +2795,8 @@
       var dataObj = window['POAM_DATA_' + agencyKey];
       if (!dataObj) {
         if (typeof POAM_DATA_MDOT !== 'undefined') dataObj = POAM_DATA_MDOT;
-        else if (typeof POAM_DATA_MDH !== 'undefined') dataObj = POAM_DATA_MDH;
         else if (typeof POAM_DATA_DPSCS !== 'undefined') dataObj = POAM_DATA_DPSCS;
         else if (typeof POAM_DATA_MSDE !== 'undefined') dataObj = POAM_DATA_MSDE;
-        else if (typeof POAM_DATA_LABOR !== 'undefined') dataObj = POAM_DATA_LABOR;
-        else if (typeof POAM_DATA_COMP !== 'undefined') dataObj = POAM_DATA_COMP;
       }
       var d = dataObj ? dataObj[poamId] : null;
       if (!d) { notify('POA\u0026M item not found: ' + poamId); return; }
@@ -2925,7 +2922,7 @@
       setTimeout(renderAdditionalFindings,300);
     })();
 
-    // Out-of-Framework capture from within CSF Assessment
+    // Additional Findings capture from within CSF Assessment
     window.toggleCSFCapture = function() {
       var form = document.getElementById('csf-capture-form');
       var btn  = document.getElementById('csf-capture-toggle');
