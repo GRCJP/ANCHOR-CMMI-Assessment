@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Anchor Platform | Agency Dashboard</title>
   <meta name="description" content="Main portfolio dashboard for 6-agency demo cohort.">
-  <link rel="stylesheet" href="src/css/main.css">
-  <link rel="stylesheet" href="src/css/components.css">
-  <link rel="stylesheet" href="src/css/accessibility.css">
-  <link rel="stylesheet" href="src/css/master-tracker.css">
+  <link rel="stylesheet" href="src/css/main.css?v=2">
+  <link rel="stylesheet" href="src/css/components.css?v=2">
+  <link rel="stylesheet" href="src/css/accessibility.css?v=2">
+  <link rel="stylesheet" href="src/css/master-tracker.css?v=2">
   <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6.3.0/dist/amazon-cognito-identity.min.js"></script>
   <script src="src/js/aws-auth.js"></script>
   <script src="src/js/auth-guard.js"></script>
@@ -203,7 +203,7 @@
         </div>
 
         <div class="grid-4" style="margin-bottom:20px;">
-          <div class="stat-card accent"><div class="stat-label">Avg Statewide Maturity</div><div class="stat-value" id="stat-maturity">2.9</div><div class="stat-sub">Up from 2.1 (Jan 2025)</div></div>
+          <div class="stat-card accent"><div class="stat-label">Avg Statewide Maturity</div><div class="stat-value" id="stat-maturity">2.9</div><div class="stat-sub">Up from 2.1 (Program Baseline)</div></div>
           <div class="stat-card green"><div class="stat-label">Critical Findings Closed</div><div class="stat-value" id="stat-findings">38</div><div class="stat-sub">Across <span id="stat-finding-agencies">23</span> completed agencies</div></div>
           <div class="stat-card"><div class="stat-label">POA&amp;M Items Tracked</div><div class="stat-value">312</div><div class="stat-sub">Across all agencies</div></div>
           <div class="stat-card"><div class="stat-label">Avg Days to SAR</div><div class="stat-value">41</div><div class="stat-sub">Large: 63 · Med: 42 · Small: 21</div></div>
@@ -440,7 +440,7 @@
 
         <!-- Summary KPIs -->
         <div class="grid-4" style="margin-bottom:20px;">
-          <div class="stat-card accent"><div class="stat-label">Avg Statewide Maturity</div><div class="stat-value">2.9</div><div class="stat-sub">CMMI 0-5 · Up from 2.1 (Jan 2025)</div></div>
+          <div class="stat-card accent"><div class="stat-label">Avg Statewide Maturity</div><div class="stat-value">2.9</div><div class="stat-sub">CMMI 0-5 · Up from 2.1 (Program Baseline)</div></div>
           <div class="stat-card red"><div class="stat-label">Critical Control Gaps</div><div class="stat-value">47</div><div class="stat-sub">Across 23 completed agencies</div></div>
           <div class="stat-card green"><div class="stat-label">Agencies at CMMI ≥ 3.0</div><div class="stat-value">8</div><div class="stat-sub">Meeting DoIT target baseline</div></div>
           <div class="stat-card"><div class="stat-label">Open POA&amp;M Items</div><div class="stat-value">312</div><div class="stat-sub">Tracked across all agencies</div></div>
@@ -2241,7 +2241,7 @@
       new Chart(document.getElementById('mainTrendChart'), {
         type:'line',
         data:{
-          labels:['Jan 2025','Apr 2025','Jul 2025','Oct 2025','Jan 2026','Mar 2026'],
+          labels:['Q1 2025','Q2 2025','Q3 2025','Q4 2025','Q1 2026','Mar 2026'],
           datasets:[
             {label:'Statewide Avg',data:[2.1,2.3,2.5,2.7,2.8,2.9],borderColor:'#2563a8',backgroundColor:'rgba(37,99,168,.1)',fill:true,tension:.4,pointRadius:4},
             {label:'Large Agencies',data:[1.8,2.0,2.3,2.5,2.6,2.7],borderColor:'#dc2626',borderDash:[5,3],tension:.4,pointRadius:3},
@@ -2255,7 +2255,7 @@
       new Chart(document.getElementById('mainFindingsChart'), {
         type:'bar',
         data:{
-          labels:['Jan 2025','Apr 2025','Jul 2025','Oct 2025','Jan 2026','Mar 2026'],
+          labels:['Q1 2025','Q2 2025','Q3 2025','Q4 2025','Q1 2026','Mar 2026'],
           datasets:[
             {label:'New Findings',data:[42,38,31,28,22,18],backgroundColor:'#dc262680',borderRadius:4},
             {label:'Closed',data:[0,14,26,32,36,38],backgroundColor:'#16a34a80',borderRadius:4},
@@ -2272,7 +2272,7 @@
           labels:['Govern','Identify','Protect','Detect','Respond','Recover'],
           datasets:[
             {label:'Current (Mar 2026)',data:[3.1,2.9,3.2,2.4,2.6,2.3],borderColor:'#2563a8',backgroundColor:'rgba(37,99,168,.15)',pointRadius:4},
-            {label:'Baseline (Jan 2025)',data:[2.2,2.0,2.5,1.8,2.0,1.7],borderColor:'#d97706',backgroundColor:'rgba(217,119,6,.08)',borderDash:[5,3],pointRadius:3}
+            {label:'Baseline (Program Start)',data:[2.2,2.0,2.5,1.8,2.0,1.7],borderColor:'#d97706',backgroundColor:'rgba(217,119,6,.08)',borderDash:[5,3],pointRadius:3}
           ]
         },
         options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:5,ticks:{stepSize:1}}},plugins:{legend:{position:'bottom'}}}
@@ -2429,7 +2429,7 @@
             labels: ['GOVERN','IDENTIFY','PROTECT','DETECT','RESPOND','RECOVER'],
             datasets: [
               { label: 'Current Avg (Mar 2026)', data: [3.1, 2.9, 2.7, 1.8, 2.2, 2.4], backgroundColor: '#2563a8', borderRadius: 4 },
-              { label: 'Baseline (Jan 2025)',     data: [2.2, 2.0, 2.5, 1.4, 1.9, 1.7], backgroundColor: '#cbd5e0', borderRadius: 4 },
+              { label: 'Baseline (Program Start)',     data: [2.2, 2.0, 2.5, 1.4, 1.9, 1.7], backgroundColor: '#cbd5e0', borderRadius: 4 },
               { label: 'DoIT Target (CMMI 3.0)',  data: [3,3,3,3,3,3], type: 'line', borderColor: '#16a34a', borderDash: [6,3], borderWidth: 2, pointRadius: 0, backgroundColor: 'transparent' }
             ]
           },
