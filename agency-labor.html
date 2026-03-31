@@ -80,7 +80,7 @@
   <!-- TOP NAVIGATION -->
   <nav class="topnav" role="navigation" aria-label="Main navigation">
     <div class="topnav-inner">
-      <a class="nav-item" href="main-dashboard.html" data-visible-to="admin lead_assessor assessor doit_reviewer" style="color:#64748b;border-right:1px solid #e2e8f0;margin-right:8px;padding-right:20px;">← Dashboard</a>
+      <a class="nav-item" href="main-dashboard.html?view=sa" data-visible-to="admin lead_assessor assessor doit_reviewer" style="color:#64748b;border-right:1px solid #e2e8f0;margin-right:8px;padding-right:20px;">← Dashboard</a>
       <button class="nav-item active" onclick="showSection('questionnaire', this)" data-visible-to="admin lead_assessor assessor">Intake &amp; Scoping</button>
       <button class="nav-item" onclick="showSection('self-assessment', this)" data-visible-to="agency_rep">Agency Questionnaire</button>
       <button class="nav-item" onclick="showSection('evidence', this)" data-visible-to="admin lead_assessor assessor doit_reviewer agency_rep">Evidence Collection</button>
@@ -99,7 +99,6 @@
       <!-- QUESTIONNAIRE + INTAKE & SCOPING SECTION -->
       <section class="section active" id="questionnaire" aria-hidden="false" data-visible-to="admin lead_assessor assessor">
         <div class="page-header">
-          <div class="step-tag">Step 1 | ANCHOR Phase 0&#8211;1</div>
           <h1>Agency Setup &amp; Intake</h1>
           <p>Capture agency profile, IT environment, and security posture to configure the assessment. Pod assignment and wave scheduling are predefined by the client.</p>
         </div>
@@ -111,12 +110,11 @@
         <!-- PRE-ASSESS PROGRESS BANNER -->
         <div style="background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:10px 20px 12px; margin-bottom:14px;">
           <div style="font-size:.62rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px;">Pre-Assessment Stage Progress</div>
-          <div class="h-stepper" style="margin:0;">
-            <div class="h-step done"><div class="h-step-circle">&#10003;</div><div class="h-step-label">Setup Tool &amp; Profile</div></div>
-            <div class="h-step done"><div class="h-step-circle">&#10003;</div><div class="h-step-label">Confirm Assignment &amp; Schedule</div></div>
-            <div class="h-step active"><div class="h-step-circle">3</div><div class="h-step-label">Send Questionnaire</div></div>
-            <div class="h-step"><div class="h-step-circle">4</div><div class="h-step-label">Receive Agency Responses</div></div>
-            <div class="h-step"><div class="h-step-circle">5</div><div class="h-step-label">Issue Kick-Off Package</div></div>
+          <div class="h-stepper" style="margin:0;" id="intake-stepper">
+            <div class="h-step active" id="intake-step-profile"><div class="h-step-circle">1</div><div class="h-step-label">Agency Profile</div></div>
+            <div class="h-step" id="intake-step-environment"><div class="h-step-circle">2</div><div class="h-step-label">IT Environment</div></div>
+            <div class="h-step" id="intake-step-posture"><div class="h-step-circle">3</div><div class="h-step-label">Security Posture</div></div>
+            <div class="h-step" id="intake-step-timeline"><div class="h-step-circle">4</div><div class="h-step-label">Assessment Timeline</div></div>
           </div>
         </div>
 
@@ -149,6 +147,10 @@
                   <label style="font-size:.78rem; font-weight:600; display:block; margin-bottom:3px;">Assessment ID</label>
                   <input type="text" id="sq-agency-id" value="MD-LABOR-2026-004" style="width:100%; border:1px solid var(--border); border-radius:5px; padding:6px 9px; font-size:.82rem; font-family:inherit;">
                 </div>
+              </div>
+              <div style="margin-top:8px; display:flex; align-items:center; gap:8px;">
+                <button class="btn btn-outline btn-sm" onclick="saveIntakeSection('profile', this)" style="font-size:.75rem; padding:5px 14px;">Save Profile</button>
+                <span style="font-size:.7rem; color:var(--text-muted);">Auto-saved on change</span>
               </div>
             </div>
 
@@ -214,6 +216,9 @@
                   <div class="radio-opt" onclick="selectOpt(this)">FTI</div>
                 </div>
               </div>
+              <div style="margin-top:8px; display:flex; align-items:center; gap:8px;">
+                <button class="btn btn-outline btn-sm" onclick="saveIntakeSection('environment', this)" style="font-size:.75rem; padding:5px 14px;">Save IT Environment</button>
+              </div>
             </div>
 
             <!-- Security Posture -->
@@ -265,14 +270,11 @@
                   </div>
                 </div>
               </div>
+              <div style="margin-top:8px; display:flex; align-items:center; gap:8px;">
+                <button class="btn btn-outline btn-sm" onclick="saveIntakeSection('posture', this)" style="font-size:.75rem; padding:5px 14px;">Save Security Posture</button>
+              </div>
             </div>
 
-            <div class="btn-row">
-              <button class="btn btn-primary" onclick="confirmAssignmentAndLog()">Confirm Assignment</button>
-              <button class="btn btn-outline" onclick="confirmAssignmentAndLog(true)">Confirm &amp; Lock Schedule</button>
-              <button class="btn btn-outline" onclick="notify('Kick-off presentation sent to j.wright@labor.maryland.gov')">Send Kick-Off Package</button>
-              <button class="btn btn-outline" onclick="notify('Questionnaire exported: LABOR_PreAssess_Q.pdf')">Export PDF</button>
-            </div>
           </div>
 
           <!-- RIGHT COLUMN -->
@@ -284,74 +286,176 @@
                 <div>
                   <div style="font-size:.6rem; text-transform:uppercase; letter-spacing:.1em; opacity:.7; margin-bottom:4px;">Assessment Scope Category</div>
                   <div style="font-size:2.2rem; font-weight:900; letter-spacing:.02em; line-height:1;" id="ss-scope-cat-card">MEDIUM</div>
-                  <div style="font-size:.72rem; opacity:.8; margin-top:3px;">3&#8211;4 Assessors &nbsp;&#183;&nbsp; 42 Days</div>
+                  <div style="font-size:.7rem;opacity:.85;margin-top:4px;">3&#8211;4 Assessors &nbsp;&#183;&nbsp; 42 Days &nbsp;&#183;&nbsp; Wave 2 &#8212; Q2 2026</div>
                 </div>
-                <div style="text-align:right;">
-                  <div style="background:rgba(255,255,255,.15); border-radius:6px; padding:5px 12px; font-size:.72rem; font-weight:600; margin-bottom:6px;">Wave 2 &#8212; Q2 2026</div>
-                  <div style="font-size:.68rem; opacity:.7;">Apr 21 &#8211; Jun 2, 2026</div>
                 </div>
               </div>
               <div style="padding:14px 16px;">
                 <div style="font-size:.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.4px; margin-bottom:8px;">Scope Summary</div>
                 <table style="width:100%; font-size:.78rem; border-collapse:collapse;">
                   <tbody>
-                    <tr style="border-bottom:1px solid var(--border);"><td style="padding:5px 4px; color:var(--text-muted);">Agency FTE Tier</td><td style="padding:5px 4px;"><span class="badge badge-blue">2 pts</span></td><td style="padding:5px 4px;">251&#8211;1,000 FTEs</td></tr>
-                    <tr style="border-bottom:1px solid var(--border);"><td style="padding:5px 4px; color:var(--text-muted);">IT Complexity</td><td style="padding:5px 4px;"><span class="badge badge-green">1 pt</span></td><td style="padding:5px 4px;">Low</td></tr>
-                    <tr style="border-bottom:1px solid var(--border);"><td style="padding:5px 4px; color:var(--text-muted);">Data Sensitivity</td><td style="padding:5px 4px;"><span class="badge badge-orange">2 pts</span></td><td style="padding:5px 4px;">Elevated &#8212; PII/Financial</td></tr>
-                    <tr style="border-bottom:1px solid var(--border);"><td style="padding:5px 4px; color:var(--text-muted);">Cloud Environments</td><td style="padding:5px 4px;"><span class="badge badge-green">In Scope</span></td><td style="padding:5px 4px;">AWS GovCloud</td></tr>
-                    <tr style="border-bottom:1px solid var(--border);"><td style="padding:5px 4px; color:var(--text-muted);">OT/ICS</td><td style="padding:5px 4px;"><span class="badge badge-green">None</span></td><td style="padding:5px 4px;">No OT/ICS</td></tr>
-                    <tr style="border-bottom:1px solid var(--border);"><td style="padding:5px 4px; color:var(--text-muted);">FIPS 199</td><td style="padding:5px 4px;"><span class="badge badge-orange">MODERATE</span></td><td style="padding:5px 4px;">Moderate impact categorization</td></tr>
-                    <tr><td style="padding:5px 4px; color:var(--text-muted);">Scope Category</td><td style="padding:5px 4px;"><span id="ss-scope-pts" style="background:#2563eb; color:#fff; border-radius:4px; padding:2px 7px; font-size:.7rem; font-weight:700;">5 pts</span></td><td style="padding:5px 4px; font-weight:700;"><span id="ss-scope-cat" style="color:#2563eb;">MEDIUM</span></td></tr>
+                    <tr style="border-bottom:1px solid var(--border);"><td style="padding:5px 2px;color:var(--text-muted);white-space:nowrap;font-size:.76rem;">FTE Tier</td><td style="padding:5px 2px;font-size:.76rem;word-break:break-word;">251&#8211;1,000 FTEs&nbsp;<span class="badge badge-blue">2 pts</span></td></tr>
+                    <tr style="border-bottom:1px solid var(--border);"><td style="padding:5px 2px;color:var(--text-muted);white-space:nowrap;font-size:.76rem;">IT Complexity</td><td style="padding:5px 2px;font-size:.76rem;word-break:break-word;">Low&nbsp;<span class="badge badge-green">1 pt</span></td></tr>
+                    <tr style="border-bottom:1px solid var(--border);"><td style="padding:5px 2px;color:var(--text-muted);white-space:nowrap;font-size:.76rem;">Data Sensitivity</td><td style="padding:5px 2px;font-size:.76rem;word-break:break-word;">Elevated &#8212; PII/Financial&nbsp;<span class="badge badge-orange">2 pts</span></td></tr>
+                    <tr style="border-bottom:1px solid var(--border);"><td style="padding:5px 2px;color:var(--text-muted);white-space:nowrap;font-size:.76rem;">Cloud</td><td style="padding:5px 2px;font-size:.76rem;word-break:break-word;">AWS GovCloud&nbsp;<span class="badge badge-green">In Scope</span></td></tr>
+                    <tr style="border-bottom:1px solid var(--border);"><td style="padding:5px 2px;color:var(--text-muted);white-space:nowrap;font-size:.76rem;">OT/ICS</td><td style="padding:5px 2px;font-size:.76rem;word-break:break-word;">None&nbsp;<span class="badge badge-green">None</span></td></tr>
+                    <tr style="border-bottom:1px solid var(--border);"><td style="padding:5px 2px;color:var(--text-muted);white-space:nowrap;font-size:.76rem;">FIPS Impact</td><td style="padding:5px 2px;font-size:.76rem;word-break:break-word;">Moderate&nbsp;<span class="badge badge-orange">MODERATE</span></td></tr>
+                    <tr><td style="padding:5px 2px;color:var(--text-muted);white-space:nowrap;font-size:.76rem;">Scope</td><td style="padding:5px 2px;font-size:.76rem;font-weight:700;text-align:right;"><span id="ss-scope-cat" style="color:#2563eb;font-weight:700;">MEDIUM</span>&nbsp;<span id="ss-scope-pts" style="background:#2563eb; color:#fff; border-radius:4px; padding:2px 7px; font-size:.7rem; font-weight:700;">5 pts</span></td></tr>
                   </tbody>
                 </table>
-                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:10px;">
-                  <div style="background:#fef9c3; border:1px solid #fde68a; border-radius:7px; padding:8px; text-align:center;">
-                    <div style="font-size:.65rem; color:#92400e; font-weight:600; text-transform:uppercase;">FIPS Level</div>
-                    <div style="font-size:1.1rem; font-weight:800; color:#d97706;">MOD</div>
-                  </div>
-                  <div style="background:#2563eb; border-radius:7px; padding:8px; text-align:center;">
-                    <div style="font-size:.65rem; color:#fff; font-weight:600; text-transform:uppercase; opacity:.85;">Scope</div>
-                    <div id="ss-scope-cat-card2" style="font-size:1.1rem; font-weight:800; color:#fff;">MEDIUM</div>
-                  </div>
-                  <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:7px; padding:8px; text-align:center;">
-                    <div style="font-size:.65rem; color:#166534; font-weight:600; text-transform:uppercase;">Score</div>
-                    <div id="scope-total" style="font-size:1.1rem; font-weight:800; color:#16a34a;">5</div>
-                  </div>
-                </div>
               </div>
+                  <!-- hidden spans keep JS references alive -->
+              <span id="ss-scope-cat-card2" style="display:none;"></span>
+              <span id="scope-total" style="display:none;"></span>
+            </div>
             </div>
 
             <!-- Assessment Assignment -->
             <div style="background:var(--card-bg); border:1px solid var(--border); border-left:4px solid #d97706; border-radius:8px; padding:14px 16px; box-shadow:0 1px 4px rgba(0,0,0,.04);">
-              <div style="font-size:.78rem; font-weight:800; color:#d97706; text-transform:uppercase; letter-spacing:.5px; margin-bottom:10px;">Assessment Assignment &#8212; Client Predefined</div>
+              <div style="font-size:.78rem; font-weight:800; color:#d97706; text-transform:uppercase; letter-spacing:.5px; margin-bottom:10px;">Assessment Timeline</div>
               <table style="width:100%; font-size:.78rem; border-collapse:collapse;">
                 <tbody>
-                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:5px 4px; color:var(--text-muted); white-space:nowrap;">Assessment Wave</td><td style="padding:5px 4px;"><select id="sq-wave" style="border:1px solid var(--border); border-radius:5px; padding:3px 7px; font-size:.78rem; width:100%;"><option>Wave 1 &#8212; Q1&#8211;Q2 2026</option><option selected>Wave 2 &#8212; Q2 2026</option><option>Wave 3 &#8212; Q1&#8211;Q2 2027</option><option>Wave 4 &#8212; Q3&#8211;Q4 2027</option></select></td></tr>
-                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:5px 4px; color:var(--text-muted); white-space:nowrap;">Pod Assignment</td><td style="padding:5px 4px;"><select id="sq-pod" style="border:1px solid var(--border); border-radius:5px; padding:3px 7px; font-size:.78rem; width:100%;"><option>POD XL</option><option>POD LARGE</option><option>POD MEDIUM</option><option selected>POD SMALL</option></select></td></tr>
-                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:5px 4px; color:var(--text-muted); white-space:nowrap;">Lead Assessor</td><td style="padding:5px 4px;"><select id="sq-assessor" style="border:1px solid var(--border); border-radius:5px; padding:3px 7px; font-size:.78rem; width:100%;"><option>J. Williams</option><option>S. Patel</option><option>R. Okafor</option><option>T. Adams</option><option selected>M. Chen</option></select></td></tr>
-                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:5px 4px; color:var(--text-muted); white-space:nowrap;">Team Size</td><td style="padding:5px 4px;"><select id="sq-teamsize" style="border:1px solid var(--border); border-radius:5px; padding:3px 7px; font-size:.78rem; width:100%;"><option>Large (6&#8211;8 assessors)</option><option>Medium (3&#8211;4 assessors)</option><option selected>Small (2&#8211;3 assessors)</option></select></td></tr>
-                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:5px 4px; color:var(--text-muted); white-space:nowrap;">Confirmed Start</td><td style="padding:5px 4px;"><input id="sq-start" type="date" value="2026-04-21" style="border:1px solid var(--border); border-radius:5px; padding:3px 7px; font-size:.78rem; width:100%;"></td></tr>
-                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:5px 4px; color:var(--text-muted); white-space:nowrap;">Confirmed End</td><td style="padding:5px 4px;"><input id="sq-end" type="date" value="2026-06-02" style="border:1px solid var(--border); border-radius:5px; padding:3px 7px; font-size:.78rem; width:100%;"></td></tr>
-                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:5px 4px; color:var(--text-muted); white-space:nowrap;">Executive Branch</td><td style="padding:5px 4px;"><select id="sq-execbranch" style="border:1px solid var(--border); border-radius:5px; padding:3px 7px; font-size:.78rem; width:100%;"><option selected>Yes</option><option>No</option></select></td></tr>
-                  <tr><td style="padding:5px 4px; color:var(--text-muted); white-space:nowrap;">Maturity Group</td><td style="padding:5px 4px;"><select id="sq-matgroup" style="border:1px solid var(--border); border-radius:5px; padding:3px 7px; font-size:.78rem; width:100%;"><option>Group A (0.0&#8211;1.4)</option><option selected>Group B (1.5&#8211;2.5)</option><option>Group C (2.6&#8211;3.4)</option><option>Group D (3.5&#8211;4.4)</option><option>Group E (4.5&#8211;5.0)</option></select></td></tr>
+                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:5px 4px; color:var(--text-muted); font-size:.74rem; max-width:110px; word-break:break-word;">Assessment Wave</td><td style="padding:5px 4px;"><select id="sq-wave" style="border:1px solid var(--border); border-radius:5px; padding:3px 7px; font-size:.78rem; width:100%;"><option>Wave 1 &#8212; Q1&#8211;Q2 2026</option><option selected>Wave 2 &#8212; Q2 2026</option><option>Wave 3 &#8212; Q1&#8211;Q2 2027</option><option>Wave 4 &#8212; Q3&#8211;Q4 2027</option></select></td></tr>
+                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:5px 4px; color:var(--text-muted); font-size:.74rem; max-width:110px; word-break:break-word;">Pod Assignment</td><td style="padding:5px 4px;"><select id="sq-pod" style="border:1px solid var(--border); border-radius:5px; padding:3px 7px; font-size:.78rem; width:100%;"><option>POD XL</option><option>POD LARGE</option><option>POD MEDIUM</option><option selected>POD SMALL</option></select></td></tr>
+                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:5px 4px; color:var(--text-muted); font-size:.74rem; max-width:110px; word-break:break-word;">Lead Assessor</td><td style="padding:5px 4px;"><select id="sq-assessor" style="border:1px solid var(--border); border-radius:5px; padding:3px 7px; font-size:.78rem; width:100%;"><option>J. Williams</option><option>S. Patel</option><option>R. Okafor</option><option>T. Adams</option><option selected>M. Chen</option></select></td></tr>
+                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:5px 4px; color:var(--text-muted); font-size:.74rem; max-width:110px; word-break:break-word;">Team Size</td><td style="padding:5px 4px;"><select id="sq-teamsize" style="border:1px solid var(--border); border-radius:5px; padding:3px 7px; font-size:.78rem; width:100%;"><option>Large (6&#8211;8 assessors)</option><option>Medium (3&#8211;4 assessors)</option><option selected>Small (2&#8211;3 assessors)</option></select></td></tr>
+                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:5px 4px; color:var(--text-muted); font-size:.74rem; max-width:110px; word-break:break-word;">Confirmed Start</td><td style="padding:5px 4px;"><input id="sq-start" type="date" value="2026-04-21" style="border:1px solid var(--border); border-radius:5px; padding:3px 7px; font-size:.78rem; width:100%;"></td></tr>
+                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:5px 4px; color:var(--text-muted); font-size:.74rem; max-width:110px; word-break:break-word;">Confirmed End</td><td style="padding:5px 4px;"><input id="sq-end" type="date" value="2026-06-02" style="border:1px solid var(--border); border-radius:5px; padding:3px 7px; font-size:.78rem; width:100%;"></td></tr>
+                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:5px 4px; color:var(--text-muted); font-size:.74rem; max-width:110px; word-break:break-word;">Executive Branch</td><td style="padding:5px 4px;"><select id="sq-execbranch" style="border:1px solid var(--border); border-radius:5px; padding:3px 7px; font-size:.78rem; width:100%;"><option selected>Yes</option><option>No</option></select></td></tr>
+                  <tr><td style="padding:5px 4px; color:var(--text-muted); font-size:.74rem; max-width:110px; word-break:break-word;">Maturity Group</td><td style="padding:5px 4px;"><select id="sq-matgroup" style="border:1px solid var(--border); border-radius:5px; padding:3px 7px; font-size:.78rem; width:100%;"><option>Group A (0.0&#8211;1.4)</option><option selected>Group B (1.5&#8211;2.5)</option><option>Group C (2.6&#8211;3.4)</option><option>Group D (3.5&#8211;4.4)</option><option>Group E (4.5&#8211;5.0)</option></select></td></tr>
                 </tbody>
               </table>
-              <div style="margin-top:10px;">
-                <button class="btn btn-primary btn-sm" onclick="confirmAssignmentAndLog()">Confirm Assignment</button>
+              <div style="margin-top:10px; display:flex; align-items:center; gap:8px;">
+                <button class="btn btn-outline btn-sm" onclick="saveIntakeSection('timeline', this)" style="font-size:.75rem; padding:5px 14px;">Save Timeline</button>
               </div>
             </div>
 
-            <!-- Stage Actions -->
-            <div style="background:var(--card-bg); border:1px solid var(--border); border-left:4px solid #059669; border-radius:8px; padding:14px 16px; box-shadow:0 1px 4px rgba(0,0,0,.04);">
-              <div style="font-size:.78rem; font-weight:800; color:#059669; text-transform:uppercase; letter-spacing:.5px; margin-bottom:10px;">Stage Actions</div>
-              <div style="display:flex; flex-direction:column; gap:6px;">
-                <button class="btn btn-accent btn-sm" style="justify-content:flex-start;" onclick="notify('Kick-off presentation sent to j.wright@labor.maryland.gov')">Send Kick-Off Presentation</button>
-                <button class="btn btn-outline btn-sm" style="justify-content:flex-start;" onclick="confirmAssignmentAndLog(true)">Confirm Assignment &amp; Lock Schedule</button>
-              </div>
+            <!-- Send Kick-Off -->
+            <div style="background:#eff6ff; border:1px solid #bfdbfe; border-left:4px solid #2563eb; border-radius:8px; padding:16px; box-shadow:0 1px 4px rgba(0,0,0,.04);">
+              <div style="font-size:.78rem; font-weight:800; color:#2563eb; text-transform:uppercase; letter-spacing:.5px; margin-bottom:6px;">Send Kick-Off Package</div>
+              <div style="font-size:.75rem; color:#3b82f6; margin-bottom:12px;">Reviews all data and timeline. Confirm to save and send to agency contact.</div>
+              <button class="btn btn-primary" style="width:100%; padding:10px; font-size:.82rem; font-weight:700;" onclick="showKickoffModal()">Review &amp; Send Package</button>
             </div>
 
           </div>
         </div>
+
+        <!-- KICK-OFF CONFIRMATION MODAL -->
+        <div id="kickoff-modal" style="display:none; position:fixed; inset:0; background:rgba(15,30,60,.6); z-index:9999; align-items:center; justify-content:center; padding:20px;">
+          <div style="background:#fff; border-radius:14px; max-width:580px; width:100%; max-height:88vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,.3);">
+            <div style="background:linear-gradient(135deg,#1e3a5f,#2563eb); color:#fff; padding:20px 24px; border-radius:14px 14px 0 0;">
+              <div style="font-size:.6rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; opacity:.7; margin-bottom:4px;">ANCHOR Platform — Pre-Assessment</div>
+              <div style="font-size:1.1rem; font-weight:800;">&#128230; Kick-Off Package — Review &amp; Confirm</div>
+              <div style="font-size:.76rem; opacity:.8; margin-top:4px;">Verify the information below. Confirming saves all intake data and advances the pipeline.</div>
+            </div>
+            <div id="kickoff-summary-body" style="padding:20px 24px;"></div>
+            <div style="padding:14px 24px; border-top:1px solid #e2e8f0; display:flex; gap:10px; justify-content:flex-end; background:#f8fafc; border-radius:0 0 14px 14px;">
+              <button class="btn btn-outline" onclick="closeKickoffModal()">Cancel</button>
+              <button class="btn btn-primary" onclick="confirmAndSendKickoff()" style="padding:10px 22px; font-weight:700;">&#10003;&nbsp; Confirm &amp; Send Package</button>
+            </div>
+          </div>
+        </div>
+
+        <script>
+        function saveIntakeSection(section, btn) {
+          if (typeof saveIntakeDraft === 'function') saveIntakeDraft();
+          if (btn) {
+            const orig = btn.textContent;
+            btn.textContent = '\u2713 Saved';
+            btn.style.color = '#059669'; btn.style.borderColor = '#059669';
+            setTimeout(function() { btn.textContent = orig; btn.style.color = ''; btn.style.borderColor = ''; }, 1800);
+          }
+          // Advance the intake stepper
+          const stepOrder = ['profile','environment','posture','timeline'];
+          const stepNum = stepOrder.indexOf(section);
+          if (stepNum < 0) return;
+          const stepper = document.getElementById('intake-stepper');
+          if (!stepper) return;
+          const steps = stepper.querySelectorAll('.h-step');
+          steps.forEach(function(el, i) {
+            if (i <= stepNum) {
+              el.classList.remove('active');
+              el.classList.add('done');
+              el.querySelector('.h-step-circle').textContent = '\u2713';
+            } else if (i === stepNum + 1) {
+              el.classList.remove('done');
+              el.classList.add('active');
+            } else {
+              el.classList.remove('done','active');
+            }
+          });
+        }
+        function showKickoffModal() {
+          var g = function(id) { var e = document.getElementById(id); return e ? e.value || e.textContent || '' : '—'; };
+          var agencyName  = g('sq-agency-name');
+          var contactName = g('sq-contact-name');
+          var contactEmail = g('sq-primary-email');
+          var assessmentId = g('sq-agency-id');
+          var wave = g('sq-wave');
+          var pod  = g('sq-pod');
+          var assessor = g('sq-assessor');
+          var teamSize = g('sq-teamsize');
+          var startDate = g('sq-start');
+          var endDate   = g('sq-end');
+          var scopeCat  = (document.getElementById('ss-scope-cat') || {}).textContent || '—';
+          var scopeTotal = (document.getElementById('scope-total') || {}).textContent || '—';
+          function fmtD(iso) {
+            if (!iso) return '—';
+            var d = new Date(iso + 'T12:00:00');
+            return d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+          }
+          function evDue(iso) {
+            if (!iso) return '—';
+            var d = new Date(iso + 'T12:00:00');
+            d.setDate(d.getDate() + 21);
+            return d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+          }
+          var body = document.getElementById('kickoff-summary-body');
+          if (body) body.innerHTML = '<div style="display:grid;gap:14px;">' +
+            '<div><div style="font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;margin-bottom:7px;">Agency Contact</div>' +
+            '<div style="background:#f8fafc;border-radius:8px;padding:12px 14px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">' +
+            '<div><div style="font-size:.66rem;color:#94a3b8;">Agency</div><div style="font-weight:600;font-size:.84rem;">' + agencyName + '</div></div>' +
+            '<div><div style="font-size:.66rem;color:#94a3b8;">Assessment ID</div><div style="font-weight:600;font-size:.84rem;">' + assessmentId + '</div></div>' +
+            '<div><div style="font-size:.66rem;color:#94a3b8;">Primary Contact</div><div style="font-weight:600;font-size:.84rem;">' + contactName + '</div></div>' +
+            '<div><div style="font-size:.66rem;color:#94a3b8;">Send Package To</div><div style="font-weight:700;font-size:.84rem;color:#2563eb;">' + contactEmail + '</div></div>' +
+            '</div></div>' +
+            '<div><div style="font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;margin-bottom:7px;">Assessment Timeline</div>' +
+            '<div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 14px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center;">' +
+            '<div><div style="font-size:.64rem;color:#1d4ed8;font-weight:600;text-transform:uppercase;">Kick-Off Date</div><div style="font-weight:700;font-size:.88rem;color:#1e40af;">' + fmtD(startDate) + '</div></div>' +
+            '<div><div style="font-size:.64rem;color:#1d4ed8;font-weight:600;text-transform:uppercase;">Evidence Due</div><div style="font-weight:700;font-size:.88rem;color:#1e40af;">' + evDue(startDate) + '</div></div>' +
+            '<div><div style="font-size:.64rem;color:#1d4ed8;font-weight:600;text-transform:uppercase;">Completion</div><div style="font-weight:700;font-size:.88rem;color:#1e40af;">' + fmtD(endDate) + '</div></div>' +
+            '</div></div>' +
+            '<div><div style="font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;margin-bottom:7px;">Assessment Team</div>' +
+            '<div style="background:#f8fafc;border-radius:8px;padding:12px 14px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">' +
+            '<div><div style="font-size:.66rem;color:#94a3b8;">Wave</div><div style="font-weight:600;font-size:.84rem;">' + wave + '</div></div>' +
+            '<div><div style="font-size:.66rem;color:#94a3b8;">Pod</div><div style="font-weight:600;font-size:.84rem;">' + pod + '</div></div>' +
+            '<div><div style="font-size:.66rem;color:#94a3b8;">Lead Assessor</div><div style="font-weight:600;font-size:.84rem;">' + assessor + '</div></div>' +
+            '<div><div style="font-size:.66rem;color:#94a3b8;">Team Size</div><div style="font-weight:600;font-size:.84rem;">' + teamSize + '</div></div>' +
+            '</div></div>' +
+            '<div><div style="font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;margin-bottom:7px;">Scope Classification</div>' +
+            '<div style="background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:14px;">' +
+            '<div style="font-size:2rem;font-weight:900;color:#c2410c;line-height:1;">' + scopeCat + '</div>' +
+            '<div><div style="font-size:.78rem;font-weight:600;color:#92400e;">' + scopeTotal + ' scope points</div>' +
+            '<div style="font-size:.71rem;color:#b45309;">FTE Tier · IT Complexity · Data Sensitivity</div></div>' +
+            '</div></div>' +
+            '<div style="background:#dcfce7;border:1px solid #86efac;border-radius:8px;padding:10px 14px;font-size:.77rem;color:#166534;">' +
+            '<strong>&#10003; Ready to send.</strong> Confirming will save all intake data, send the kick-off package to the agency contact, and advance the pre-assessment tracker.' +
+            '</div></div>';
+          var modal = document.getElementById('kickoff-modal');
+          if (modal) { modal.style.display = 'flex'; }
+        }
+        function closeKickoffModal() {
+          var modal = document.getElementById('kickoff-modal');
+          if (modal) modal.style.display = 'none';
+        }
+        function confirmAndSendKickoff() {
+          var email = (document.getElementById('sq-primary-email') || {}).value || 'agency contact';
+          closeKickoffModal();
+          if (typeof submitIntakeForm === 'function') submitIntakeForm();
+          if (window.advancePAStep) advancePAStep(4);
+          if (typeof notify === 'function') notify('&#128230; Kick-off package confirmed and sent to ' + email);
+        }
+        </script>
       </section>
 
       <!-- NIST CSF MAPPING SECTION -->
@@ -393,7 +497,6 @@
       <!-- CSF ASSESSMENT SECTION -->
       <section class="section" id="csf" aria-hidden="true">
         <div class="page-header">
-          <div class="step-tag">CSF Assessment | ANCHOR ASSESS Phase</div>
           <h1>NIST CSF 2.0 Assessment &#8212; SRTM Workbook</h1>
           <p>Conduct the full NIST CSF 2.0 assessment aligned with the ANCHOR framework. Each control has assessment procedures with EXAMINE / INTERVIEW / TEST methods, implementation status, result scoring, and evidence mapping.</p>
         </div>
@@ -617,7 +720,7 @@
           </div>
           <input type="file" id="ev-file-input" multiple accept=".pdf,.docx,.xlsx,.png,.jpg,.jpeg" style="display:none" onchange="handleEvFiles(this)">
           <div onclick="agencyUploadClick()" style="border:2px dashed var(--border);border-radius:8px;padding:28px;text-align:center;cursor:pointer;background:#fafbfd;transition:all .2s;" onmouseover="this.style.borderColor='var(--primary-light)'" onmouseout="this.style.borderColor='var(--border)'">
-            <div style="font-size:1.8rem;margin-bottom:8px;">📎</div>
+            <div style="font-size:1.8rem;margin-bottom:8px;"></div>
             <div style="font-size:.88rem;font-weight:600;color:var(--primary);">Click to browse or drag &amp; drop files here</div>
             <div style="font-size:.75rem;color:var(--text-muted);margin-top:4px;">Supported: PDF, DOCX, XLSX, PNG, JPG | Max 50MB per file</div>
           </div>
@@ -726,7 +829,25 @@
         </div>
       </section>
 
-      <!-- SAR DASHBOARD SECTION -->
+      
+<!-- POAM DETAIL MODAL (CMS AE_POAM_Template_v6.1.4 format) -->
+      <div id="poam-detail-modal" style="display:none; position:fixed; inset:0; background:rgba(15,30,60,.65); z-index:9999; align-items:flex-start; justify-content:center; padding:20px; overflow-y:auto;">
+        <div style="background:#fff; border-radius:10px; width:100%; max-width:1100px; margin:auto; box-shadow:0 20px 60px rgba(0,0,0,.35); font-family:inherit;">
+          <!-- CMS Header -->
+          <div style="background:#1e3a5f; color:#fff; padding:14px 20px; border-radius:10px 10px 0 0; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="font-size:.72rem; opacity:.7; font-weight:600; letter-spacing:.06em; text-transform:uppercase; margin-bottom:2px;">CMS AE_POAM_Template_v6.1.4</div>
+              <div style="font-size:1.1rem; font-weight:800;">Plan of Action &amp; Milestones (POA&amp;M)</div>
+              <div style="font-size:.7rem; opacity:.75; margin-top:2px;">Version 6.1.4, Dated March 11, 2026</div>
+            </div>
+            <button onclick="closePoamDetail()" style="background:rgba(255,255,255,.2); border:none; color:#fff; border-radius:8px; padding:7px 14px; cursor:pointer; font-size:.85rem; font-weight:600;">&#10005; Close</button>
+          </div>
+          <!-- Admin Header Fields -->
+          <div id="poam-modal-body" style="padding:0;"></div>
+        </div>
+      </div>
+
+            <!-- SAR DASHBOARD SECTION -->
       <section class="section" id="sar" aria-hidden="true">
         <div class="page-header">
           <h1>System Assessment Report (SAR) &#8212; LABOR</h1>
@@ -737,37 +858,153 @@
           <div class="stat-card accent"><div class="stat-label">Overall Maturity</div><div class="stat-value">1.8 / 5</div><div class="stat-sub">Preliminary estimate</div></div>
           <div class="stat-card red"><div class="stat-label">Critical Findings</div><div class="stat-value">0</div><div class="stat-sub">Pending assessment</div></div>
           <div class="stat-card"><div class="stat-label">High Findings</div><div class="stat-value">0</div><div class="stat-sub">Pending assessment</div></div>
-          <div class="stat-card green"><div class="stat-label">Controls Assessed</div><div class="stat-value">0</div><div class="stat-sub">of 42 total</div></div>
+          <div class="stat-card green"><div class="stat-label">Controls Assessed</div><div class="stat-value">0</div><div class="stat-sub">Priority CSF 2.0 subset</div></div>
         </div>
 
-        <div class="grid-2">
-          <div class="card">
-            <div class="card-title">Projected Maturity Radar</div>
-            <div class="chart-wrap-sm"><canvas id="sarRadarChart"></canvas></div>
-          </div>
-          <div class="card">
-            <div class="card-title">SAR Deliverable Status</div>
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Deliverable</th><th>Status</th><th>Due</th><th>Reviewer</th></tr></thead>
-                <tbody>
-                  <tr><td>System Assessment Report (SAR)</td><td><span class="badge badge-gray">Pending</span></td><td>Jun 16, 2026</td><td>S. Patel &#8594; DoIT</td></tr>
-                  <tr><td>Plan of Action &amp; Milestones (POA&amp;M)</td><td><span class="badge badge-gray">Pending</span></td><td>Jun 16, 2026</td><td>D. Kim (CISO)</td></tr>
-                  <tr><td>Executive Brief</td><td><span class="badge badge-gray">Pending</span></td><td>Jun 16, 2026</td><td>DoIT Leadership</td></tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="btn-row">
-              <button class="btn btn-outline" onclick="notify('SAR generation pending assessment completion')">Generate SAR Report</button>
-            </div>
+        <!-- SAR: Flat layout, no tabs -->
+
+        <!-- Charts -->
+        <div class="card"><div class="card-title">Projected Maturity Radar</div><div class="chart-wrap-sm"><canvas id="sarRadarChart"></canvas></div></div>
+
+        <div class="info-box" style="margin:0 0 16px 0;">SAR findings will be populated upon completion of the CSF Assessment phase.</div>
+
+        <!-- Deliverable Status -->
+        <div class="card">
+          <div class="card-title">SAR Deliverable Status</div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Deliverable</th><th>Status</th><th>Due</th><th>Reviewer</th></tr></thead>
+            <tbody>
+              <tr><td>System Assessment Report (SAR)</td><td><span class="badge badge-gray">Pending</span></td><td>Jun 16, 2026</td><td>S. Patel &rarr; DoIT</td></tr>
+              <tr><td>Plan of Action &amp; Milestones (POA&amp;M)</td><td><span class="badge badge-gray">Pending</span></td><td>Jun 16, 2026</td><td>D. Kim (CISO)</td></tr>
+              <tr><td>Executive Brief</td><td><span class="badge badge-gray">Pending</span></td><td>Jun 16, 2026</td><td>DoIT Leadership</td></tr>
+            </tbody>
+          </table></div>
+          <div class="btn-row">
+            <button class="btn btn-primary" onclick="generateSarReport()">Generate SAR Report</button>
+            <button class="btn btn-outline" onclick="notify('Executive brief exported: LABOR_ExecBrief.pptx')">Export Executive Brief</button>
+            <button class="btn btn-outline" onclick="notify('SAR synced to ServiceNow GRC')">Sync to GRC</button>
           </div>
         </div>
+
+        <!-- Assessment Methodology (collapsible) -->
+        <details style="margin-bottom:16px;">
+          <summary style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px 18px;cursor:pointer;font-weight:700;color:#1e3a5f;font-size:.92rem;list-style:none;display:flex;align-items:center;justify-content:space-between;">Assessment Methodology <span style="font-size:.8rem;color:#64748b;font-weight:400;">&#9654; Click to expand</span></summary>
+          <div style="border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px;padding:16px 18px;background:#fff;">
+            <div class="card" style="margin-bottom:12px;">
+              <div class="card-title">Assessment Framework</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+                <div style="padding:14px;background:#f1f5f9;border-radius:8px;border-left:4px solid #1e3a5f;"><div style="font-weight:700;color:#1e3a5f;margin-bottom:6px;">NIST CSF 2.0</div><div style="font-size:.83rem;color:#374151;">Primary assessment framework. Evaluates cybersecurity posture across six functions: Govern, Identify, Protect, Detect, Respond, Recover.</div></div>
+                <div style="padding:14px;background:#f1f5f9;border-radius:8px;border-left:4px solid #7c3aed;"><div style="font-weight:700;color:#7c3aed;margin-bottom:6px;">ANCHOR CMMI Overlay</div><div style="font-size:.83rem;color:#374151;">5-level maturity scoring (0=Non-Existent to 5=Optimized) applied per control to measure implementation depth and consistency.</div></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
+                <div style="padding:14px;border:2px solid #1e40af;border-radius:8px;text-align:center;"><div style="font-size:1.4rem;margin-bottom:6px;">&#128196;</div><div style="font-weight:700;color:#1e40af;margin-bottom:6px;">EXAMINE</div><div style="font-size:.8rem;color:#374151;">Policy review, configuration inspection, system documentation, logs and reports analysis</div></div>
+                <div style="padding:14px;border:2px solid #0d9488;border-radius:8px;text-align:center;"><div style="font-size:1.4rem;margin-bottom:6px;">&#128172;</div><div style="font-weight:700;color:#0d9488;margin-bottom:6px;">INTERVIEW</div><div style="font-size:.8rem;color:#374151;">Structured interviews with CISO, IT leadership, system owners, and operational staff</div></div>
+                <div style="padding:14px;border:2px solid #dc2626;border-radius:8px;text-align:center;"><div style="font-size:1.4rem;margin-bottom:6px;">&#128269;</div><div style="font-weight:700;color:#dc2626;margin-bottom:6px;">TEST</div><div style="font-size:.8rem;color:#374151;">Technical verification, configuration validation, scan review, and process walkthrough</div></div>
+              </div>
+            </div>
+            <div class="card" style="margin-bottom:12px;">
+              <div class="card-title">Scope and Limitations</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div><div style="font-weight:700;color:#1e3a5f;margin-bottom:8px;font-size:.85rem;">IN SCOPE</div><ul style="font-size:.83rem;color:#374151;line-height:1.7;padding-left:18px;"><li>Enterprise network infrastructure and systems</li><li>Identity and access management controls</li><li>Security monitoring and detection capabilities</li><li>Incident response policies and procedures</li><li>Vendor/third-party risk management practices</li><li>Patch management and vulnerability processes</li></ul></div>
+                <div><div style="font-weight:700;color:#64748b;margin-bottom:8px;font-size:.85rem;">LIMITATIONS</div><ul style="font-size:.83rem;color:#374151;line-height:1.7;padding-left:18px;"><li>Assessment based on documentation and interviews; not a penetration test</li><li>Cloud-hosted applications assessed at policy level only</li><li>OT/ICS systems outside assessment boundary</li><li>Point-in-time assessment &#8212; conditions may change</li></ul></div>
+              </div>
+            </div>
+            <div class="card" style="margin-bottom:12px;">
+              <div class="card-title">Assessment Team</div>
+              <div class="table-wrap"><table><thead><tr><th>Role</th><th>Name</th><th>Organization</th><th>Assessment Dates</th></tr></thead><tbody>
+                <tr><td>Lead Assessor</td><td>J. Williams</td><td>Assurit</td><td>Jun 1 &#8211; Jul 15, 2026</td></tr>
+                <tr><td>Technical Assessor</td><td>TBD</td><td>Assurit</td><td>TBD</td></tr>
+                <tr><td>DoIT Program Manager</td><td>S. Patel</td><td>DoIT OSM</td><td>Jun 1 &#8211; Jul 15, 2026</td></tr>
+                <tr><td>Agency CISO (POC)</td><td>D. Kim</td><td>Dept. of Labor</td><td>TBD</td></tr>
+              </tbody></table></div>
+            </div>
+            <div class="card">
+              <div class="card-title">CMMI Scoring Methodology</div>
+              <div class="table-wrap"><table><thead><tr><th>CMMI Level</th><th>Label</th><th>Description</th></tr></thead><tbody>
+                <tr><td><strong>0</strong></td><td>Non-Existent</td><td>No awareness or process in place. Control is completely absent.</td></tr>
+                <tr><td><strong>1</strong></td><td>Initial</td><td>Ad-hoc, reactive, undocumented. Depends on individual effort.</td></tr>
+                <tr><td><strong>2</strong></td><td>Managed</td><td>Planned, repeatable, basic documentation exists. Not fully standardized.</td></tr>
+                <tr><td><strong>3</strong></td><td>Defined</td><td>Standardized, documented, and consistently applied org-wide.</td></tr>
+                <tr><td><strong>4</strong></td><td>Quantitatively Managed</td><td>Measured and controlled using metrics. Performance tracked against targets.</td></tr>
+                <tr><td><strong>5</strong></td><td>Optimizing</td><td>Continuous improvement focus. Proactive adaptation and innovation.</td></tr>
+              </tbody></table></div>
+            </div>
+          </div>
+        </details>
+
+        <!-- Appendices (collapsible) -->
+        <details style="margin-bottom:16px;">
+          <summary style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px 18px;cursor:pointer;font-weight:700;color:#1e3a5f;font-size:.92rem;list-style:none;display:flex;align-items:center;justify-content:space-between;">Appendices <span style="font-size:.8rem;color:#64748b;font-weight:400;">&#9654; Click to expand</span></summary>
+          <div style="border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px;padding:16px 18px;background:#fff;">
+            <div class="card" style="margin-bottom:12px;">
+              <div class="card-title">Appendix A &#8212; Evidence Inventory</div>
+              <div class="table-wrap"><table><thead><tr><th>Evidence ID</th><th>Document / Artifact</th><th>Source</th><th>Date Received</th><th>Findings Supported</th></tr></thead><tbody>
+                <tr><td>EV-001</td><td>Information Security Policy</td><td>Agency CISO Office</td><td>Jun 1, 2026</td><td>Multiple</td></tr>
+                <tr><td>EV-002</td><td>Network diagram / topology map</td><td>IT Operations</td><td>Jun 1, 2026</td><td>F-001, F-003</td></tr>
+                <tr><td>EV-003</td><td>Asset inventory export (CMDB)</td><td>IT Asset Management</td><td>Jun 8, 2026</td><td>F-003</td></tr>
+                <tr><td>EV-004</td><td>Vulnerability scan reports</td><td>IT Security</td><td>Jun 8, 2026</td><td>F-005</td></tr>
+                <tr><td>EV-005</td><td>Incident Response Plan</td><td>Agency CISO Office</td><td>Jun 8, 2026</td><td>F-004</td></tr>
+                <tr><td>EV-006</td><td>MFA configuration screenshots</td><td>IT Operations</td><td>Jun 15, 2026</td><td>F-002</td></tr>
+                <tr><td>EV-007</td><td>Vendor contract register</td><td>Procurement Office</td><td>Jun 15, 2026</td><td>F-006</td></tr>
+                <tr><td>EV-008</td><td>SIEM/logging evaluation report</td><td>IT Security</td><td>Jun 15, 2026</td><td>F-001</td></tr>
+              </tbody></table></div>
+            </div>
+            <div class="card" style="margin-bottom:12px;">
+              <div class="card-title">Appendix B &#8212; Interview Log</div>
+              <div class="table-wrap"><table><thead><tr><th>Interview #</th><th>Interviewee</th><th>Role</th><th>Date</th><th>Controls Covered</th></tr></thead><tbody>
+                <tr><td>INT-001</td><td>D. Kim</td><td>CISO</td><td>Jun 2, 2026</td><td>GV.OC-01, GV.RM-01, GV.SC-01</td></tr>
+                <tr><td>INT-002</td><td>IT Director</td><td>IT Leadership</td><td>Jun 3, 2026</td><td>ID.AM-01, ID.AM-02, PR.PS-01</td></tr>
+                <tr><td>INT-003</td><td>SOC Manager</td><td>Security Operations</td><td>Jun 9, 2026</td><td>DE.CM-01, RS.MA-01, PR.AA-01</td></tr>
+                <tr><td>INT-004</td><td>Network Administrator</td><td>IT Operations</td><td>Jun 10, 2026</td><td>ID.AM-01, PR.PS-01, DE.CM-01</td></tr>
+              </tbody></table></div>
+            </div>
+            <div class="card">
+              <div class="card-title">Appendix C &#8212; Tools &amp; Technology Used</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+                <div style="padding:12px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;"><div style="font-weight:700;color:#1e3a5f;margin-bottom:4px;font-size:.85rem;">ANCHOR Platform v2.0</div><div style="font-size:.8rem;color:#64748b;">Assessment management, SRTM scoring, evidence collection, POA&amp;M tracking</div></div>
+                <div style="padding:12px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;"><div style="font-weight:700;color:#1e3a5f;margin-bottom:4px;font-size:.85rem;">Tenable.io / Nessus</div><div style="font-size:.8rem;color:#64748b;">Vulnerability scanning, patch gap analysis, configuration assessment</div></div>
+                <div style="padding:12px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;"><div style="font-weight:700;color:#1e3a5f;margin-bottom:4px;font-size:.85rem;">Qualys VMDR</div><div style="font-size:.8rem;color:#64748b;">Asset discovery, software inventory validation, cloud asset scanning</div></div>
+                <div style="padding:12px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;"><div style="font-weight:700;color:#1e3a5f;margin-bottom:4px;font-size:.85rem;">Microsoft Defender / AD</div><div style="font-size:.8rem;color:#64748b;">MFA configuration review, privilege account enumeration, identity controls</div></div>
+                <div style="padding:12px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;"><div style="font-weight:700;color:#1e3a5f;margin-bottom:4px;font-size:.85rem;">ServiceNow GRC</div><div style="font-size:.8rem;color:#64748b;">Risk register review, control tracking, existing GRC workflow documentation</div></div>
+                <div style="padding:12px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;"><div style="font-weight:700;color:#1e3a5f;margin-bottom:4px;font-size:.85rem;">Manual Document Review</div><div style="font-size:.8rem;color:#64748b;">Policy documents, procedures, configurations, and supporting artifacts</div></div>
+              </div>
+            </div>
+          </div>
+        </details>
+
       </section>
+
 
     </div>
   </main>
 
-  <!-- NOTIFICATION TOAST -->
+  <!-- ARTIFACT MODAL -->
+  <div id="artifact-modal" style="display:none; position:fixed; inset:0; background:rgba(15,30,60,.6); z-index:10000; align-items:center; justify-content:center; padding:20px;">
+    <div style="background:#fff; border-radius:14px; max-width:580px; width:100%; max-height:80vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,.3);">
+      <div style="background:linear-gradient(135deg,#1e40af,#3b82f6); color:#fff; padding:18px 22px; border-radius:14px 14px 0 0; display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <div style="font-size:.62rem; font-weight:600; text-transform:uppercase; letter-spacing:.06em; opacity:.75; margin-bottom:3px;">Evidence Inventory</div>
+          <div style="font-size:1rem; font-weight:700;" id="artifact-modal-title">Submitted Evidence</div>
+        </div>
+        <button onclick="closeArtifactModal()" style="background:rgba(255,255,255,.2); border:none; color:#fff; border-radius:8px; padding:6px 12px; cursor:pointer; font-size:.85rem;">&#10005;</button>
+      </div>
+      <div style="padding:18px 22px;">
+        <div id="artifact-current-list" style="min-height:60px;"></div>
+      </div>
+      <div style="padding:10px 22px 16px; border-top:1px solid #e5e7eb; display:flex; justify-content:flex-end;">
+        <button onclick="closeArtifactModal()" style="padding:8px 20px; background:#f3f4f6; color:#374151; border:1px solid #d1d5db; border-radius:7px; cursor:pointer; font-size:.85rem;">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FINDING DETAIL MODAL -->
+  <div id="finding-detail-modal" style="display:none; position:fixed; inset:0; background:rgba(15,30,60,.6); z-index:10001; align-items:center; justify-content:center; padding:20px;">
+    <div style="background:#fff; border-radius:14px; max-width:720px; width:100%; max-height:85vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,.3);">
+      <div id="finding-detail-content"></div>
+    </div>
+  </div>
+
+    <!-- NOTIFICATION TOAST -->
   <div class="notification" id="notif" role="alert" aria-live="polite"></div>
 
   <!-- JavaScript modules -->
@@ -776,6 +1013,48 @@
   <script src="src/js/data.js"></script>
 
   <script>
+    // ── SAR Finding Detail ────────────────────────────────────────────────
+    const SAR_FINDINGS = {};
+    function openFindingDetail(id) {
+      const f = SAR_FINDINGS[id];
+      if (!f) return;
+      const evBadge = f.evidenceSubmitted
+        ? '<span style="background:#dcfce7;color:#16a34a;padding:2px 9px;border-radius:10px;font-size:.73rem;font-weight:700;">&#10003; Evidence Provided</span>'
+        : '<span style="background:#fee2e2;color:#dc2626;padding:2px 9px;border-radius:10px;font-size:.73rem;font-weight:700;">&#10007; No Evidence Submitted</span>';
+      document.getElementById('finding-detail-content').innerHTML =
+        '<div style="background:linear-gradient(135deg,#1e40af,#3b82f6);color:#fff;padding:18px 22px;border-radius:14px 14px 0 0;display:flex;justify-content:space-between;align-items:center;">' +
+          '<div><div style="font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;opacity:.75;margin-bottom:3px;">Finding Detail</div>' +
+          '<div style="font-size:1.1rem;font-weight:800;">' + f.id + ' — ' + f.control + '</div>' +
+          '<div style="font-size:.85rem;opacity:.88;margin-top:3px;">' + f.title + '</div></div>' +
+          '<button onclick="closeFindingDetail()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:.85rem;">✕</button>' +
+        '</div>' +
+        '<div style="padding:18px 22px;">' +
+          '<div style="display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap;">' +
+            '<span class="fn-tag ' + f.fnClass + '">' + f.fn + '</span>' +
+            '<span style="background:' + f.riskColor + ';color:#fff;padding:2px 10px;border-radius:10px;font-size:.75rem;font-weight:700;">' + f.risk + '</span>' +
+            '<span style="background:#f1f5f9;color:#475569;padding:2px 10px;border-radius:10px;font-size:.75rem;font-weight:700;">CMMI: ' + f.cmmi + '</span>' +
+            evBadge +
+            '<span style="margin-left:auto;font-size:.82rem;color:#1e40af;font-weight:600;">Linked POA&amp;M: ' + f.poam + '</span>' +
+          '</div>' +
+          '<div style="display:grid;gap:12px;">' +
+            '<div style="padding:12px;background:#f8fafc;border-radius:8px;border-left:3px solid #64748b;"><div style="font-size:.7rem;font-weight:700;text-transform:uppercase;color:#64748b;margin-bottom:4px;">Observation</div><div style="font-size:.85rem;color:#1e293b;line-height:1.55;">' + f.observation + '</div></div>' +
+            '<div style="padding:12px;background:#fff7ed;border-radius:8px;border-left:3px solid #ea580c;"><div style="font-size:.7rem;font-weight:700;text-transform:uppercase;color:#ea580c;margin-bottom:4px;">Impact</div><div style="font-size:.85rem;color:#1e293b;line-height:1.55;">' + f.impact + '</div></div>' +
+            '<div style="padding:12px;background:#f0fdf4;border-radius:8px;border-left:3px solid #16a34a;"><div style="font-size:.7rem;font-weight:700;text-transform:uppercase;color:#16a34a;margin-bottom:4px;">Recommended Remediation</div><div style="font-size:.85rem;color:#1e293b;line-height:1.55;">' + f.remediation + '</div></div>' +
+            '<div style="padding:12px;background:#eff6ff;border-radius:8px;border-left:3px solid #3b82f6;"><div style="font-size:.7rem;font-weight:700;text-transform:uppercase;color:#3b82f6;margin-bottom:4px;">Evidence References</div><div style="font-size:.85rem;color:#1e293b;">' + f.evidence + '</div></div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="padding:10px 22px 16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;">' +
+          '<button onclick="closeFindingDetail()" style="padding:8px 20px;background:#f3f4f6;color:#374151;border:1px solid #d1d5db;border-radius:7px;cursor:pointer;font-size:.85rem;">Close</button>' +
+        '</div>';
+      const modal = document.getElementById('finding-detail-modal');
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeFindingDetail() {
+      document.getElementById('finding-detail-modal').style.display = 'none';
+      document.body.style.overflow = '';
+    }
     function showSection(id, el) {
       document.querySelectorAll('.section').forEach(section => {
         section.classList.remove('active');
@@ -813,7 +1092,7 @@
       if (container) {
         container.innerHTML = evUploaded.map(f =>
           '<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid #d1fae5;border-radius:6px;background:#f0fdf4;margin-bottom:6px;">' +
-          '<span>📄</span><span style="flex:1;font-size:.82rem;font-weight:600;">' + f + '</span>' +
+          '<span></span><span style="flex:1;font-size:.82rem;font-weight:600;">' + f + '</span>' +
           '<span style="font-size:.72rem;color:#16a34a;font-weight:700;">Ready</span></div>'
         ).join('');
       }
@@ -949,9 +1228,72 @@
       {id:20, fn:'RECOVER', q:'Are backup restoration tests performed at least quarterly?', role:'Backup Admin / Storage Team'},
     ];
 
-    const srtmState = {};
+    let srtmState = {};
+    try { srtmState = JSON.parse(localStorage.getItem('anchor_srtm_labor') || '{}'); } catch(e) { srtmState = {}; }
+    // ── Demo seed: pre-populate SRTM state on first load ──
+    (function() {
+      var key = 'anchor_srtm_labor';
+      try {
+        var existing = JSON.parse(localStorage.getItem(key) || '{}');
+        if (Object.keys(existing).length === 0) {
+          var seed = {
+      "GV.OC-01": {result:"MET",cmmi:3,procs:{}},
+      "GV.RM-01": {result:"MET",cmmi:3,procs:{}},
+      "GV.PO-01": {result:"MET",cmmi:3,procs:{}},
+      "GV.SC-01": {result:"NOT MET",cmmi:0,procs:{}},
+      "GV.RR-01": {result:"MET",cmmi:2,procs:{}},
+      "ID.AM-01": {result:"NOT MET",cmmi:2,procs:{}},
+      "ID.AM-02": {result:"MET",cmmi:2,procs:{}},
+      "ID.RA-01": {result:"MET",cmmi:3,procs:{}},
+      "ID.RA-05": {result:"MET",cmmi:2,procs:{}},
+      "PR.AA-01": {result:"NOT MET",cmmi:1,procs:{}},
+      "PR.AA-05": {result:"MET",cmmi:3,procs:{}},
+      "PR.DS-01": {result:"MET",cmmi:3,procs:{}},
+    };
+          localStorage.setItem(key, JSON.stringify(seed));
+          srtmState = seed;
+        }
+      } catch(e) {}
+    })();
+    // ── Demo seed: intake form as submitted ──
+    (function() {
+      if (!localStorage.getItem('anchor_intake_labor')) {
+        localStorage.setItem('anchor_intake_labor', JSON.stringify({
+          agencyKey:'labor', agencyName:'Maryland Department of Labor',
+          assessmentId:'MD-LABOR-2026-001', contactName:'Agency CISO', contactEmail:'ciso@labor.maryland.gov',
+          startDate:'2026-03-10', endDate:'2026-04-08', evidenceDueDate:'2026-03-31',
+          pod:'Large', wave:'Wave 1', leadAssessor:'J. Williams', teamSize:'Large (6-8 assessors)',
+          status:'submitted', submittedAt:'2026-03-10T09:00:00.000Z'
+        }));
+        localStorage.setItem('anchor_pa_step_labor', '4');
+      }
+    })();
     const iqState = {};
     let srtmInit = false;
+    function _saveSrtmState() { try { localStorage.setItem('anchor_srtm_labor', JSON.stringify(srtmState)); } catch(e) {} }
+
+    const EVIDENCE_BY_FN = {
+      GOVERN: [
+        {id:'E-001', title:'Information Security Policy (UI/Workforce Systems)', type:'Policy', file:'LABOR_UnemploymentIns_InfoSecPolicy_v3.0_2025.pdf', date:'Nov 30, 2025', status:'Accepted', reviewer:'J. Williams'},
+        {id:'E-002', title:'PII/Financial Data Risk Register', type:'Technical', file:'LABOR_PII_RiskRegister_2025.xlsx', date:'Jan 5, 2026', status:'Accepted', reviewer:'S. Patel'},
+      ],
+      IDENTIFY: [
+        {id:'E-003', title:'Workforce & Unemployment Systems Asset Inventory', type:'Technical', file:'LABOR_WorkforceSystemsInventory_2026.xlsx', date:'Feb 12, 2026', status:'Accepted', reviewer:'R. Okafor'},
+      ],
+      PROTECT: [
+        {id:'E-004', title:'IAM Configuration Review (Unemployment Insurance Portal)', type:'Technical', file:'LABOR_IAM_ConfigReview_UIPortal_2026.pdf', date:'Feb 8, 2026', status:'Accepted', reviewer:'J. Williams'},
+        {id:'E-005', title:'Unemployment Claims Data Encryption Audit', type:'Technical', file:'LABOR_UnemploymentClaims_Encryption_Audit_2025.pdf', date:'Jan 28, 2026', status:'Under Review', reviewer:'R. Okafor'},
+      ],
+      DETECT: [
+        {id:'E-006', title:'Unemployment Insurance System Access Monitoring', type:'Technical', file:'LABOR_UISystemAccess_Monitoring_Q4_2025.pdf', date:'Feb 5, 2026', status:'Accepted', reviewer:'S. Patel'},
+      ],
+      RESPOND: [
+        {id:'E-007', title:'Incident Response Plan & Test Results', type:'Policy', file:'LABOR_SecurityIncident_Response_2025.pdf', date:'Dec 15, 2025', status:'Accepted', reviewer:'J. Williams'},
+      ],
+      RECOVER: [
+        {id:'E-008', title:'Backup Verification & Restoration Testing', type:'Technical', file:'LABOR_BackupIntegrity_Test_Report_2026.pdf', date:'Feb 1, 2026', status:'Accepted', reviewer:'R. Okafor'},
+      ],
+    };
 
     function initSrtm() {
       if(srtmInit) return;
@@ -983,6 +1325,46 @@
       buildIQ();
       buildXwalk();
       updateSrtmScoring();
+      restoreSrtmVisualState();
+    }
+
+    // Restore select dropdown values and visual classes from srtmState after DOM is built
+    function restoreSrtmVisualState() {
+      Object.keys(srtmState).forEach(function(ctrlId) {
+        const st = srtmState[ctrlId];
+        if (!st) return;
+        const safe = ctrlId.replace(/\./g,'-');
+        const ctrlEl = document.getElementById('srtm-' + safe);
+        const pill   = document.getElementById('spill-' + safe);
+        if (st.result) {
+          const resultSel = ctrlEl && ctrlEl.querySelector('select[onchange*="updateCtrlResult"]');
+          if (resultSel) resultSel.value = st.result;
+          if (ctrlEl) { ctrlEl.classList.remove('met','not-met','na','unscored'); ctrlEl.classList.add(st.result==='MET'?'met':st.result==='NOT MET'?'not-met':st.result==='N/A'?'na':'unscored'); }
+          if (pill) { pill.className='srtm-pill '+(st.result==='MET'?'srtm-pill-met':st.result==='NOT MET'?'srtm-pill-notmet':st.result==='N/A'?'srtm-pill-na':'srtm-pill-unscored'); pill.textContent=st.result; }
+        }
+        if (st.cmmi !== '' && st.cmmi !== undefined) {
+          const cmmiSel = ctrlEl && ctrlEl.querySelector('select[onchange*="updateCtrlCmmi"]');
+          if (cmmiSel) cmmiSel.value = String(st.cmmi);
+        }
+        if (st.procs) {
+          Object.keys(st.procs).forEach(function(procId) {
+            const ps = st.procs[procId];
+            if (!ps) return;
+            const procDivs = ctrlEl ? ctrlEl.querySelectorAll('.srtm-proc') : [];
+            procDivs.forEach(function(pd) {
+              const implSel = pd.querySelector('select[onchange*="\'impl\'"]');
+              if (implSel && implSel.getAttribute('onchange').indexOf("'" + procId + "'") !== -1) {
+                if (ps.impl) implSel.value = ps.impl;
+                const resSel = pd.querySelector('select[onchange*="\'result\'"]');
+                if (resSel && ps.result) resSel.value = ps.result;
+                const obsTa = pd.querySelector('textarea[onchange*="\'obs\'"]');
+                if (obsTa && ps.obs) obsTa.value = ps.obs;
+
+              }
+            });
+          });
+        }
+      });
     }
 
     function buildSrtmCtrl(ctrl, fn) {
@@ -1002,7 +1384,7 @@
             <div class="srtm-field"><label>Implementation Status</label><select onchange="updateProcState('${ctrl.id}','${p.id}','impl',this.value)"><option value="">&#8212; Select &#8212;</option><option value="Implemented">Implemented</option><option value="Partially Implemented">Partially Implemented</option><option value="Planned">Planned</option><option value="Not Implemented">Not Implemented</option><option value="Not Applicable">Not Applicable</option></select></div>
             <div class="srtm-field"><label>Assessment Result</label><select onchange="updateProcState('${ctrl.id}','${p.id}','result',this.value)"><option value="">&#8212; Select &#8212;</option><option value="MET">MET</option><option value="NOT MET">NOT MET</option><option value="N/A">N/A</option></select></div>
             <div class="srtm-field full"><label>Observation Statement</label><textarea placeholder="Document observation/finding for this procedure..." onchange="updateProcState('${ctrl.id}','${p.id}','obs',this.value)"></textarea></div>
-            <div class="srtm-field full"><label>Evidence / Artifacts</label><input type="text" placeholder="e.g., Agency_SSP_v1.1.docx, Scan_Report_Q1.pdf" onchange="updateProcState('${ctrl.id}','${p.id}','evidence',this.value)"></div>
+            <div class="srtm-field full"><label>Submitted Evidence</label><button type="button" onclick="openArtifactModal('${ctrl.id}','${fn}')" style="padding:5px 14px; font-size:.75rem; background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; border-radius:5px; cursor:pointer; margin-top:4px;">&#128196; View Submitted Evidence</button></div>
           </div>
         </div>`).join('');
       return `
@@ -1043,7 +1425,46 @@
       if(!srtmState[ctrlId]) srtmState[ctrlId] = {result:'',cmmi:'',procs:{}};
       if(!srtmState[ctrlId].procs[procId]) srtmState[ctrlId].procs[procId] = {};
       srtmState[ctrlId].procs[procId][field] = value;
+      _saveSrtmState();
     }
+
+    function openArtifactModal(ctrlId, fn) {
+      document.getElementById('artifact-modal-title').textContent = fn + ' — ' + ctrlId + ' Evidence';
+      var items = EVIDENCE_BY_FN[fn] || [];
+      var list = document.getElementById('artifact-current-list');
+      if (!items.length) {
+        list.innerHTML = '<div style="padding:20px; text-align:center; color:#9ca3af; font-size:.82rem;">No evidence submitted for ' + fn + ' domain yet.</div>';
+      } else {
+        list.innerHTML = items.map(function(e) {
+          return '<div style="display:flex; align-items:flex-start; gap:10px; padding:10px 0; border-bottom:1px solid #f3f4f6;">' +
+            '<div style="background:#eff6ff; color:#1d4ed8; font-size:.68rem; font-weight:700; padding:2px 7px; border-radius:4px; white-space:nowrap; margin-top:1px;">' + e.id + '</div>' +
+            '<div style="flex:1; min-width:0;">' +
+            '<div style="font-size:.83rem; font-weight:600; color:#111827;">' + escHtml(e.title) + '</div>' +
+            '<div style="font-size:.72rem; color:#6b7280; margin-top:2px;">' + escHtml(e.type) + ' &middot; ' + escHtml(e.file) + ' &middot; ' + escHtml(e.date) + '</div>' +
+            '<div style="font-size:.7rem; margin-top:3px;"><span style="background:#dcfce7; color:#166534; padding:1px 7px; border-radius:10px; font-weight:600;">' + escHtml(e.status) + '</span> <span style="color:#9ca3af; margin-left:4px;">Reviewer: ' + escHtml(e.reviewer) + '</span></div>' +
+            '</div>' +
+            '<button onclick="viewArtifact(\'' + escAttr(e.file) + '\')" style="padding:3px 10px; font-size:.72rem; background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; border-radius:5px; cursor:pointer; white-space:nowrap; flex-shrink:0;">View</button>' +
+            '</div>';
+        }).join('');
+      }
+      document.getElementById('artifact-modal').style.display = 'flex';
+    }
+
+    function closeArtifactModal() {
+      document.getElementById('artifact-modal').style.display = 'none';
+    }
+
+    function viewArtifact(ref) {
+      notify('Opening artifact: ' + ref);
+    }
+
+    function escHtml(s) {
+      return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function escAttr(s) {
+      return String(s||'').replace(/'/g,'&#39;').replace(/"/g,'&quot;');
+    }
+
 
     function updateCtrlResult(ctrlId, value) {
       if(!srtmState[ctrlId]) srtmState[ctrlId] = {result:'',cmmi:'',procs:{}};
@@ -1053,12 +1474,14 @@
       const pill = document.getElementById('spill-'+safe);
       if(el) { el.classList.remove('met','not-met','na','unscored'); el.classList.add(value==='MET'?'met':value==='NOT MET'?'not-met':value==='N/A'?'na':'unscored'); }
       if(pill) { pill.className='srtm-pill '+(value==='MET'?'srtm-pill-met':value==='NOT MET'?'srtm-pill-notmet':value==='N/A'?'srtm-pill-na':'srtm-pill-unscored'); pill.textContent=value||'Unscored'; }
+      _saveSrtmState();
       updateSrtmScoring();
     }
 
     function updateCtrlCmmi(ctrlId, value) {
       if(!srtmState[ctrlId]) srtmState[ctrlId] = {result:'',cmmi:'',procs:{}};
       srtmState[ctrlId].cmmi = value===''?'':parseInt(value);
+      _saveSrtmState();
       updateSrtmScoring();
     }
 
@@ -1175,5 +1598,115 @@
   <script src="src/js/agency-self-assessment.js?v=3"></script>
   <script>window.AGENCY_KEY = 'labor';</script>
   <script src="src/js/intake-workflow.js?v=2"></script>
+  <script>
+    // ── POA&M Detail Modal ──────────────────────────────────────────────────
+    const POAM_DATA_LABOR = {
+      'PM-001': {
+        findingId: 'MD-LABOR-2026-001',
+        systemName: 'Maryland Dept of Labor IT Environment',
+        systemAcronym: 'LABOR-EIT',
+        adminEntity: 'Maryland Department of Labor',
+        fipsLevel: 'Moderate',
+        confidentiality: 'Moderate', availability: 'Moderate', integrity: 'Moderate',
+        arcAmpeFamily: 'SI',
+        controlDetails: 'DE.CM-01',
+        findingDesc: 'No centralized monitoring or SIEM capability deployed. Logs are siloed across individual systems with no correlation.',
+        affectedHosts: 'All network infrastructure, servers, endpoints',
+        findingSource: 'ANCHOR Assessment MD-LABOR-2026-001, Pending',
+        poc: 'D. Kim, CISO',
+        resourcesReq: 'IT Security Team (2 FTE), Contracted MSSP/MDR Provider',
+        initialCompDate: 'TBD',
+        milestones: '(1) Complete assessment and identify monitoring gaps TBD\n(2) Issue RFQ for SIEM/MSSP solution TBD\n(3) Deploy centralized monitoring TBD',
+        milestoneChanges: 'N/A',
+        updatedCompDate: 'TBD',
+        actualCompDate: '',
+        findingStatus: 'Ongoing',
+        riskLevel: 'High',
+        riskAcceptanceForm: 'N/A',
+        arcAmpeVersion: 'ARC-AMPE v1.0x',
+        compensatingControls: 'Manual log review on individual systems',
+        comments: 'POA&M items will be formalized upon completion of the CSF assessment phase.'
+      }
+    };
+    function openPoamDetail(poamId) {
+      var agencyKey = (window.AGENCY_KEY || 'mdot').toUpperCase();
+      var dataObj = window['POAM_DATA_' + agencyKey];
+      if (!dataObj) {
+        if (typeof POAM_DATA_MDOT !== 'undefined') dataObj = POAM_DATA_MDOT;
+        else if (typeof POAM_DATA_MDH !== 'undefined') dataObj = POAM_DATA_MDH;
+        else if (typeof POAM_DATA_DPSCS !== 'undefined') dataObj = POAM_DATA_DPSCS;
+        else if (typeof POAM_DATA_MSDE !== 'undefined') dataObj = POAM_DATA_MSDE;
+        else if (typeof POAM_DATA_LABOR !== 'undefined') dataObj = POAM_DATA_LABOR;
+        else if (typeof POAM_DATA_COMP !== 'undefined') dataObj = POAM_DATA_COMP;
+      }
+      var d = dataObj ? dataObj[poamId] : null;
+      if (!d) { notify('POA\u0026M item not found: ' + poamId); return; }
+
+      var html =
+        '<table style="width:100%; border-collapse:collapse; font-size:.78rem; border-bottom:2px solid #1e3a5f;">' +
+        '<tr style="background:#f0f4ff;"><td style="padding:6px 12px; font-weight:700; color:#1e3a5f; width:200px; border-right:1px solid #d1d5db;">ADMINISTERING ENTITY:</td><td style="padding:6px 12px;" colspan="3">' + d.adminEntity + '</td></tr>' +
+        '<tr><td style="padding:6px 12px; font-weight:700; color:#1e3a5f; border-right:1px solid #d1d5db;">SYSTEM NAME:</td><td style="padding:6px 12px;" colspan="3">' + d.systemName + '</td></tr>' +
+        '<tr style="background:#f0f4ff;"><td style="padding:6px 12px; font-weight:700; color:#1e3a5f; border-right:1px solid #d1d5db;">SYSTEM ACRONYM:</td><td style="padding:6px 12px; width:120px;">' + d.systemAcronym + '</td><td style="padding:6px 12px; font-weight:700; color:#1e3a5f; border-left:1px solid #d1d5db; width:180px;">CURRENT FISCAL YEAR:</td><td style="padding:6px 12px;">2026</td></tr>' +
+        '</table>' +
+        '<table style="width:100%; border-collapse:collapse; font-size:.75rem; border-bottom:2px solid #1e3a5f; margin-top:0;">' +
+        '<tr style="background:#1e3a5f; color:#fff;">' +
+        '<th style="padding:6px 10px; text-align:left; font-weight:600; border-right:1px solid #334155;">System Name</th>' +
+        '<th style="padding:6px 10px; text-align:left; font-weight:600; border-right:1px solid #334155;">System Acronym</th>' +
+        '<th style="padding:6px 10px; text-align:left; font-weight:600; border-right:1px solid #334155;">System Criticality (FIPS)</th>' +
+        '<th style="padding:6px 10px; text-align:left; font-weight:600; border-right:1px solid #334155;">Confidentiality</th>' +
+        '<th style="padding:6px 10px; text-align:left; font-weight:600; border-right:1px solid #334155;">Availability</th>' +
+        '<th style="padding:6px 10px; text-align:left; font-weight:600;">Integrity</th>' +
+        '</tr>' +
+        '<tr style="background:#f8fafc;">' +
+        '<td style="padding:6px 10px; border-right:1px solid #e5e7eb;">' + d.systemName + '</td>' +
+        '<td style="padding:6px 10px; border-right:1px solid #e5e7eb;">' + d.systemAcronym + '</td>' +
+        '<td style="padding:6px 10px; border-right:1px solid #e5e7eb; font-weight:700; color:#dc2626;">' + d.fipsLevel + '</td>' +
+        '<td style="padding:6px 10px; border-right:1px solid #e5e7eb;">' + d.confidentiality + '</td>' +
+        '<td style="padding:6px 10px; border-right:1px solid #e5e7eb;">' + d.availability + '</td>' +
+        '<td style="padding:6px 10px;">' + d.integrity + '</td>' +
+        '</tr>' +
+        '</table>' +
+        '<div style="overflow-x:auto; padding:0;">' +
+        '<table style="width:100%; border-collapse:collapse; font-size:.72rem; min-width:1200px;">' +
+        '<thead>' +
+        '<tr style="background:#2563eb; color:#fff;">' +
+        ['Finding Identifier','ARC-AMPE Control Family','Control Details','Finding Description','Affected Host(s)','Finding Source','POC','Resources Required','Initial Sched. Completion Date','Milestones With Completion Dates','Changes to Milestones','Updated Sched. Completion Date','Actual Completion Date','Finding Status','Risk Level','Risk Acceptance Form Title','ARC-AMPE Version','Compensating Controls','Comments'].map(function(h){
+          return '<th style="padding:6px 8px; text-align:left; font-weight:600; border-right:1px solid #3b82f6; white-space:normal; min-width:80px;">' + h + '</th>';
+        }).join('') +
+        '</tr></thead>' +
+        '<tbody>' +
+        '<tr style="background:#f8fafc; vertical-align:top;">' +
+        [d.findingId, d.arcAmpeFamily, d.controlDetails, d.findingDesc, d.affectedHosts, d.findingSource, d.poc, d.resourcesReq, d.initialCompDate, d.milestones, d.milestoneChanges, d.updatedCompDate, d.actualCompDate||'\u2014', d.findingStatus, d.riskLevel, d.riskAcceptanceForm||'N/A', d.arcAmpeVersion||'ARC-AMPE v1.0x', d.compensatingControls, d.comments].map(function(v,i){
+          var bg = i===13 ? (v==='Ongoing'?'#fef9c3':v==='Completed'?'#dcfce7':v==='Delayed'?'#fee2e2':'#f8fafc') : '#f8fafc';
+          var fw = (i===0||i===13||i===14) ? 'font-weight:700;' : '';
+          return '<td style="padding:6px 8px; border-right:1px solid #e5e7eb; border-bottom:1px solid #e5e7eb; white-space:pre-wrap; background:'+bg+';'+fw+'">' + (v||'') + '</td>';
+        }).join('') +
+        '</tr>' +
+        '</tbody></table></div>' +
+        '<div style="padding:12px 16px; background:#f8fafc; border-top:2px solid #e5e7eb; display:flex; justify-content:space-between; align-items:center; border-radius:0 0 10px 10px;">' +
+        '<span style="font-size:.72rem; color:#64748b;">CMS AE_POAM_Template_v6.1.4 \u00b7 ANCHOR Platform Assessment</span>' +
+        '<div style="display:flex; gap:8px;">' +
+        '<button onclick="notify(\'POA\u0026M item exported: ' + poamId + '\')" style="padding:7px 16px; background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; border-radius:6px; cursor:pointer; font-size:.78rem; font-weight:600;">Export Item</button>' +
+        '<button onclick="closePoamDetail()" style="padding:7px 16px; background:#1e3a5f; color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:.78rem; font-weight:600;">Close</button>' +
+        '</div></div>';
+
+      document.getElementById('poam-modal-body').innerHTML = html;
+      document.getElementById('poam-detail-modal').style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+    function closePoamDetail() {
+      document.getElementById('poam-detail-modal').style.display = 'none';
+      document.body.style.overflow = '';
+    }
+    document.getElementById('poam-detail-modal').addEventListener('click', function(e) {
+      if (e.target === this) { closePoamDetail(); }
+    });
+    // \u2500\u2500 End POA&M Detail Modal \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500────────────────────────
+
+    function generateSarReport() {
+      notify('MD-COMP-2026-001 SAR generated and ready for download.');
+    }
+  
+  </script>
 </body>
 </html>

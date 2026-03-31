@@ -595,6 +595,8 @@ html, body {
 .fn-detect  { background: #fef3cd; color: #92600a; }
 .fn-respond { background: #fee2e2; color: #991b1b; }
 .fn-recover { background: #e0f2fe; color: #0369a1; }
+.finding-id-btn { background: none; border: none; color: #1e40af; font-weight: 700; cursor: pointer; text-decoration: underline; font-size: .9rem; padding: 0; }
+.finding-id-btn:hover { color: #1d4ed8; }
 
 /* ── CSF Assessment / SRTM Workbook ─────────────────────────────── */
 .tab-bar { display:flex; gap:4px; border-bottom:2px solid var(--border); margin-bottom:20px; flex-wrap:wrap; }

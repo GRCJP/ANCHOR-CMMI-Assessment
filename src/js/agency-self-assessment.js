@@ -413,7 +413,7 @@
     CONTROLS.forEach(ctrl => {
       const dot = document.getElementById('sa-dot-' + ctrl.id);
       if (!dot) return;
-      if (isComplete(ctrl, answers))       { dot.textContent = '✅'; dot.title = 'Complete — all questions answered and artifact uploaded'; }
+      if (isComplete(ctrl, answers))       { dot.textContent = ''; dot.title = 'Complete — all questions answered and artifact uploaded'; }
       else if (isAnswered(ctrl, answers))  { dot.textContent = '📝'; dot.title = 'In progress — artifact still needed'; }
       else                                  { dot.textContent = '○';  dot.title = 'Not started'; }
     });
@@ -490,7 +490,7 @@
       <div style="display:flex;gap:16px;margin-bottom:22px;flex-wrap:wrap;font-size:.73rem;color:#475569;">
         <span>○ Not started</span>
         <span>📝 Answers in progress — artifact still needed</span>
-        <span>✅ Fully complete — all answers + artifact uploaded</span>
+        <span> Fully complete — all answers + artifact uploaded</span>
       </div>
     `;
 
@@ -522,7 +522,7 @@
 
             <!-- Control header -->
             <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;">
-              <span id="sa-dot-${ctrl.id}" style="font-size:1.1rem;margin-top:2px;cursor:default;" title="${done ? 'Complete' : inProg ? 'In progress' : 'Not started'}">${done ? '✅' : inProg ? '📝' : '○'}</span>
+              <span id="sa-dot-${ctrl.id}" style="font-size:1.1rem;margin-top:2px;cursor:default;" title="${done ? 'Complete' : inProg ? 'In progress' : 'Not started'}">${done ? '' : inProg ? '📝' : '○'}</span>
               <div>
                 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:2px;">
                   <span style="font-size:.65rem;font-weight:800;background:${ctrl.fnColor}15;color:${ctrl.fnColor};padding:3px 8px;border-radius:4px;border:1px solid ${ctrl.fnColor}30;">${ctrl.id}</span>
@@ -691,7 +691,7 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(submittedData));
 
     setTimeout(function () {
-      if (typeof notify === 'function') notify('✅ Self-assessment submitted to the Assurit assessment team. Your assessor will review your responses and may follow up with additional questions.');
+      if (typeof notify === 'function') notify(' Self-assessment submitted to the Assurit assessment team. Your assessor will review your responses and may follow up with additional questions.');
 
       // Lock the form to prevent re-submission
       var section = document.getElementById('self-assessment');
@@ -715,7 +715,7 @@
           var banner = document.createElement('div');
           banner.id = 'sa-submitted-banner';
           banner.style.cssText = 'background:#d1fae5;border:1.5px solid #6ee7b7;border-radius:10px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;gap:12px;';
-          banner.innerHTML = '<span style="font-size:1.4rem;">✅</span><div><div style="font-size:.88rem;font-weight:700;color:#065f46;">Self-Assessment Submitted</div><div style="font-size:.76rem;color:#047857;margin-top:2px;">Your responses have been submitted to the Assurit assessment team. The form is now locked. Contact your assessor if you need to make changes.</div></div>';
+          banner.innerHTML = '<span style="font-size:1.4rem;"></span><div><div style="font-size:.88rem;font-weight:700;color:#065f46;">Self-Assessment Submitted</div><div style="font-size:.76rem;color:#047857;margin-top:2px;">Your responses have been submitted to the Assurit assessment team. The form is now locked. Contact your assessor if you need to make changes.</div></div>';
           section.insertBefore(banner, section.firstChild);
         }
       }
@@ -748,7 +748,7 @@
           banner.id = 'sa-submitted-banner';
           banner.style.cssText = 'background:#d1fae5;border:1.5px solid #6ee7b7;border-radius:10px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;gap:12px;';
           var ts = stored._submittedAt ? ' on ' + new Date(stored._submittedAt).toLocaleString() : '';
-          banner.innerHTML = '<span style="font-size:1.4rem;">✅</span><div><div style="font-size:.88rem;font-weight:700;color:#065f46;">Self-Assessment Submitted</div><div style="font-size:.76rem;color:#047857;margin-top:2px;">Submitted by ' + (stored._submittedBy || 'Agency Rep') + ts + '. The form is locked. Contact your assessor if you need to make changes.</div></div>';
+          banner.innerHTML = '<span style="font-size:1.4rem;"></span><div><div style="font-size:.88rem;font-weight:700;color:#065f46;">Self-Assessment Submitted</div><div style="font-size:.76rem;color:#047857;margin-top:2px;">Submitted by ' + (stored._submittedBy || 'Agency Rep') + ts + '. The form is locked. Contact your assessor if you need to make changes.</div></div>';
           section.insertBefore(banner, section.firstChild);
         }
       }, 100);
@@ -1364,10 +1364,10 @@
       docx: { icon: '📝', color: '#2563eb', bg: '#eff6ff', label: 'Word Document',        badge: '#2563eb' },
       doc:  { icon: '📝', color: '#2563eb', bg: '#eff6ff', label: 'Word Document',        badge: '#2563eb' },
       pptx: { icon: '📑', color: '#ea580c', bg: '#fff7ed', label: 'PowerPoint',           badge: '#ea580c' },
-      png:  { icon: '🖼️', color: '#7c3aed', bg: '#f5f3ff', label: 'Image',                badge: '#7c3aed' },
-      jpg:  { icon: '🖼️', color: '#7c3aed', bg: '#f5f3ff', label: 'Image',                badge: '#7c3aed' }
+      png:  { icon: 'IMG', color: '#7c3aed', bg: '#f5f3ff', label: 'Image',                badge: '#7c3aed' },
+      jpg:  { icon: 'IMG', color: '#7c3aed', bg: '#f5f3ff', label: 'Image',                badge: '#7c3aed' }
     };
-    var meta = iconMap[ext] || { icon: '📎', color: '#64748b', bg: '#f8fafc', label: 'Document', badge: '#64748b' };
+    var meta = iconMap[ext] || { icon: 'DOC', color: '#64748b', bg: '#f8fafc', label: 'Document', badge: '#64748b' };
     var fakeSizes = { pdf:'2.4 MB · 14 pages', xlsx:'890 KB · 3 sheets', xls:'890 KB · 3 sheets',
       docx:'1.1 MB · 8 pages', doc:'1.1 MB · 8 pages', pptx:'3.2 MB · 22 slides',
       png:'512 KB', jpg:'768 KB' };
@@ -1861,9 +1861,7 @@
       }
 
       var artifactHtml = hasArtifact
-        ? '<div style="display:inline-flex;align-items:center;gap:6px;background:#d1fae5;border:1px solid #6ee7b7;border-radius:5px;padding:4px 10px;font-size:.73rem;font-weight:600;color:#065f46;">' +
-            '<span style="font-size:.7rem;">📎</span>' + d.evidence.replace(/</g,'&lt;') +
-          '</div>'
+        ? '<div style="display:inline-flex;align-items:center;gap:6px;background:#d1fae5;border:1px solid #6ee7b7;border-radius:5px;padding:4px 10px;font-size:.73rem;font-weight:600;color:#065f46;">Evidence on file</div>'
         : '<span style="font-size:.73rem;color:#f59e0b;font-weight:600;">Artifact not yet uploaded</span>';
 
       var panel = document.createElement('div');
@@ -1978,7 +1976,7 @@
               '<span style="font-size:.65rem;font-weight:800;color:' + ctrl.fnColor + ';background:' + ctrl.fnColor + '12;border:1px solid ' + ctrl.fnColor + '25;padding:2px 7px;border-radius:3px;">' + ctrl.id + '</span>' +
               '<span style="font-size:.84rem;font-weight:700;color:#0f172a;">' + ctrl.label + '</span>' +
               (hasArtifact
-                ? '<span style="margin-left:auto;font-size:.69rem;font-weight:600;color:#065f46;background:#d1fae5;border:1px solid #6ee7b7;padding:2px 8px;border-radius:10px;">📎 ' + d.evidence.replace(/</g,'&lt;') + '</span>'
+                ? '<span style="margin-left:auto;font-size:.69rem;font-weight:600;color:#065f46;background:#d1fae5;border:1px solid #6ee7b7;padding:2px 8px;border-radius:10px;">Evidence on file</span>'
                 : '<span style="margin-left:auto;font-size:.69rem;color:#f59e0b;font-weight:600;">Artifact pending</span>') +
             '</div>' +
             (qHtml || '<span style="font-size:.74rem;color:#94a3b8;">No written responses submitted.</span>') +

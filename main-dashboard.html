@@ -164,7 +164,7 @@
           </div>
           <div class="dropdown-divider"></div>
           <a href="#" class="dropdown-item" onclick="logout(); return false;">
-            <span>🚪</span> Logout
+            <span></span> Logout
           </a>
         </div>
       </div>
@@ -205,7 +205,7 @@
         <div class="grid-4" style="margin-bottom:20px;">
           <div class="stat-card accent"><div class="stat-label">Avg Statewide Maturity</div><div class="stat-value" id="stat-maturity">2.9</div><div class="stat-sub">Up from 2.1 (Program Baseline)</div></div>
           <div class="stat-card green"><div class="stat-label">Critical Findings Closed</div><div class="stat-value" id="stat-findings">38</div><div class="stat-sub">Across <span id="stat-finding-agencies">23</span> completed agencies</div></div>
-          <div class="stat-card"><div class="stat-label">POA&amp;M Items Tracked</div><div class="stat-value">312</div><div class="stat-sub">Across all agencies</div></div>
+          <div class="stat-card" style="cursor:pointer;" onclick="showSection('scorecard',document.querySelector('[onclick*=\"scorecard\"]'));setTimeout(function(){var sc=document.querySelector('[onclick*=\"sc-tab-poam\"]');if(sc)sc.click();},200);" title="Click to view all POA&amp;M items"><div class="stat-label">POA&amp;M Items Tracked</div><div class="stat-value">30</div><div class="stat-sub">Across all agencies &mdash; click to view</div></div>
           <div class="stat-card"><div class="stat-label">Avg Days to SAR</div><div class="stat-value">41</div><div class="stat-sub">Large: 63 · Med: 42 · Small: 21</div></div>
         </div>
 
@@ -218,23 +218,23 @@
           <div class="card">
             <div class="card-title">Assessment Completion Progress</div>
             <div style="margin-bottom:12px;">
-              <div style="display:flex; justify-content:space-between; font-size:.8rem; margin-bottom:4px;"><span>Overall Progress</span><span>54 / 90</span></div>
-              <div class="progress-bar-wrap"><div class="progress-bar pb-blue" style="width:60%"></div></div>
+              <div style="display:flex; justify-content:space-between; font-size:.8rem; margin-bottom:4px;"><span>Overall Progress</span><span id="prog-overall-label">54 / 90</span></div>
+              <div class="progress-bar-wrap"><div class="progress-bar pb-blue" id="prog-overall-bar" style="width:60%"></div></div>
             </div>
             <div style="margin-bottom:12px;">
-              <div style="display:flex; justify-content:space-between; font-size:.8rem; margin-bottom:4px;"><span>Large Agencies (&gt;500)</span><span>8 / 14</span></div>
-              <div class="progress-bar-wrap"><div class="progress-bar pb-green" style="width:57%"></div></div>
+              <div style="display:flex; justify-content:space-between; font-size:.8rem; margin-bottom:4px;"><span>Large Agencies (&gt;500)</span><span id="prog-large-label">8 / 14</span></div>
+              <div class="progress-bar-wrap"><div class="progress-bar pb-green" id="prog-large-bar" style="width:57%"></div></div>
             </div>
             <div style="margin-bottom:12px;">
-              <div style="display:flex; justify-content:space-between; font-size:.8rem; margin-bottom:4px;"><span>Medium Agencies (100–499)</span><span>22 / 38</span></div>
-              <div class="progress-bar-wrap"><div class="progress-bar pb-orange" style="width:58%"></div></div>
+              <div style="display:flex; justify-content:space-between; font-size:.8rem; margin-bottom:4px;"><span>Medium Agencies (100–499)</span><span id="prog-medium-label">22 / 38</span></div>
+              <div class="progress-bar-wrap"><div class="progress-bar pb-orange" id="prog-medium-bar" style="width:58%"></div></div>
             </div>
             <div>
-              <div style="display:flex; justify-content:space-between; font-size:.8rem; margin-bottom:4px;"><span>Small Agencies (&lt;100)</span><span>24 / 38</span></div>
-              <div class="progress-bar-wrap"><div class="progress-bar pb-blue" style="width:63%"></div></div>
+              <div style="display:flex; justify-content:space-between; font-size:.8rem; margin-bottom:4px;"><span>Small Agencies (&lt;100)</span><span id="prog-small-label">24 / 38</span></div>
+              <div class="progress-bar-wrap"><div class="progress-bar pb-blue" id="prog-small-bar" style="width:63%"></div></div>
             </div>
             <hr class="divider">
-            <div class="warn-box" style="margin:0;"><strong>8 agencies</strong> have not responded to intake requests. Escalation letters issued to agency heads. DoIT PM notified.</div>
+            <div class="warn-box" style="margin:0;" id="prog-unresponsive-box"><strong>8 agencies</strong> have not responded to intake requests. Escalation letters issued to agency heads. DoIT PM notified.</div>
           </div>
         </div>
 
@@ -272,8 +272,8 @@
               </table>
             </div>
             <div class="btn-row">
-              <button class="btn btn-outline btn-sm" onclick="notify('📊 Trend report exported: MD_Statewide_Trend_Report_Q1_2026.pdf')">Export Trend Report</button>
-              <button class="btn btn-outline btn-sm" onclick="notify('📧 Executive summary sent to DoIT leadership')">Send to DoIT</button>
+              <button class="btn btn-outline btn-sm" onclick="notify(' Trend report exported: MD_Statewide_Trend_Report_Q1_2026.pdf')">Export Trend Report</button>
+              <button class="btn btn-outline btn-sm" onclick="notify(' Executive summary sent to DoIT leadership')">Send to DoIT</button>
             </div>
           </div>
         </div>
@@ -299,33 +299,50 @@
                 <tr>
                   <td><strong>MDOT</strong></td><td><span class="badge badge-red">Large</span></td>
                   <td>Jan 15, 2026</td><td>Apr 18, 2026</td><td>71</td><td>—</td>
-                  <td>Evidence Collection</td>
+                  <td>SAR Delivered</td>
                   <td>
                     <div style="display:flex; gap:2px; align-items:center;">
-                      <div title="Intake ✓" style="width:18px;height:10px;border-radius:2px;background:#16a34a;"></div>
-                      <div title="Mapping ✓" style="width:18px;height:10px;border-radius:2px;background:#16a34a;"></div>
-                      <div title="Evidence ◐" style="width:18px;height:10px;border-radius:2px;background:#d97706;"></div>
-                      <div title="Risk" style="width:18px;height:10px;border-radius:2px;background:#e5e7eb;"></div>
-                      <div title="POA&amp;M" style="width:18px;height:10px;border-radius:2px;background:#e5e7eb;"></div>
-                      <div title="SAR" style="width:18px;height:10px;border-radius:2px;background:#e5e7eb;"></div>
-                      <span style="font-size:.68rem; color:var(--text-muted); margin-left:4px;">3/6</span>
+                      <div title="Intake" style="width:18px;height:10px;border-radius:2px;background:#16a34a;"></div>
+                      <div title="Mapping" style="width:18px;height:10px;border-radius:2px;background:#16a34a;"></div>
+                      <div title="Evidence" style="width:18px;height:10px;border-radius:2px;background:#16a34a;"></div>
+                      <div title="Risk" style="width:18px;height:10px;border-radius:2px;background:#16a34a;"></div>
+                      <div title="POA&amp;M" style="width:18px;height:10px;border-radius:2px;background:#16a34a;"></div>
+                      <div title="SAR" style="width:18px;height:10px;border-radius:2px;background:#16a34a;"></div>
+                      <span style="font-size:.68rem; color:var(--text-muted); margin-left:4px;">6/6 (100%)</span>
                     </div>
                   </td>
-                  <td><span class="badge badge-orange">At-Risk</span></td>
+                  <td><span class="badge badge-green">Complete</span></td>
                 </tr>
                 <tr>
                   <td><strong>MDH</strong></td><td><span class="badge badge-red">Large</span></td>
                   <td>Feb 3, 2026</td><td>May 8, 2026</td><td>52</td><td>42</td>
+                  <td>POA&amp;M Finalization</td>
+                  <td>
+                    <div style="display:flex; gap:2px; align-items:center;">
+                      <div title="Intake" style="width:18px;height:10px;border-radius:2px;background:#16a34a;"></div>
+                      <div title="Mapping" style="width:18px;height:10px;border-radius:2px;background:#16a34a;"></div>
+                      <div title="Evidence" style="width:18px;height:10px;border-radius:2px;background:#16a34a;"></div>
+                      <div title="Risk" style="width:18px;height:10px;border-radius:2px;background:#16a34a;"></div>
+                      <div title="POA&amp;M" style="width:18px;height:10px;border-radius:2px;background:#d97706;"></div>
+                      <div title="SAR" style="width:18px;height:10px;border-radius:2px;background:#e5e7eb;"></div>
+                      <span style="font-size:.68rem; color:var(--text-muted); margin-left:4px;">5/6 (80%)</span>
+                    </div>
+                  </td>
+                  <td><span class="badge badge-green">On-Time</span></td>
+                </tr>
+                <tr>
+                  <td><strong>DPSCS</strong></td><td><span class="badge badge-red">Large</span></td>
+                  <td>Mar 10, 2026</td><td>Jun 14, 2026</td><td>17</td><td>79</td>
                   <td>Risk Assessment</td>
                   <td>
                     <div style="display:flex; gap:2px; align-items:center;">
-                      <div title="Intake ✓" style="width:18px;height:10px;border-radius:2px;background:#16a34a;"></div>
-                      <div title="Mapping ✓" style="width:18px;height:10px;border-radius:2px;background:#16a34a;"></div>
-                      <div title="Evidence ✓" style="width:18px;height:10px;border-radius:2px;background:#16a34a;"></div>
-                      <div title="Risk ◐" style="width:18px;height:10px;border-radius:2px;background:#d97706;"></div>
+                      <div title="Intake" style="width:18px;height:10px;border-radius:2px;background:#16a34a;"></div>
+                      <div title="Mapping" style="width:18px;height:10px;border-radius:2px;background:#16a34a;"></div>
+                      <div title="Evidence" style="width:18px;height:10px;border-radius:2px;background:#16a34a;"></div>
+                      <div title="Risk" style="width:18px;height:10px;border-radius:2px;background:#d97706;"></div>
                       <div title="POA&amp;M" style="width:18px;height:10px;border-radius:2px;background:#e5e7eb;"></div>
                       <div title="SAR" style="width:18px;height:10px;border-radius:2px;background:#e5e7eb;"></div>
-                      <span style="font-size:.68rem; color:var(--text-muted); margin-left:4px;">4/6</span>
+                      <span style="font-size:.68rem; color:var(--text-muted); margin-left:4px;">4/6 (60%)</span>
                     </div>
                   </td>
                   <td><span class="badge badge-green">On-Time</span></td>
@@ -333,7 +350,7 @@
                 <tr>
                   <td><strong>MSDE</strong></td><td><span class="badge badge-orange">Medium</span></td>
                   <td>Jan 6, 2026</td><td>Feb 28, 2026</td><td>—</td><td>—</td>
-                  <td>SAR Delivered ✓</td>
+                  <td>SAR Delivered</td>
                   <td>
                     <div style="display:flex; gap:2px; align-items:center;">
                       <div style="width:18px;height:10px;border-radius:2px;background:#16a34a;"></div>
@@ -342,27 +359,10 @@
                       <div style="width:18px;height:10px;border-radius:2px;background:#16a34a;"></div>
                       <div style="width:18px;height:10px;border-radius:2px;background:#16a34a;"></div>
                       <div style="width:18px;height:10px;border-radius:2px;background:#16a34a;"></div>
-                      <span style="font-size:.68rem; color:var(--text-muted); margin-left:4px;">6/6</span>
+                      <span style="font-size:.68rem; color:var(--text-muted); margin-left:4px;">6/6 (100%)</span>
                     </div>
                   </td>
                   <td><span class="badge badge-green">Complete</span></td>
-                </tr>
-                <tr>
-                  <td><strong>DPSCS</strong></td><td><span class="badge badge-red">Large</span></td>
-                  <td>Mar 10, 2026</td><td>Jun 14, 2026</td><td>17</td><td>79</td>
-                  <td>Intake &amp; Scoping</td>
-                  <td>
-                    <div style="display:flex; gap:2px; align-items:center;">
-                      <div title="Intake ◐" style="width:18px;height:10px;border-radius:2px;background:#d97706;"></div>
-                      <div style="width:18px;height:10px;border-radius:2px;background:#e5e7eb;"></div>
-                      <div style="width:18px;height:10px;border-radius:2px;background:#e5e7eb;"></div>
-                      <div style="width:18px;height:10px;border-radius:2px;background:#e5e7eb;"></div>
-                      <div style="width:18px;height:10px;border-radius:2px;background:#e5e7eb;"></div>
-                      <div style="width:18px;height:10px;border-radius:2px;background:#e5e7eb;"></div>
-                      <span style="font-size:.68rem; color:var(--text-muted); margin-left:4px;">1/6</span>
-                    </div>
-                  </td>
-                  <td><span class="badge badge-green">On-Time</span></td>
                 </tr>
                 <tr>
                   <td><strong>MD Labor</strong></td><td><span class="badge badge-gray">—</span></td>
@@ -429,21 +429,22 @@
           <label style="font-size:.82rem; font-weight:700; color:var(--primary);">View:</label>
           <button class="btn btn-primary btn-sm" id="sc-view-statewide" onclick="setSCView('statewide')">Statewide (Aggregated)</button>
           <button class="btn btn-outline btn-sm" id="sc-view-agency" onclick="setSCView('agency')">By Agency (Disaggregated)</button>
-          <select id="sc-agency-select" style="display:none; padding:5px 10px; border-radius:6px; border:1px solid var(--border); font-size:.78rem;" onchange="notify('📊 Showing agency-level view for selected agency')">
+          <select id="sc-agency-select" style="display:none; padding:5px 10px; border-radius:6px; border:1px solid var(--border); font-size:.78rem;" onchange="notify(' Showing agency-level view for selected agency')">
             <option value="mdot">MDOT — In Progress</option>
             <option value="dpscs">DPSCS — In Progress</option>
             <option value="msde">MSDE — Complete</option>
           </select>
-          <button class="btn btn-outline btn-sm" onclick="exportSCDashboard()">📤 Export to ServiceNow GRC</button>
-          <button class="btn btn-outline btn-sm" onclick="notify('📄 PDF generated: MD_Statewide_Compliance_Dashboard_2026.pdf')">Download PDF</button>
+          <button class="btn btn-outline btn-sm" onclick="exportSCDashboard()"> Export to ServiceNow GRC</button>
+          <button class="btn btn-outline btn-sm" onclick="notify(' PDF generated: MD_Statewide_Compliance_Dashboard_2026.pdf')">Download PDF</button>
         </div>
 
-        <!-- Summary KPIs -->
+        <!-- Summary KPIs (statewide view) -->
+        <div id="sc-statewide-view">
         <div class="grid-4" style="margin-bottom:20px;">
-          <div class="stat-card accent"><div class="stat-label">Avg Statewide Maturity</div><div class="stat-value">2.9</div><div class="stat-sub">CMMI 0-5 · Up from 2.1 (Program Baseline)</div></div>
-          <div class="stat-card red"><div class="stat-label">Critical Control Gaps</div><div class="stat-value">47</div><div class="stat-sub">Across 23 completed agencies</div></div>
-          <div class="stat-card green"><div class="stat-label">Agencies at CMMI ≥ 3.0</div><div class="stat-value">8</div><div class="stat-sub">Meeting DoIT target baseline</div></div>
-          <div class="stat-card"><div class="stat-label">Open POA&amp;M Items</div><div class="stat-value">312</div><div class="stat-sub">Tracked across all agencies</div></div>
+          <div class="stat-card accent"><div class="stat-label">Avg Statewide Maturity</div><div class="stat-value" id="sc-kpi-maturity">2.9</div><div class="stat-sub">CMMI 0-5 · Up from 2.1 (Program Baseline)</div></div>
+          <div class="stat-card red"><div class="stat-label">Critical Control Gaps</div><div class="stat-value">47</div><div class="stat-sub">Across <span id="sc-kpi-complete-count">23</span> completed agencies</div></div>
+          <div class="stat-card green"><div class="stat-label">Agencies at CMMI ≥ 3.0</div><div class="stat-value" id="sc-kpi-at-target">8</div><div class="stat-sub">Meeting DoIT target baseline</div></div>
+          <div class="stat-card"><div class="stat-label">Open POA&amp;M Items</div><div class="stat-value">30</div><div class="stat-sub">Tracked across all agencies</div></div>
         </div>
 
         <!-- Metric 1 + Metric 4 -->
@@ -465,7 +466,7 @@
         </div>
 
         <!-- Metric 2 + Metric 3 -->
-        <div class="grid-2" style="margin-bottom:20px;">
+        <div class="grid-2" style="margin-bottom:20px;" id="sc-metric23-wrap">
           <div class="card">
             <div class="card-title">
               Most Common Constraints Across All Agencies
@@ -489,16 +490,16 @@
           </div>
           <div style="font-size:.74rem;color:var(--text-muted);margin-bottom:10px;">Critical and high-severity findings across completed assessments with risk score, agency response status, and POA&amp;M tracking</div>
           <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
-            <select style="padding:4px 8px;border-radius:6px;border:1px solid var(--border);font-size:.75rem;" onchange="notify('🔍 Severity filter applied')">
+            <select style="padding:4px 8px;border-radius:6px;border:1px solid var(--border);font-size:.75rem;" onchange="notify(' Severity filter applied')">
               <option>All Severities</option><option>Critical Only</option><option>High + Critical</option>
             </select>
-            <select style="padding:4px 8px;border-radius:6px;border:1px solid var(--border);font-size:.75rem;" onchange="notify('🔍 Agency filter applied')">
+            <select style="padding:4px 8px;border-radius:6px;border:1px solid var(--border);font-size:.75rem;" onchange="notify(' Agency filter applied')">
               <option>All Agencies</option><option>MDOT</option><option>DPSCS</option><option>MSDE</option>
             </select>
-            <select style="padding:4px 8px;border-radius:6px;border:1px solid var(--border);font-size:.75rem;" onchange="notify('🔍 Function filter applied')">
+            <select style="padding:4px 8px;border-radius:6px;border:1px solid var(--border);font-size:.75rem;" onchange="notify(' Function filter applied')">
               <option>All CSF Functions</option><option>GOVERN</option><option>IDENTIFY</option><option>PROTECT</option><option>DETECT</option><option>RESPOND</option><option>RECOVER</option>
             </select>
-            <button class="btn btn-outline btn-sm" onclick="notify('📥 Findings exported: MD_Top_Findings_2026.xlsx')">Export Findings</button>
+            <button class="btn btn-outline btn-sm" onclick="notify(' Findings exported: MD_Top_Findings_2026.xlsx')">Export Findings</button>
           </div>
           <div class="table-wrap">
             <table>
@@ -571,10 +572,38 @@
             </table>
           </div>
           <div class="btn-row">
-            <button class="btn btn-outline btn-sm" onclick="notify('🔗 Findings pushed to ServiceNow GRC Risk Register — 7 records synced')">Push to ServiceNow Risk Register</button>
-            <button class="btn btn-outline btn-sm" onclick="notify('📧 Executive findings summary emailed to DoIT OSM leadership')">Email to DoIT OSM</button>
+            <button class="btn btn-outline btn-sm" onclick="notify(' Findings pushed to ServiceNow GRC Risk Register — 7 records synced')">Push to ServiceNow Risk Register</button>
+            <button class="btn btn-outline btn-sm" onclick="notify(' Executive findings summary emailed to DoIT OSM leadership')">Email to DoIT OSM</button>
           </div>
         </div>
+        </div><!-- /sc-statewide-view -->
+
+        <!-- DISAGGREGATED / BY-AGENCY VIEW -->
+        <div id="sc-agency-view" style="display:none;">
+          <div class="card" style="margin-bottom:20px;">
+            <div class="card-title">Agency-Level Maturity Breakdown</div>
+            <div style="font-size:.74rem;color:var(--text-muted);margin-bottom:14px;">CMMI maturity scores, status, and progress for each agency in the current cohort. Select an agency above to filter findings and charts.</div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Agency</th><th>Status</th><th>Stage</th><th>Progress</th><th>CMMI Score</th><th>CMMI Band</th></tr></thead>
+                <tbody id="sc-agency-breakdown-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="grid-2" style="margin-bottom:20px;">
+            <div class="card">
+              <div class="card-title">Maturity Distribution — By Agency Size Tier</div>
+              <div style="font-size:.74rem;color:var(--text-muted);margin-bottom:10px;">Average CMMI score grouped by agency size (Large &gt;500, Medium 100–499, Small &lt;100)</div>
+              <div class="chart-wrap-sm"><canvas id="sc-disagg-size-chart"></canvas></div>
+            </div>
+            <div class="card">
+              <div class="card-title">Assessment Status — By Agency</div>
+              <div style="font-size:.74rem;color:var(--text-muted);margin-bottom:10px;">Current status and completion percentage for each active assessment in the demo cohort</div>
+              <div class="chart-wrap-sm"><canvas id="sc-disagg-status-chart"></canvas></div>
+            </div>
+          </div>
+        </div><!-- /sc-agency-view -->
 
         </div><!-- /pf-compliance -->
       </section>
@@ -602,7 +631,7 @@
             <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
               <span style="background:rgba(39,174,96,.28); color:#9efcc9; padding:4px 10px; border-radius:12px; font-size:.72rem; font-weight:700;">Secure Session</span>
               <span style="background:rgba(255,255,255,.15); color:#fff; padding:4px 10px; border-radius:12px; font-size:.72rem; font-weight:700;">Due: May 30, 2026</span>
-              <button class="btn" style="background:rgba(255,255,255,.2); color:#fff; border:1px solid rgba(255,255,255,.35); padding:5px 14px; font-size:.78rem;" onclick="notify('💾 Progress saved.')">Save Progress</button>
+              <button class="btn" style="background:rgba(255,255,255,.2); color:#fff; border:1px solid rgba(255,255,255,.35); padding:5px 14px; font-size:.78rem;" onclick="notify(' Progress saved.')">Save Progress</button>
             </div>
           </div>
         </div>
@@ -640,7 +669,7 @@
               <div style="border-top:1px solid var(--border); padding-top:14px;">
                 <div style="font-size:.72rem; color:var(--text-muted); margin-bottom:10px;">Evidence Uploads: <strong id="sai-upload-count">0</strong> of 60 files</div>
                 <button class="btn btn-primary" style="width:100%; margin-bottom:8px;" onclick="submitSaiIntake()">Submit to Assessor</button>
-                <button class="btn btn-outline" style="width:100%; font-size:.78rem;" onclick="notify('📄 Draft baseline generated.')">Generate Baseline Draft</button>
+                <button class="btn btn-outline" style="width:100%; font-size:.78rem;" onclick="notify(' Draft baseline generated.')">Generate Baseline Draft</button>
               </div>
             </div>
           </div>
@@ -688,22 +717,127 @@
           </div>
         </div>
         <div class="tab-content" id="tp-waves">
+          <!-- Schedule Health Banner -->
+          <div id="wave-health-banner" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:#f0f4ff;border:1px solid #c7d7f5;border-radius:10px;padding:12px 18px;margin-bottom:16px;">
+            <div style="font-size:.8rem;font-weight:700;color:#1e3a5f;white-space:nowrap;">Schedule Health</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;" id="wave-health-badges"></div>
+            <div style="margin-left:auto;font-size:.78rem;color:#4b5563;" id="wave-next-milestone"></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <span style="font-size:.8rem;color:var(--text-muted);">Click <strong>Edit</strong> on any row to update dates, status, or add schedule notes.</span>
+            <button class="btn btn-outline btn-sm" onclick="openResequenceModal()" style="font-size:.75rem;">Resequence Agencies</button>
+          </div>
           <div class="table-wrap">
-            <table>
-              <thead><tr><th>Wave</th><th>Period</th><th>Agencies</th><th>Agency Types</th><th>Pods Deployed</th><th>Status</th><th>Avg Maturity</th><th>Critical Findings</th></tr></thead>
-              <tbody>
-                <tr><td><strong>Wave 1</strong></td><td>Jan–Jun 2026</td><td>15 agencies</td><td>Large + High-Risk</td><td>3 Large, 2 Medium</td><td><span class="badge badge-blue">In Progress</span></td><td>2.5</td><td>38</td></tr>
-                <tr><td><strong>Wave 2</strong></td><td>Apr–Sep 2026</td><td>15 agencies</td><td>Medium + Enterprise</td><td>2 Large, 3 Medium</td><td><span class="badge badge-blue">In Progress</span></td><td>—</td><td>—</td></tr>
-                <tr><td><strong>Wave 3</strong></td><td>Jul–Dec 2026</td><td>15 agencies</td><td>Medium + Small (high-risk)</td><td>1 Large, 4 Medium</td><td><span class="badge badge-orange">Scheduled</span></td><td>—</td><td>—</td></tr>
-                <tr><td><strong>Wave 4</strong></td><td>Oct 2026–Mar 2027</td><td>15 agencies</td><td>Small + OT/ICS-heavy</td><td>2 Large, 2 Medium, 2 Small</td><td><span class="badge badge-gray">Planned</span></td><td>—</td><td>—</td></tr>
-                <tr><td><strong>Wave 5</strong></td><td>Jan–Jun 2027</td><td>15 agencies</td><td>Small agencies + reassessments</td><td>1 Large, 2 Medium, 4 Small</td><td><span class="badge badge-gray">Planned</span></td><td>—</td><td>—</td></tr>
-                <tr><td><strong>Wave 6</strong></td><td>Apr–Dec 2027</td><td>15 agencies</td><td>Remaining + Year-2 reassessments</td><td>TBD based on capacity</td><td><span class="badge badge-gray">Planned</span></td><td>—</td><td>—</td></tr>
-              </tbody>
+            <table id="waves-table">
+              <thead><tr><th>Wave</th><th>Period</th><th>Agencies</th><th>Pods Deployed</th><th>Status</th><th>Slippage</th><th>Schedule Notes</th><th style="width:70px;"></th></tr></thead>
+              <tbody id="waves-tbody"></tbody>
             </table>
           </div>
           <div class="btn-row">
-            <button class="btn btn-outline btn-sm" onclick="notify('📥 Wave schedule exported')">Export Wave Plan</button>
-            <button class="btn btn-outline btn-sm" onclick="notify('🔗 Schedule synced to ServiceNow')">Sync to ServiceNow</button>
+            <button class="btn btn-outline btn-sm" onclick="notify('Wave schedule exported')">Export Wave Plan</button>
+            <button class="btn btn-outline btn-sm" onclick="notify('Schedule synced to ServiceNow')">Sync to ServiceNow</button>
+          </div>
+        </div>
+
+        <!-- ═══ WAVE EDIT MODAL ═══ -->
+        <div id="wave-edit-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.45);align-items:center;justify-content:center;">
+          <div style="background:#fff;border-radius:12px;width:560px;max-width:95vw;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.35);">
+            <!-- Header -->
+            <div style="background:linear-gradient(135deg,#0f2d5e 0%,#1a4a8a 100%);padding:20px 24px;border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:space-between;">
+              <div>
+                <div style="color:#fff;font-size:1rem;font-weight:700;" id="wem-title">Edit Wave Schedule</div>
+                <div style="color:#a3c4f5;font-size:.78rem;margin-top:2px;" id="wem-subtitle">Wave 1</div>
+              </div>
+              <button onclick="closeWaveEditModal()" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;">&times;</button>
+            </div>
+            <!-- Body -->
+            <div style="padding:24px;">
+              <input type="hidden" id="wem-wave-key">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+                <div>
+                  <label style="font-size:.78rem;font-weight:700;display:block;margin-bottom:6px;color:#374151;">Start Date</label>
+                  <input type="text" id="wem-start" placeholder="e.g. Jan 2026" style="width:100%;padding:8px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:.85rem;font-family:inherit;box-sizing:border-box;">
+                </div>
+                <div>
+                  <label style="font-size:.78rem;font-weight:700;display:block;margin-bottom:6px;color:#374151;">End Date</label>
+                  <input type="text" id="wem-end" placeholder="e.g. Jun 2026" style="width:100%;padding:8px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:.85rem;font-family:inherit;box-sizing:border-box;">
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+                <div>
+                  <label style="font-size:.78rem;font-weight:700;display:block;margin-bottom:6px;color:#374151;">Status</label>
+                  <select id="wem-status" style="width:100%;padding:8px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:.85rem;font-family:inherit;box-sizing:border-box;">
+                    <option value="In Progress">In Progress</option>
+                    <option value="Scheduled">Scheduled</option>
+                    <option value="Planned">Planned</option>
+                    <option value="Delayed">Delayed</option>
+                    <option value="Complete">Complete</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="font-size:.78rem;font-weight:700;display:block;margin-bottom:6px;color:#374151;">Agency Count</label>
+                  <input type="text" id="wem-agencies" placeholder="e.g. 15 agencies" style="width:100%;padding:8px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:.85rem;font-family:inherit;box-sizing:border-box;">
+                </div>
+              </div>
+              <div style="margin-bottom:16px;">
+                <label style="font-size:.78rem;font-weight:700;display:block;margin-bottom:6px;color:#374151;">Pod Deployment Configuration</label>
+                <input type="text" id="wem-pods" placeholder="e.g. 3 Large, 2 Medium" style="width:100%;padding:8px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:.85rem;font-family:inherit;box-sizing:border-box;">
+              </div>
+              <div style="margin-bottom:16px;">
+                <label style="font-size:.78rem;font-weight:700;display:block;margin-bottom:6px;color:#374151;">Slippage Indicator <span style="font-weight:400;color:#6b7280;">(days ahead/behind — e.g. +7 or -14)</span></label>
+                <input type="number" id="wem-slippage" placeholder="0" style="width:100%;padding:8px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:.85rem;font-family:inherit;box-sizing:border-box;">
+                <div id="wem-slippage-preview" style="margin-top:6px;font-size:.78rem;font-weight:700;"></div>
+              </div>
+              <div>
+                <label style="font-size:.78rem;font-weight:700;display:block;margin-bottom:6px;color:#374151;">Schedule Notes</label>
+                <textarea id="wem-notes" rows="3" placeholder="Note any slippage reasons, milestone changes, or schedule adjustments…" style="width:100%;padding:8px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:.82rem;font-family:inherit;resize:vertical;box-sizing:border-box;"></textarea>
+              </div>
+            </div>
+            <!-- Footer -->
+            <div style="padding:16px 24px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:10px;">
+              <button class="btn btn-outline btn-sm" onclick="closeWaveEditModal()">Cancel</button>
+              <button class="btn btn-sm" style="background:linear-gradient(135deg,#0f2d5e,#1a4a8a);color:#fff;border:none;" onclick="saveWaveEdit()">Save Changes</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ RESEQUENCE MODAL ═══ -->
+        <div id="resequence-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.45);align-items:center;justify-content:center;">
+          <div style="background:#fff;border-radius:12px;width:500px;max-width:95vw;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.35);">
+            <div style="background:linear-gradient(135deg,#0f2d5e 0%,#1a4a8a 100%);padding:20px 24px;border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:space-between;">
+              <div>
+                <div style="color:#fff;font-size:1rem;font-weight:700;">Resequence Agencies</div>
+                <div style="color:#a3c4f5;font-size:.78rem;margin-top:2px;">Move an agency from one wave to another</div>
+              </div>
+              <button onclick="closeResequenceModal()" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;">&times;</button>
+            </div>
+            <div style="padding:24px;">
+              <div style="margin-bottom:16px;">
+                <label style="font-size:.78rem;font-weight:700;display:block;margin-bottom:6px;color:#374151;">Agency Name</label>
+                <input type="text" id="rseq-agency" placeholder="e.g. MDOT, MDH, State Police…" style="width:100%;padding:8px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:.85rem;font-family:inherit;box-sizing:border-box;">
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
+                <div>
+                  <label style="font-size:.78rem;font-weight:700;display:block;margin-bottom:6px;color:#374151;">From Wave</label>
+                  <select id="rseq-from" style="width:100%;padding:8px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:.85rem;font-family:inherit;">
+                    <option value="wave1">Wave 1</option><option value="wave2">Wave 2</option><option value="wave3">Wave 3</option>
+                    <option value="wave4">Wave 4</option><option value="wave5">Wave 5</option><option value="wave6">Wave 6</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="font-size:.78rem;font-weight:700;display:block;margin-bottom:6px;color:#374151;">To Wave</label>
+                  <select id="rseq-to" style="width:100%;padding:8px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:.85rem;font-family:inherit;">
+                    <option value="wave1">Wave 1</option><option value="wave2">Wave 2</option><option value="wave3">Wave 3</option>
+                    <option value="wave4">Wave 4</option><option value="wave5">Wave 5</option><option value="wave6" selected>Wave 6</option>
+                  </select>
+                </div>
+              </div>
+              <div id="rseq-log" style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px;font-size:.78rem;color:#374151;min-height:40px;max-height:120px;overflow-y:auto;"></div>
+            </div>
+            <div style="padding:16px 24px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:10px;">
+              <button class="btn btn-outline btn-sm" onclick="closeResequenceModal()">Close</button>
+              <button class="btn btn-sm" style="background:linear-gradient(135deg,#0f2d5e,#1a4a8a);color:#fff;border:none;" onclick="applyResequence()">Move Agency</button>
+            </div>
           </div>
         </div>
         <div class="tab-content" id="tp-pods">
@@ -769,7 +903,7 @@
                 </table>
               </div>
               <div class="btn-row">
-                <button class="btn btn-outline btn-sm" onclick="notify('📧 Escalation report sent to DoIT OSM')">Report to OSM</button>
+                <button class="btn btn-outline btn-sm" onclick="notify(' Escalation report sent to DoIT OSM')">Report to OSM</button>
               </div>
             </div>
           </div>
@@ -789,8 +923,8 @@
             <div class="card-title" style="margin-bottom:0;">All Agencies — Assessment Tracker</div>
             <div style="display:flex; gap:6px;">
               <button class="btn btn-accent btn-sm" onclick="openCreateAssessmentModal()">+ New Assessment</button>
-              <button class="btn btn-outline btn-sm" onclick="notify('📨 Reminders sent to pending agencies')">Send Reminders</button>
-              <button class="btn btn-outline btn-sm" onclick="notify('📥 Exported: MD_Statewide_Assessment_Tracker.xlsx')">Export</button>
+              <button class="btn btn-outline btn-sm" onclick="notify(' Reminders sent to pending agencies')">Send Reminders</button>
+              <button class="btn btn-outline btn-sm" onclick="notify(' Exported: MD_Statewide_Assessment_Tracker.xlsx')">Export</button>
             </div>
           </div>
           <div style="display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap; align-items:center;">
@@ -894,8 +1028,8 @@
               <div class="form-group"><label>CMMI Scoring Weight</label><select><option>Equal weight all functions</option><option selected>Risk-weighted (Detect/Respond priority)</option></select></div>
             </div>
             <div class="btn-row">
-              <button class="btn btn-primary" onclick="notify('✅ Template configuration saved')">Save Configuration</button>
-              <button class="btn btn-outline" onclick="notify('📋 Template cloned')">Clone Template</button>
+              <button class="btn btn-primary" onclick="notify(' Template configuration saved')">Save Configuration</button>
+              <button class="btn btn-outline" onclick="notify(' Template cloned')">Clone Template</button>
             </div>
           </div>
         </div>
@@ -936,8 +1070,8 @@
               </table>
             </div>
             <div class="btn-row">
-              <button class="btn btn-outline btn-sm" onclick="notify('⚡ New workflow rule added')">+ Add Rule</button>
-              <button class="btn btn-outline btn-sm" onclick="notify('📥 Workflow ruleset exported')">Export Rules</button>
+              <button class="btn btn-outline btn-sm" onclick="notify(' New workflow rule added')">+ Add Rule</button>
+              <button class="btn btn-outline btn-sm" onclick="notify(' Workflow ruleset exported')">Export Rules</button>
             </div>
           </div>
         </div>
@@ -1118,16 +1252,16 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr><td>View Agency Dashboard</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td><td style="text-align:center;">Own only</td><td style="text-align:center;">✅ (read)</td></tr>
-                    <tr><td>Complete Intake &amp; Scoping</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td><td style="text-align:center;">Own only</td><td style="text-align:center;">❌</td></tr>
-                    <tr><td>Score CSF Controls</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td><td style="text-align:center;">❌</td><td style="text-align:center;">❌</td></tr>
-                    <tr><td>Upload Evidence</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td><td style="text-align:center;">❌</td></tr>
-                    <tr><td>View Risk Register</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td><td style="text-align:center;">Own only</td><td style="text-align:center;">✅ (read)</td></tr>
-                    <tr><td>Edit POA&amp;M Items</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td><td style="text-align:center;">❌</td><td style="text-align:center;">❌</td></tr>
-                    <tr><td>Generate SAR Report</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td><td style="text-align:center;">❌</td><td style="text-align:center;">❌</td><td style="text-align:center;">❌</td></tr>
-                    <tr><td>Invite &amp; Manage Users</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td><td style="text-align:center;">❌</td><td style="text-align:center;">❌</td><td style="text-align:center;">❌</td></tr>
-                    <tr><td>View All Agencies</td><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td><td style="text-align:center;">❌</td><td style="text-align:center;">❌</td><td style="text-align:center;">✅ (read)</td></tr>
-                    <tr><td>Platform Settings</td><td style="text-align:center;">✅</td><td style="text-align:center;">❌</td><td style="text-align:center;">❌</td><td style="text-align:center;">❌</td><td style="text-align:center;">❌</td></tr>
+                    <tr><td>View Agency Dashboard</td><td style="text-align:center;"></td><td style="text-align:center;"></td><td style="text-align:center;"></td><td style="text-align:center;">Own only</td><td style="text-align:center;"> (read)</td></tr>
+                    <tr><td>Complete Intake &amp; Scoping</td><td style="text-align:center;"></td><td style="text-align:center;"></td><td style="text-align:center;"></td><td style="text-align:center;">Own only</td><td style="text-align:center;"></td></tr>
+                    <tr><td>Score CSF Controls</td><td style="text-align:center;"></td><td style="text-align:center;"></td><td style="text-align:center;"></td><td style="text-align:center;"></td><td style="text-align:center;"></td></tr>
+                    <tr><td>Upload Evidence</td><td style="text-align:center;"></td><td style="text-align:center;"></td><td style="text-align:center;"></td><td style="text-align:center;"></td><td style="text-align:center;"></td></tr>
+                    <tr><td>View Risk Register</td><td style="text-align:center;"></td><td style="text-align:center;"></td><td style="text-align:center;"></td><td style="text-align:center;">Own only</td><td style="text-align:center;"> (read)</td></tr>
+                    <tr><td>Edit POA&amp;M Items</td><td style="text-align:center;"></td><td style="text-align:center;"></td><td style="text-align:center;"></td><td style="text-align:center;"></td><td style="text-align:center;"></td></tr>
+                    <tr><td>Generate SAR Report</td><td style="text-align:center;"></td><td style="text-align:center;"></td><td style="text-align:center;"></td><td style="text-align:center;"></td><td style="text-align:center;"></td></tr>
+                    <tr><td>Invite &amp; Manage Users</td><td style="text-align:center;"></td><td style="text-align:center;"></td><td style="text-align:center;"></td><td style="text-align:center;"></td><td style="text-align:center;"></td></tr>
+                    <tr><td>View All Agencies</td><td style="text-align:center;"></td><td style="text-align:center;"></td><td style="text-align:center;"></td><td style="text-align:center;"></td><td style="text-align:center;"> (read)</td></tr>
+                    <tr><td>Platform Settings</td><td style="text-align:center;"></td><td style="text-align:center;"></td><td style="text-align:center;"></td><td style="text-align:center;"></td><td style="text-align:center;"></td></tr>
                   </tbody>
                 </table>
               </div>
@@ -1147,10 +1281,10 @@
                 <div class="form-group"><label>Sync Frequency</label><select><option>Real-time</option><option>Every 15 min</option><option>Hourly</option></select></div>
                 <div class="form-group"><label>Data Modules</label><select><option>Risk + POA&amp;M + Evidence</option></select></div>
               </div>
-              <div class="success-box" style="margin-top:14px;">✅ Integration active. Last sync: Today 09:42 AM. 847 records synced.</div>
+              <div class="success-box" style="margin-top:14px;"> Integration active. Last sync: Today 09:42 AM. 847 records synced.</div>
               <div class="btn-row">
-                <button class="btn btn-primary btn-sm" onclick="notify('🔗 Test sync complete: 847 records, 0 errors')">Test Connection</button>
-                <button class="btn btn-outline btn-sm" onclick="notify('📋 Integration logs opened')">View Logs</button>
+                <button class="btn btn-primary btn-sm" onclick="notify(' Test sync complete: 847 records, 0 errors')">Test Connection</button>
+                <button class="btn btn-outline btn-sm" onclick="notify(' Integration logs opened')">View Logs</button>
               </div>
             </div>
             <div class="card">
@@ -1162,8 +1296,8 @@
                 <div class="form-group" style="grid-column:1/-1;"><label>From Address</label><input value="noreply@anchor.maryland-doit.gov"></div>
               </div>
               <div class="btn-row">
-                <button class="btn btn-outline btn-sm" onclick="notify('📧 Test email sent to admin@anchor.maryland-doit.gov')">Send Test Email</button>
-                <button class="btn btn-primary btn-sm" onclick="notify('✅ Email settings saved')">Save Settings</button>
+                <button class="btn btn-outline btn-sm" onclick="notify(' Test email sent to admin@anchor.maryland-doit.gov')">Send Test Email</button>
+                <button class="btn btn-primary btn-sm" onclick="notify(' Email settings saved')">Save Settings</button>
               </div>
             </div>
           </div>
@@ -1186,7 +1320,7 @@
         <!-- GRC Export Readiness / ServiceNow Integration Architecture -->
         <div class="card" style="margin-top:14px;">
           <div class="card-title">GRC Export Readiness — ServiceNow Integration Architecture</div>
-          <div class="success-box" style="margin-bottom:16px;">✅ Assessment findings and maturity scores are structured for direct export to ServiceNow GRC. Export available in JSON (API), CSV, and ServiceNow-native XML import format.</div>
+          <div class="success-box" style="margin-bottom:16px;"> Assessment findings and maturity scores are structured for direct export to ServiceNow GRC. Export available in JSON (API), CSV, and ServiceNow-native XML import format.</div>
           <div class="grid-2" style="margin-bottom:16px;">
             <div>
               <div style="font-size:.8rem;font-weight:700;margin-bottom:10px;color:var(--primary);">Anchor → ServiceNow GRC Field Mapping</div>
@@ -1229,8 +1363,8 @@
           <div class="grid-2" style="display:none;"></div>
           <div class="btn-row" style="margin-top:14px;">
             <button class="btn btn-primary btn-sm" onclick="runGRCExport()">Run Full GRC Export Now</button>
-            <button class="btn btn-outline btn-sm" onclick="notify('📋 GRC field mapping documentation downloaded')">Download Field Mapping Doc</button>
-            <button class="btn btn-outline btn-sm" onclick="notify('🔗 Test sync: 847 records validated, 0 errors — ServiceNow confirmed receipt')">Test GRC Connection</button>
+            <button class="btn btn-outline btn-sm" onclick="notify(' GRC field mapping documentation downloaded')">Download Field Mapping Doc</button>
+            <button class="btn btn-outline btn-sm" onclick="notify(' Test sync: 847 records validated, 0 errors — ServiceNow confirmed receipt')">Test GRC Connection</button>
           </div>
         </div>
 
@@ -1239,7 +1373,7 @@
           <div class="card">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
               <div class="card-title" style="margin-bottom:0;">Platform Activity Log</div>
-              <button class="btn btn-outline btn-sm" onclick="notify('📋 Activity log exported: AnchorPlatform_ActivityLog.csv')">Export Log</button>
+              <button class="btn btn-outline btn-sm" onclick="notify(' Activity log exported: AnchorPlatform_ActivityLog.csv')">Export Log</button>
             </div>
             <div class="table-wrap">
               <table>
@@ -1611,9 +1745,9 @@
       const statusEl = document.getElementById('create-status');
       if(statusEl) {
         statusEl.style.display = 'block';
-        statusEl.innerHTML = `✅ System ${isUpdate ? 'updated' : 'created'} for <strong>${agencyName}</strong> — POD <strong>${payload.pod}</strong>. Navigating to assessment setup...`;
+        statusEl.innerHTML = ` System ${isUpdate ? 'updated' : 'created'} for <strong>${agencyName}</strong> — POD <strong>${payload.pod}</strong>. Navigating to assessment setup...`;
       }
-      notify(`🚀 System ${isUpdate ? 'updated' : 'created'} for ${agencyName} — POD ${payload.pod}`);
+      notify(` System ${isUpdate ? 'updated' : 'created'} for ${agencyName} — POD ${payload.pod}`);
       logActivity(isUpdate ? 'Updated System' : 'Created System', agencyName, `POD ${payload.pod} | Wave ${payload.wave}`);
       renderPortfolio();
       
@@ -1703,7 +1837,7 @@
       banner.innerHTML = active.map(function (n) {
         const ts = n.timestamp ? new Date(n.timestamp).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}) : '';
         return '<div id="pm-notif-' + n.id + '" style="display:flex;align-items:center;gap:10px;padding:10px 16px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;margin-bottom:8px;">' +
-          '<span style="font-size:1rem;">🔔</span>' +
+          '<span style="font-size:1rem;"></span>' +
           '<div style="flex:1;">' +
             '<span style="font-size:.78rem;font-weight:700;color:#1e40af;">[NEW] ' + (n.agencyName || n.agencyKey.toUpperCase()) + '</span>' +
             '<span style="font-size:.76rem;color:#334155;"> — ' + n.message + ' Assessment advanced to <strong>' + n.stage + '</strong>.' + (ts ? ' <span style="color:#94a3b8;">' + ts + '</span>' : '') + '</span>' +
@@ -1739,13 +1873,15 @@
           <td>
             <div style="display:flex;gap:4px;flex-wrap:nowrap;">
               <button class="btn btn-primary btn-sm" style="padding:4px 10px;font-size:.72rem;" onclick="openOverview('${id}')" title="Open Assessment">Open</button>
-              <button class="btn btn-outline btn-sm" style="padding:4px 7px;font-size:.82rem;" onclick="openCreateAssessmentModal('${id}')" title="Edit System">✏️</button>
-              <button class="btn btn-sm" style="padding:4px 7px;font-size:.82rem;background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;" onclick="deleteSystem('${id}')" title="Delete System">🗑️</button>
+              <button title="Edit assessment" style="background:none;border:1px solid #cbd5e0;border-radius:6px;padding:4px 7px;cursor:pointer;color:#475569;line-height:1;" onclick="openCreateAssessmentModal('${id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="m18.5 2.5 3 3L12 15l-4 1 1-4z"/></svg></button>
+              <button title="Delete assessment" style="background:none;border:1px solid #fca5a5;border-radius:6px;padding:4px 7px;cursor:pointer;color:#dc2626;line-height:1;" onclick="deleteSystem('${id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="m19 6-.867 13.142A2 2 0 0 1 16.138 21H7.862a2 2 0 0 1-1.995-1.858L5 6m5 0V4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2"/></svg></button>
             </div>
           </td>
         </tr>`;
       });
       tb.innerHTML = rows.length ? rows.join('') : '<tr><td colspan="7" style="text-align:center;color:#64748b;padding:24px;">No agencies match the current filters.</td></tr>';
+      // Keep dashboard metrics in sync with portfolio data
+      updateDashboardStats();
     }
 
     function deleteSystem(agencyId) {
@@ -1769,7 +1905,7 @@
         }
       }
 
-      notify(`🗑️ Deleted ${agencyName} from demo dashboard`);
+      notify(`️ Deleted ${agencyName} from demo dashboard`);
       logActivity('Deleted System', agencyName, 'Removed from Agency Selection & Assessment Management');
       renderPortfolio();
       
@@ -1815,10 +1951,10 @@
       uploadedFiles.push({name,size});
       const list = document.getElementById('upload-list');
       if(list) {
-        list.innerHTML = uploadedFiles.map(f=>`<div class="upload-item"><div class="fi-icon">📄</div><div class="fi-name">${f.name}</div><div class="fi-size">${f.size}</div><span class="badge badge-blue fi-status">Uploading...</span></div>`).join('');
+        list.innerHTML = uploadedFiles.map(f=>`<div class="upload-item"><div class="fi-icon"></div><div class="fi-name">${f.name}</div><div class="fi-size">${f.size}</div><span class="badge badge-blue fi-status">Uploading...</span></div>`).join('');
         setTimeout(()=>{
-          list.innerHTML = uploadedFiles.map(f=>`<div class="upload-item"><div class="fi-icon">📄</div><div class="fi-name">${f.name}</div><div class="fi-size">${f.size}</div><span class="badge badge-green fi-status">Uploaded</span></div>`).join('');
-          notify('✅ '+name+' submitted successfully.');
+          list.innerHTML = uploadedFiles.map(f=>`<div class="upload-item"><div class="fi-icon"></div><div class="fi-name">${f.name}</div><div class="fi-size">${f.size}</div><span class="badge badge-green fi-status">Uploaded</span></div>`).join('');
+          notify(' '+name+' submitted successfully.');
         },1400);
       }
     }
@@ -1828,7 +1964,7 @@
       document.querySelectorAll('.wf-card').forEach(c=>{ c.classList.remove('selected'); const b=c.querySelector('.wf-badge'); if(b)b.remove(); });
       el.classList.add('selected');
       el.insertAdjacentHTML('afterbegin','<span class="wf-badge badge badge-blue">Selected</span>');
-      notify('✅ Template "'+name+'" selected.');
+      notify(' Template "'+name+'" selected.');
     }
 
     // ---- PIPELINE GANTT ----
@@ -2126,7 +2262,7 @@
     function buildCtrlRowHTML(ctrl, fn) {
       const evItems = ctrl.ev.map((e,i) =>
         `<div class="ctrl-upload-item" id="up-${ctrl.id}-${i}" onclick="ctrlUpload('${ctrl.id}-${i}','${e.replace(/'/g,"\\'")}')">
-           <span class="ui-icon">📎</span><span class="ui-name">${e}</span>
+           <span class="ui-icon"></span><span class="ui-name">${e}</span>
            <span class="ui-status" id="ups-${ctrl.id}-${i}" style="color:var(--text-muted);">+ Upload</span>
          </div>`).join('');
       return `
@@ -2145,9 +2281,9 @@
           <div class="ctrl-q-label">Assessment Question</div>
           <div style="font-size:.8rem;color:var(--text);margin-bottom:10px;line-height:1.5;">${ctrl.q}</div>
           <div class="ctrl-opts">
-            <div class="ctrl-opt" id="opt-${ctrl.id}-yes"  onclick="selectCtrlOpt(this,'${ctrl.id}','yes')">✅ Yes — Fully implemented</div>
-            <div class="ctrl-opt" id="opt-${ctrl.id}-part" onclick="selectCtrlOpt(this,'${ctrl.id}','part')">⚡ Partial — In progress</div>
-            <div class="ctrl-opt" id="opt-${ctrl.id}-no"   onclick="selectCtrlOpt(this,'${ctrl.id}','no')">❌ No — Gap identified</div>
+            <div class="ctrl-opt" id="opt-${ctrl.id}-yes"  onclick="selectCtrlOpt(this,'${ctrl.id}','yes')"> Yes — Fully implemented</div>
+            <div class="ctrl-opt" id="opt-${ctrl.id}-part" onclick="selectCtrlOpt(this,'${ctrl.id}','part')"> Partial — In progress</div>
+            <div class="ctrl-opt" id="opt-${ctrl.id}-no"   onclick="selectCtrlOpt(this,'${ctrl.id}','no')"> No — Gap identified</div>
           </div>
         </div>
         <div class="ctrl-upload">
@@ -2186,9 +2322,9 @@
       saiUploads[upId] = fileName;
       const item = document.getElementById('up-'+upId);
       const stat = document.getElementById('ups-'+upId);
-      if(item) { item.classList.add('uploaded'); item.querySelector('.ui-icon').textContent='✅'; }
+      if(item) { item.classList.add('uploaded'); item.querySelector('.ui-icon').textContent=''; }
       if(stat) { stat.textContent='✓ Uploaded'; stat.style.color='#16a34a'; }
-      notify(`📎 "${fileName}" uploaded successfully.`);
+      notify(` "${fileName}" uploaded successfully.`);
       updateSaiScore();
     }
 
@@ -2236,23 +2372,24 @@
       const total = SAI_FNS.reduce((s,fn)=>s+fn.controls.length,0);
       const answered = Object.keys(saiAnswers).length;
       if(answered < total) notify(`⚠️ ${total-answered} controls still unanswered.`);
-      notify('📤 CSF Intake submitted to assessor. Confirmation: ACG-MDOT-CSF-2026-0042.');
+      notify(' CSF Intake submitted to assessor. Confirmation: ACG-MDOT-CSF-2026-0042.');
     }
 
     // ---- PORTFOLIO CHARTS ----
     let portfolioChartsInit = false;
+    let mainStateChartInstance = null; // kept here so updateDashboardStats can update it
     function initPortfolioCharts() {
       if(portfolioChartsInit) return;
       portfolioChartsInit = true;
 
-      // Statewide Maturity Distribution (bar)
-      new Chart(document.getElementById('mainStateChart'), {
+      // Statewide Maturity Distribution (bar) — data seeded, then overwritten by updateDashboardStats()
+      mainStateChartInstance = new Chart(document.getElementById('mainStateChart'), {
         type:'bar',
         data:{
-          labels:['ML0\nNonexistent','ML1\nPerformed','ML2\nManaged','ML3\nDefined','ML4\nMeasured','ML5\nOptimized'],
-          datasets:[{label:'Agencies',data:[2,12,28,24,18,6],backgroundColor:['#6b7280','#dc2626','#ea580c','#d97706','#16a34a','#0d9488'],borderRadius:4}]
+          labels:[['ML0','Non-Existent'],['ML1','Performed'],['ML2','Managed'],['ML3','Defined'],['ML4','Measured'],['ML5','Optimized']],
+          datasets:[{label:'Agencies',data:[0,0,5,1,0,0],backgroundColor:['#6b7280','#dc2626','#ea580c','#d97706','#16a34a','#0d9488'],borderRadius:4}]
         },
-        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,title:{display:true,text:'Number of Agencies'}}}}
+        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1},title:{display:true,text:'Number of Agencies'}}}}
       });
 
       // Historical Maturity Trend (line)
@@ -2367,17 +2504,136 @@
     }
     
     function updateOverviewStats() {
-      // Statewide stats (stat-complete, stat-total, etc.) represent the full
-      // Maryland program (90 agencies) and are set in HTML — do not overwrite them
-      // with 3-agency demo cohort numbers.
-      // Update only cohort-specific elements if they exist.
-      const stats = calculateDynamicStats();
-      const elCohortComplete   = document.getElementById('cohort-stat-complete');
-      const elCohortInProgress = document.getElementById('cohort-stat-progress');
-      const elCohortScheduled  = document.getElementById('cohort-stat-scheduled');
-      if (elCohortComplete)   elCohortComplete.textContent   = stats.complete;
-      if (elCohortInProgress) elCohortInProgress.textContent = stats.inProgress;
-      if (elCohortScheduled)  elCohortScheduled.textContent  = stats.scheduled;
+      updateDashboardStats();
+    }
+
+    // Agency size tier lookup — used for progress bars and disaggregated view
+    const AGENCY_SIZE = {
+      mdot:       'Large',
+      dpscs:      'Large',
+      mdh:        'Large',
+      msde:       'Medium',
+      labor:      'Medium',
+      comptroller:'Medium'
+    };
+
+    // Per-agency hardcoded maturity scores (CMMI 0–5) for demo cohort.
+    // These represent the latest assessed values shown across the platform.
+    const AGENCY_MATURITY = {
+      mdot:       2.7,
+      dpscs:      2.3,
+      mdh:        2.8,
+      msde:       3.4,
+      labor:      2.2,
+      comptroller:2.5
+    };
+
+    function updateDashboardStats() {
+      const allAgencies = getAllAgencies();
+      const agencyIds   = Object.keys(allAgencies);
+      const total       = agencyIds.length;
+
+      let complete = 0, inProgress = 0, scheduled = 0, unresponsive = 0;
+      let totalMaturity = 0, maturityCount = 0;
+      let atTarget = 0;
+
+      // Size-tier counters for progress bars
+      const sizeTotals    = { Large: 0, Medium: 0, Small: 0 };
+      const sizeComplete  = { Large: 0, Medium: 0, Small: 0 };
+
+      // Maturity distribution for bar chart (ML0–ML5)
+      const matDist = [0, 0, 0, 0, 0, 0];
+
+      agencyIds.forEach(id => {
+        const a      = allAgencies[id];
+        const stored = JSON.parse(localStorage.getItem(`assessment_${id}`) || '{}');
+
+        // Status
+        const isComplete = a.status === 'Complete' || a.progress === '100%';
+        const isIP       = !isComplete && (
+          a.status === 'In Progress' ||
+          stored.status === 'Updated' ||
+          stored.status === 'Created'
+        );
+
+        if (isComplete)   complete++;
+        else if (isIP)    inProgress++;
+        else              scheduled++;
+
+        // Unresponsive: no update in 14 days & not complete
+        if (!isComplete && stored.updatedAt) {
+          const days = (Date.now() - new Date(stored.updatedAt)) / 864e5;
+          if (days > 14) unresponsive++;
+        }
+
+        // Maturity — prefer stored cmmiScore, fall back to AGENCY_MATURITY lookup
+        const mat = parseFloat(stored.cmmiScore || stored.maturityScore || AGENCY_MATURITY[id] || 0);
+        if (mat > 0) {
+          totalMaturity += mat;
+          maturityCount++;
+          if (mat >= 3.0) atTarget++;
+          const bucket = Math.min(5, Math.floor(mat));
+          matDist[bucket]++;
+        }
+
+        // Size tier
+        const size = stored.agencySize
+          ? (stored.agencySize.toLowerCase().includes('large') ? 'Large'
+           : stored.agencySize.toLowerCase().includes('medium') ? 'Medium' : 'Small')
+          : (AGENCY_SIZE[id] || 'Medium');
+        sizeTotals[size]  = (sizeTotals[size]  || 0) + 1;
+        sizeComplete[size] = (sizeComplete[size] || 0) + (isComplete ? 1 : 0);
+      });
+
+      const avgMaturity = maturityCount > 0 ? (totalMaturity / maturityCount).toFixed(1) : '—';
+      const pct         = total > 0 ? Math.round((complete / total) * 100) : 0;
+
+      // ── Stat cards ──────────────────────────────────────────────────────
+      const el = id => document.getElementById(id);
+      if (el('stat-complete'))     el('stat-complete').textContent     = complete;
+      if (el('stat-total'))        el('stat-total').textContent         = total;
+      if (el('stat-pct'))          el('stat-pct').textContent           = pct;
+      if (el('stat-progress'))     el('stat-progress').textContent      = inProgress;
+      if (el('stat-scheduled'))    el('stat-scheduled').textContent     = scheduled;
+      if (el('stat-unresponsive')) el('stat-unresponsive').textContent  = unresponsive;
+      if (el('stat-maturity'))     el('stat-maturity').textContent      = avgMaturity;
+      if (el('stat-findings'))     el('stat-findings').textContent      = complete * 2; // ~2 closed findings per completed agency
+      if (el('stat-finding-agencies')) el('stat-finding-agencies').textContent = complete;
+
+      // ── Compliance KPIs ─────────────────────────────────────────────────
+      if (el('sc-kpi-maturity'))       el('sc-kpi-maturity').textContent       = avgMaturity;
+      if (el('sc-kpi-complete-count')) el('sc-kpi-complete-count').textContent = complete;
+      if (el('sc-kpi-at-target'))      el('sc-kpi-at-target').textContent      = atTarget;
+
+      // ── Progress bars ────────────────────────────────────────────────────
+      function setBar(barId, labelId, done, tot) {
+        const bar = el(barId), lbl = el(labelId);
+        if (!bar || !lbl) return;
+        const w = tot > 0 ? Math.round((done / tot) * 100) : 0;
+        bar.style.width = w + '%';
+        lbl.textContent = `${done} / ${tot}`;
+      }
+      setBar('prog-overall-bar',  'prog-overall-label',  complete, total);
+      setBar('prog-large-bar',    'prog-large-label',    sizeComplete.Large,  sizeTotals.Large  || 0);
+      setBar('prog-medium-bar',   'prog-medium-label',   sizeComplete.Medium, sizeTotals.Medium || 0);
+      setBar('prog-small-bar',    'prog-small-label',    sizeComplete.Small,  sizeTotals.Small  || 0);
+
+      // Unresponsive warn box
+      const warnBox = el('prog-unresponsive-box');
+      if (warnBox) {
+        if (unresponsive > 0) {
+          warnBox.style.display = 'block';
+          warnBox.innerHTML = `<strong>${unresponsive} ${unresponsive === 1 ? 'agency' : 'agencies'}</strong> ${unresponsive === 1 ? 'has' : 'have'} not responded to intake requests. Escalation letters issued to agency heads. DoIT PM notified.`;
+        } else {
+          warnBox.style.display = 'none';
+        }
+      }
+
+      // ── Statewide Maturity Distribution chart ─────────────────────────
+      if (mainStateChartInstance) {
+        mainStateChartInstance.data.datasets[0].data = matDist;
+        mainStateChartInstance.update();
+      }
     }
 
     // ---- COMPLIANCE DASHBOARD ----
@@ -2488,30 +2744,173 @@
       scChartsInit = true;
     }
 
+    let disaggSizeChartInstance   = null;
+    let disaggStatusChartInstance = null;
+
     function setSCView(view) {
-      const stBtn = document.getElementById('sc-view-statewide');
-      const agBtn = document.getElementById('sc-view-agency');
-      const agSel = document.getElementById('sc-agency-select');
-      if (stBtn) stBtn.className = view==='statewide' ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm';
-      if (agBtn) agBtn.className = view==='agency' ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm';
-      if (agSel) agSel.style.display = view==='agency' ? 'inline-block' : 'none';
-      notify(view==='statewide' ? '📊 Statewide aggregated view — all 23 completed agencies' : '📊 Agency-level view — select an agency to filter');
+      const stBtn     = document.getElementById('sc-view-statewide');
+      const agBtn     = document.getElementById('sc-view-agency');
+      const agSel     = document.getElementById('sc-agency-select');
+      const stView    = document.getElementById('sc-statewide-view');
+      const agView    = document.getElementById('sc-agency-view');
+
+      // Toggle button styles
+      if (stBtn) stBtn.className = view === 'statewide' ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm';
+      if (agBtn) agBtn.className = view === 'agency'    ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm';
+
+      // Show/hide agency selector dropdown
+      if (agSel) agSel.style.display = view === 'agency' ? 'inline-block' : 'none';
+
+      // Show/hide content panels
+      if (stView) stView.style.display = view === 'statewide' ? '' : 'none';
+      if (agView) agView.style.display = view === 'agency'    ? '' : 'none';
+
+      if (view === 'agency') {
+        renderDisaggregatedView();
+      }
+
+      const allAgencies = getAllAgencies();
+      const completeCount = Object.values(allAgencies).filter(a => a.status === 'Complete').length;
+      notify(view === 'statewide'
+        ? ` Statewide aggregated view — ${completeCount} completed ${completeCount === 1 ? 'agency' : 'agencies'}`
+        : ' Agency-level disaggregated view — showing all cohort agencies');
+    }
+
+    function renderDisaggregatedView() {
+      const allAgencies = getAllAgencies();
+      const tbody       = document.getElementById('sc-agency-breakdown-body');
+
+      // ── Table ─────────────────────────────────────────────────────────
+      if (tbody) {
+        const rows = Object.entries(allAgencies).map(([id, a]) => {
+          const stored = JSON.parse(localStorage.getItem(`assessment_${id}`) || '{}');
+          const mat    = parseFloat(stored.cmmiScore || stored.maturityScore || AGENCY_MATURITY[id] || 0);
+          const band   = mat >= 3.5 ? 'Group D (3.5–5.0)'
+                       : mat >= 2.5 ? 'Group C (2.5–3.4)'
+                       : mat >= 1.5 ? 'Group B (1.5–2.4)'
+                       : mat > 0    ? 'Group A (0.0–1.4)'
+                       : '—';
+          const bandColor = mat >= 3.5 ? '#16a34a' : mat >= 2.5 ? '#2563a8' : mat >= 1.5 ? '#d97706' : '#dc2626';
+          const statusBadgeClass = a.status === 'Complete' ? 'badge-green'
+                                 : a.status === 'In Progress' ? 'badge-blue' : 'badge-orange';
+          return `<tr>
+            <td style="font-weight:600;">${a.name}</td>
+            <td><span class="badge ${statusBadgeClass}">${a.status}</span></td>
+            <td style="font-size:.78rem;">${a.stage}</td>
+            <td>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div style="flex:1;background:#e5e7eb;border-radius:10px;height:8px;min-width:60px;">
+                  <div style="width:${a.progress};background:#2563a8;border-radius:10px;height:8px;"></div>
+                </div>
+                <span style="font-size:.75rem;white-space:nowrap;">${a.progress}</span>
+              </div>
+            </td>
+            <td><strong>${mat > 0 ? mat.toFixed(1) : '—'}</strong> <span style="font-size:.7rem;color:var(--text-muted);">/ 5.0</span></td>
+            <td><span style="font-size:.72rem;font-weight:700;padding:2px 7px;border-radius:4px;background:${bandColor}20;color:${bandColor};border:1px solid ${bandColor}40;">${band}</span></td>
+          </tr>`;
+        });
+        tbody.innerHTML = rows.join('');
+      }
+
+      // ── By-size chart ─────────────────────────────────────────────────
+      const sizeEl = document.getElementById('sc-disagg-size-chart');
+      if (sizeEl) {
+        if (disaggSizeChartInstance) disaggSizeChartInstance.destroy();
+        const groups = { Large: [], Medium: [], Small: [] };
+        Object.entries(allAgencies).forEach(([id, a]) => {
+          const stored = JSON.parse(localStorage.getItem(`assessment_${id}`) || '{}');
+          const mat    = parseFloat(stored.cmmiScore || stored.maturityScore || AGENCY_MATURITY[id] || 0);
+          const sz     = stored.agencySize
+            ? (stored.agencySize.toLowerCase().includes('large') ? 'Large'
+             : stored.agencySize.toLowerCase().includes('medium') ? 'Medium' : 'Small')
+            : (AGENCY_SIZE[id] || 'Medium');
+          if (mat > 0) groups[sz].push(mat);
+        });
+        const avg = arr => arr.length ? (arr.reduce((s, v) => s + v, 0) / arr.length).toFixed(2) : 0;
+        disaggSizeChartInstance = new Chart(sizeEl, {
+          type: 'bar',
+          data: {
+            labels: ['Large (>500)', 'Medium (100–499)', 'Small (<100)'],
+            datasets: [{
+              label: 'Avg CMMI Score',
+              data: [avg(groups.Large), avg(groups.Medium), avg(groups.Small)],
+              backgroundColor: ['#dc2626', '#d97706', '#2563a8'],
+              borderRadius: 6
+            },{
+              label: 'DoIT Target (3.0)',
+              data: [3, 3, 3],
+              type: 'line',
+              borderColor: '#16a34a',
+              borderDash: [6, 3],
+              borderWidth: 2,
+              pointRadius: 0,
+              backgroundColor: 'transparent'
+            }]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            scales: { y: { min: 0, max: 5, ticks: { stepSize: 1 }, title: { display: true, text: 'Avg CMMI Score' } } },
+            plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } } }
+          }
+        });
+      }
+
+      // ── By-agency status chart ────────────────────────────────────────
+      const statusEl = document.getElementById('sc-disagg-status-chart');
+      if (statusEl) {
+        if (disaggStatusChartInstance) disaggStatusChartInstance.destroy();
+        const agLabels = [];
+        const agProgress = [];
+        Object.entries(allAgencies).forEach(([id, a]) => {
+          // Use short name
+          const shortName = id.toUpperCase();
+          agLabels.push(shortName);
+          agProgress.push(parseFloat(a.progress) || 0);
+        });
+        disaggStatusChartInstance = new Chart(statusEl, {
+          type: 'bar',
+          data: {
+            labels: agLabels,
+            datasets: [{
+              label: 'Assessment Progress (%)',
+              data: agProgress,
+              backgroundColor: agProgress.map(p => p === 100 ? '#16a34a' : p >= 50 ? '#2563a8' : '#d97706'),
+              borderRadius: 4
+            }]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            scales: { y: { min: 0, max: 100, ticks: { callback: v => v + '%' }, title: { display: true, text: 'Progress' } } },
+            plugins: { legend: { display: false } }
+          }
+        });
+      }
     }
 
     function exportSCDashboard() {
-      notify('🔗 Compliance dashboard exported to ServiceNow GRC — 312 POA&M + 47 findings queued for sync');
+      notify(' Compliance dashboard exported to ServiceNow GRC — 30 POA&M + 47 findings queued for sync');
       logActivity('GRC Dashboard Export', 'All Agencies', 'Compliance Dashboard export triggered');
     }
 
     function runGRCExport() {
-      notify('🔗 Full GRC export complete: 47 findings + 312 POA&M + CMMI scores → ServiceNow. Sync ID: GRC-2026-0401-001');
+      notify(' Full GRC export complete: 47 findings + 30 POA&M + CMMI scores → ServiceNow. Sync ID: GRC-2026-0401-001');
       logActivity('Full GRC Export', 'All Agencies', 'Complete payload push to ServiceNow GRC Risk Register & Issue Management');
     }
 
+    // ---- Auto-navigate from URL param (e.g. ?view=sa from agency ← Dashboard link) ----
+    (function() {
+      var p = new URLSearchParams(window.location.search).get('view');
+      if (p) {
+        var btn = document.querySelector('.nav-item[onclick*="\'' + p + '\'"]');
+        setTimeout(function() { showSection(p, btn); }, 200);
+      }
+    })();
+
     // ---- INIT ----
-    renderPortfolio();
-    updateOverviewStats();
+    renderPortfolio(); // also calls updateDashboardStats() internally
     setTimeout(initPortfolioCharts, 150);
+    // After charts are initialised, push real data into them
+    setTimeout(updateDashboardStats, 200);
     setTimeout(initComplianceDashboard, 350); // compliance metrics now always visible on page load
 
     // ---- ROLE-BASED DEFAULT SECTION ----
@@ -2575,7 +2974,7 @@
       
       // Show logout message and redirect
       if (typeof notify === 'function') {
-        notify('👋 You have been logged out successfully');
+        notify(' You have been logged out successfully');
       }
       
       setTimeout(() => {
@@ -2640,8 +3039,8 @@
           <td style="font-size:.75rem;color:var(--text-muted);">${u.lastActive}</td>
           <td>
             <div style="display:flex;gap:4px;">
-              <button class="btn btn-outline btn-sm" style="padding:3px 8px;font-size:.72rem;" onclick="openEditUser('${u.id}')">Edit</button>
-              <button class="btn btn-sm" style="padding:3px 8px;font-size:.72rem;background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;" onclick="deleteUser('${u.id}','${u.name}')">Delete</button>
+              <button title="Edit user" style="background:none;border:1px solid #cbd5e0;border-radius:6px;padding:4px 7px;cursor:pointer;color:#475569;line-height:1;" onclick="openEditUser('${u.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="m18.5 2.5 3 3L12 15l-4 1 1-4z"/></svg></button>
+              <button title="Delete user" style="background:none;border:1px solid #fca5a5;border-radius:6px;padding:4px 7px;cursor:pointer;color:#dc2626;line-height:1;" onclick="deleteUser('${u.id}','${u.name}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="m19 6-.867 13.142A2 2 0 0 1 16.138 21H7.862a2 2 0 0 1-1.995-1.858L5 6m5 0V4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2"/></svg></button>
             </div>
           </td>
         </tr>`).join('');
@@ -2782,7 +3181,7 @@
             status:'Pending', lastActive:'Invite sent '+new Date().toLocaleDateString(), avatar:initials });
           saveIamUsers(users);
           renderIamUsers(users);
-          notify(`✅ Invitation email sent to ${email} via anchor@assurit.com`);
+          notify(` Invitation email sent to ${email} via anchor@assurit.com`);
           // Reset form
           ['inv-name','inv-email','inv-msg'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
           const roleEl = document.getElementById('inv-role'); if(roleEl) roleEl.value='';
@@ -2809,11 +3208,234 @@
           body: JSON.stringify({ name, email, role: 'Assessor', agency: 'ALL', message: 'This is a test invitation from the Anchor Platform.' })
         });
         const data = await res.json();
-        notify(data.success ? `✅ Test email sent to ${email} — check inbox` : `⚠️ ${data.error}`);
+        notify(data.success ? ` Test email sent to ${email} — check inbox` : `⚠️ ${data.error}`);
       } catch(err) {
         notify('⚠️ Network error — test email not sent.');
       }
     }
+
+    // ── End IAM ─────────────────────────────────────────────────────────
+
+    // ══════════════════════════════════════════════════════════════════
+    // WAVE MANAGEMENT — interactive wave table, edit modal, resequence
+    // ══════════════════════════════════════════════════════════════════
+    const WAVES_LS_KEY = 'anchor_waves_state';
+
+    const WAVE_DEFAULTS = {
+      wave1: { label:'Wave 1', period:'Jan–Jun 2026',  start:'Jan 2026',  end:'Jun 2026',  agencies:'15 agencies', agencyTypes:'Large + High-Risk',                pods:'3 Large, 2 Medium',         status:'In Progress', slippage:0,   notes:'' },
+      wave2: { label:'Wave 2', period:'Apr–Sep 2026',  start:'Apr 2026',  end:'Sep 2026',  agencies:'15 agencies', agencyTypes:'Medium + Enterprise',              pods:'2 Large, 3 Medium',         status:'In Progress', slippage:0,   notes:'' },
+      wave3: { label:'Wave 3', period:'Jul–Dec 2026',  start:'Jul 2026',  end:'Dec 2026',  agencies:'15 agencies', agencyTypes:'Medium + Small (high-risk)',        pods:'1 Large, 4 Medium',         status:'Scheduled',   slippage:0,   notes:'' },
+      wave4: { label:'Wave 4', period:'Oct 2026–Mar 2027', start:'Oct 2026', end:'Mar 2027', agencies:'15 agencies', agencyTypes:'Small + OT/ICS-heavy',           pods:'2 Large, 2 Medium, 2 Small',status:'Planned',     slippage:0,   notes:'' },
+      wave5: { label:'Wave 5', period:'Jan–Jun 2027',  start:'Jan 2027',  end:'Jun 2027',  agencies:'15 agencies', agencyTypes:'Small agencies + reassessments',   pods:'1 Large, 2 Medium, 4 Small',status:'Planned',     slippage:0,   notes:'' },
+      wave6: { label:'Wave 6', period:'Apr–Dec 2027',  start:'Apr 2027',  end:'Dec 2027',  agencies:'15 agencies', agencyTypes:'Remaining + Year-2 reassessments', pods:'TBD based on capacity',     status:'Planned',     slippage:0,   notes:'' }
+    };
+
+    function loadWavesState() {
+      try {
+        const raw = localStorage.getItem(WAVES_LS_KEY);
+        if (raw) {
+          const saved = JSON.parse(raw);
+          // merge defaults with saved to ensure any new keys are present
+          const merged = {};
+          Object.keys(WAVE_DEFAULTS).forEach(k => {
+            merged[k] = Object.assign({}, WAVE_DEFAULTS[k], saved[k] || {});
+          });
+          return merged;
+        }
+      } catch(e) {}
+      return JSON.parse(JSON.stringify(WAVE_DEFAULTS));
+    }
+
+    function saveWavesState(state) {
+      try { localStorage.setItem(WAVES_LS_KEY, JSON.stringify(state)); } catch(e) {}
+    }
+
+    function statusBadge(status) {
+      const map = {
+        'In Progress': 'badge-blue',
+        'Scheduled':   'badge-orange',
+        'Planned':     'badge-gray',
+        'Delayed':     'badge-red',
+        'Complete':    'badge-green'
+      };
+      return `<span class="badge ${map[status]||'badge-gray'}">${status}</span>`;
+    }
+
+    function slippageHtml(days) {
+      days = parseInt(days, 10) || 0;
+      if (days === 0) return '<span style="color:#9ca3af;font-size:.75rem;">On schedule</span>';
+      if (days > 0)   return `<span style="color:#16a34a;font-size:.75rem;font-weight:700;">+${days}d ahead</span>`;
+      return `<span style="color:#dc2626;font-size:.75rem;font-weight:700;">${days}d behind</span>`;
+    }
+
+    function renderWavesTable() {
+      const state  = loadWavesState();
+      const tbody  = document.getElementById('waves-tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      Object.keys(state).forEach(key => {
+        const w = state[key];
+        const period = (w.start && w.end) ? w.start + '–' + w.end : w.period;
+        const tr = document.createElement('tr');
+        tr.setAttribute('data-wave-key', key);
+        tr.innerHTML = `
+          <td><strong>${w.label}</strong></td>
+          <td>${period}</td>
+          <td>${w.agencies}</td>
+          <td>${w.pods}</td>
+          <td>${statusBadge(w.status)}</td>
+          <td>${slippageHtml(w.slippage)}</td>
+          <td style="font-size:.75rem;color:#6b7280;max-width:160px;white-space:normal;">${w.notes ? w.notes.substring(0,80)+(w.notes.length>80?'…':'') : '<span style="color:#d1d5db;">—</span>'}</td>
+          <td><button class="btn btn-outline btn-sm" style="font-size:.72rem;padding:3px 10px;" onclick="openWaveEditModal('${key}')">Edit</button></td>`;
+        tbody.appendChild(tr);
+      });
+      renderWaveHealthBanner(state);
+    }
+
+    function renderWaveHealthBanner(state) {
+      const badges  = document.getElementById('wave-health-badges');
+      const milest  = document.getElementById('wave-next-milestone');
+      if (!badges || !milest) return;
+
+      let onSchedule = 0, delayed = 0, ahead = 0, nextWave = null;
+      Object.values(state).forEach(w => {
+        const s = parseInt(w.slippage, 10) || 0;
+        if (w.status === 'Delayed' || s < -7) delayed++;
+        else if (s > 0) ahead++;
+        else onSchedule++;
+        if (!nextWave && (w.status === 'Scheduled' || w.status === 'Planned')) nextWave = w;
+      });
+
+      badges.innerHTML =
+        `<span style="background:#d4f4e2;color:#065f46;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;">6 Total Waves</span>` +
+        `<span style="background:#dbeafe;color:#1e40af;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;">${onSchedule} On Schedule</span>` +
+        (delayed ? `<span style="background:#fee2e2;color:#7f1d1d;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;">${delayed} Delayed</span>` : '') +
+        (ahead   ? `<span style="background:#d4f4e2;color:#065f46;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;">${ahead} Ahead</span>` : '');
+
+      milest.innerHTML = nextWave
+        ? `Next milestone: <strong>${nextWave.label}</strong> starts ${nextWave.start}`
+        : '<strong>All waves active or complete</strong>';
+    }
+
+    // ── Wave Edit Modal ────────────────────────────────────────────────
+    function openWaveEditModal(key) {
+      const state = loadWavesState();
+      const w = state[key];
+      if (!w) return;
+      document.getElementById('wem-wave-key').value = key;
+      document.getElementById('wem-title').textContent = `Edit Wave Schedule — ${w.label}`;
+      document.getElementById('wem-subtitle').textContent = w.period;
+      document.getElementById('wem-start').value    = w.start   || '';
+      document.getElementById('wem-end').value      = w.end     || '';
+      document.getElementById('wem-status').value   = w.status  || 'Planned';
+      document.getElementById('wem-agencies').value = w.agencies|| '';
+      document.getElementById('wem-pods').value     = w.pods    || '';
+      document.getElementById('wem-slippage').value = w.slippage|| 0;
+      document.getElementById('wem-notes').value    = w.notes   || '';
+      updateSlippagePreview();
+      const modal = document.getElementById('wave-edit-modal');
+      modal.style.display = 'flex';
+    }
+
+    function closeWaveEditModal() {
+      document.getElementById('wave-edit-modal').style.display = 'none';
+    }
+
+    function updateSlippagePreview() {
+      const val  = parseInt(document.getElementById('wem-slippage').value, 10) || 0;
+      const prev = document.getElementById('wem-slippage-preview');
+      if (!prev) return;
+      if (val === 0)      prev.innerHTML = '<span style="color:#9ca3af;">No slippage — on schedule</span>';
+      else if (val > 0)   prev.innerHTML = `<span style="color:#16a34a;">+${val} days ahead of schedule</span>`;
+      else                prev.innerHTML = `<span style="color:#dc2626;">${val} days behind schedule</span>`;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const slipEl = document.getElementById('wem-slippage');
+      if (slipEl) slipEl.addEventListener('input', updateSlippagePreview);
+      // close modal on backdrop click
+      document.getElementById('wave-edit-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeWaveEditModal();
+      });
+      document.getElementById('resequence-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeResequenceModal();
+      });
+      renderWavesTable();
+    });
+
+    function saveWaveEdit() {
+      const key      = document.getElementById('wem-wave-key').value;
+      const start    = document.getElementById('wem-start').value.trim();
+      const end      = document.getElementById('wem-end').value.trim();
+      const status   = document.getElementById('wem-status').value;
+      const agencies = document.getElementById('wem-agencies').value.trim();
+      const pods     = document.getElementById('wem-pods').value.trim();
+      const slippage = parseInt(document.getElementById('wem-slippage').value, 10) || 0;
+      const notes    = document.getElementById('wem-notes').value.trim();
+
+      const state = loadWavesState();
+      if (!state[key]) return;
+      state[key].start    = start;
+      state[key].end      = end;
+      state[key].period   = start && end ? start + '–' + end : state[key].period;
+      state[key].status   = status;
+      state[key].agencies = agencies;
+      state[key].pods     = pods;
+      state[key].slippage = slippage;
+      state[key].notes    = notes;
+      saveWavesState(state);
+      renderWavesTable();
+      closeWaveEditModal();
+      notify('Wave schedule updated and saved.');
+    }
+
+    // ── Resequence Modal ───────────────────────────────────────────────
+    const _rseqLog = [];
+
+    function openResequenceModal() {
+      const logEl = document.getElementById('rseq-log');
+      if (logEl) logEl.innerHTML = _rseqLog.length
+        ? _rseqLog.map(l=>`<div>${l}</div>`).join('')
+        : '<span style="color:#9ca3af;">No moves recorded yet.</span>';
+      document.getElementById('resequence-modal').style.display = 'flex';
+    }
+
+    function closeResequenceModal() {
+      document.getElementById('resequence-modal').style.display = 'none';
+    }
+
+    function applyResequence() {
+      const agency = document.getElementById('rseq-agency').value.trim();
+      const from   = document.getElementById('rseq-from').value;
+      const to     = document.getElementById('rseq-to').value;
+      if (!agency) { notify('Enter an agency name to move.'); return; }
+      if (from === to) { notify('From and To wave must be different.'); return; }
+
+      const state  = loadWavesState();
+      const fromW  = state[from];
+      const toW    = state[to];
+
+      // adjust agency counts
+      const bump = (key, delta) => {
+        const m = state[key].agencies.match(/(\d+)/);
+        if (m) state[key].agencies = state[key].agencies.replace(/\d+/, String(Math.max(0, parseInt(m[1],10)+delta)));
+      };
+      bump(from, -1);
+      bump(to,   +1);
+
+      const logEntry = `${new Date().toLocaleTimeString()} — Moved <strong>${agency}</strong> from ${fromW.label} to ${toW.label}`;
+      _rseqLog.unshift(logEntry);
+
+      saveWavesState(state);
+      renderWavesTable();
+
+      const logEl = document.getElementById('rseq-log');
+      if (logEl) logEl.innerHTML = _rseqLog.map(l=>`<div style="margin-bottom:4px;">${l}</div>`).join('');
+
+      document.getElementById('rseq-agency').value = '';
+      notify(`${agency} moved from ${fromW.label} to ${toW.label}.`);
+    }
+    // ── End Wave Management ────────────────────────────────────────────
 
     // ── End IAM ─────────────────────────────────────────────────────────
   </script>

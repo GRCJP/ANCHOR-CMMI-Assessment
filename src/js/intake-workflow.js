@@ -143,9 +143,6 @@
     // Add PM notification
     appendPMNotification(key, data);
 
-    // Lock the form to prevent re-submission
-    lockIntakeForm();
-
     showNotify('Intake submitted. Assessment advanced to Evidence Collection.');
   };
 
@@ -402,7 +399,6 @@
         if (s !== null) savedStep = parseInt(s, 10);
       } catch(e) {}
       advanceHStepper(savedStep);
-      lockIntakeForm();
     } else if (data.status === 'draft') {
       // Restore stepper to wherever we last advanced it
       try {
