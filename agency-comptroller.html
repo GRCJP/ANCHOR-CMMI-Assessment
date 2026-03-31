@@ -931,7 +931,7 @@
           <button onclick="showSection('additional-findings',this)" style="padding:7px 20px;border:none;background:#2563eb;color:#fff;border-radius:7px;cursor:pointer;font-size:.82rem;font-weight:700;letter-spacing:.01em;">Additional Findings</button>
         </div>
         <div class="page-header">
-          <h1>Additional &amp; Additional Findings &#8212; Comptroller</h1>
+          <h1>Additional Findings &#8212; Comptroller</h1>
           <p>Risks identified during assessment that fall outside standard NIST CSF subcategory mappings. Each finding is anchored to a CSF Function, assigned severity and CMMI context &#8212; documented and delivered, not scored.</p>
         </div>
         <div class="anchor-banner" style="margin-bottom:20px;">
@@ -1025,7 +1025,10 @@
         <!-- SAR: Flat layout, no tabs -->
 
         <!-- Charts -->
-        <div class="card"><div class="card-title">Projected Maturity Radar</div><div class="chart-wrap-sm"><canvas id="sarRadarChart"></canvas></div></div>
+        <div class="grid-2" style="margin-bottom:16px;">
+          <div class="card"><div class="card-title">Findings by Function</div><div class="chart-wrap-sm"><canvas id="findingsChart"></canvas></div></div>
+          <div class="card"><div class="card-title">Maturity Radar</div><div class="chart-wrap-sm"><canvas id="sarRadarChart"></canvas></div></div>
+        </div>
 
         <div class="info-box" style="margin:0 0 16px 0;">SAR findings will be populated upon completion of the CSF Assessment phase.</div>
 
@@ -1753,6 +1756,10 @@
       const riskEl = document.getElementById('riskChart');
       if (riskEl && typeof Chart !== 'undefined') {
         new Chart(riskEl, { type:'doughnut', data:{labels:['Critical','High','Medium','Low'],datasets:[{data:[0,2,5,3],backgroundColor:['#dc2626','#ea580c','#d97706','#16a34a'],borderWidth:0}]}, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right'}}} });
+      }
+      const findingsEl = document.getElementById('findingsChart');
+      if (findingsEl && typeof Chart !== 'undefined') {
+        new Chart(findingsEl, { type:'bar', data:{ labels:['Govern','Identify','Protect','Detect','Respond','Recover'], datasets:[{label:'Critical',data:[0,0,0,0,0,0],backgroundColor:'#dc2626',borderRadius:4},{label:'High',data:[0,0,0,0,0,0],backgroundColor:'#ea580c',borderRadius:4},{label:'Medium',data:[0,0,0,0,0,0],backgroundColor:'#d97706',borderRadius:4},{label:'Low',data:[0,0,0,0,0,0],backgroundColor:'#16a34a',borderRadius:4}] }, options:{responsive:true,maintainAspectRatio:false,scales:{x:{stacked:true},y:{stacked:true}},plugins:{legend:{position:'bottom'}}} });
       }
       const sarRadarEl = document.getElementById('sarRadarChart');
       if (sarRadarEl && typeof Chart !== 'undefined') {

@@ -829,14 +829,14 @@
         </div>
         <div class="page-header">
           <h1>Risk Register &amp; CMMI Scoring &#8212; MSDE</h1>
-          <p>Final risk register from completed NIST CSF 2.0 assessment. All 106 controls assessed across six functions. Findings mapped to POA&amp;M items.</p>
+          <p>Final risk register from completed NIST CSF 2.0 assessment. All 23 controls assessed across six functions. Findings mapped to POA&amp;M items.</p>
         </div>
 
         <div class="grid-4" style="margin-bottom:20px;">
-          <div class="stat-card accent"><div class="stat-label">Overall CMMI</div><div class="stat-value">2.3</div><div class="stat-sub">Target: 3.0</div></div>
+          <div class="stat-card accent"><div class="stat-label">Overall CMMI</div><div class="stat-value"><span id="risk-overall-maturity">2.3</span></div><div class="stat-sub">Target: 3.0</div></div>
           <div class="stat-card red"><div class="stat-label">Critical Risks</div><div class="stat-value">3</div><div class="stat-sub">P1 findings</div></div>
           <div class="stat-card"><div class="stat-label">High Risks</div><div class="stat-value">7</div><div class="stat-sub">30-day remediation</div></div>
-          <div class="stat-card green"><div class="stat-label">Controls Assessed</div><div class="stat-value">106</div><div class="stat-sub">Full CSF 2.0 coverage</div></div>
+          <div class="stat-card green"><div class="stat-label">Controls Assessed</div><div class="stat-value">23</div><div class="stat-sub">NIST CSF 2.0</div></div>
         </div>
 
         <div class="card">
@@ -904,12 +904,12 @@
             <table>
               <thead><tr><th>POA&amp;M ID</th><th>Finding</th><th>Owner</th><th>Priority</th><th>Due Date</th><th>Status</th><th>% Complete</th><th>Actions</th></tr></thead>
               <tbody>
-                <tr><td>PM-001</td><td>F-001: DE.CM-01 — No SIEM deployed</td><td>B. Osei (IT Director)</td><td><span class="badge badge-red">Critical</span></td><td>Jun 30, 2026</td><td><span class="badge badge-blue">In Progress</span></td><td>25%</td><td><button class="btn btn-outline" style="padding:3px 10px;font-size:.75rem;" onclick="openPoamDetail(\'PM-001\')">View Details</button></td></tr>
-                <tr><td>PM-002</td><td>F-002: ID.AM-05 — PII classification incomplete</td><td>P. Hall (CISO)</td><td><span class="badge badge-red">Critical</span></td><td>May 31, 2026</td><td><span class="badge badge-blue">In Progress</span></td><td>60%</td><td><button class="btn btn-outline" style="padding:3px 10px;font-size:.75rem;" onclick="openPoamDetail(\'PM-002\')">View Details</button></td></tr>
-                <tr><td>PM-003</td><td>F-003: RS.RP-01 — IR plan untested</td><td>P. Hall (CISO)</td><td><span class="badge badge-red">Critical</span></td><td>May 15, 2026</td><td><span class="badge badge-green">Complete</span></td><td>100%</td><td><button class="btn btn-outline" style="padding:3px 10px;font-size:.75rem;" onclick="openPoamDetail(\'PM-003\')">View Details</button></td></tr>
-                <tr><td>PM-004</td><td>F-004: GV.SC-04 — Vendor access gaps</td><td>C. Williams (GRC Lead)</td><td><span class="badge badge-orange">High</span></td><td>Jun 15, 2026</td><td><span class="badge badge-blue">In Progress</span></td><td>40%</td><td><button class="btn btn-outline" style="padding:3px 10px;font-size:.75rem;" onclick="openPoamDetail(\'PM-004\')">View Details</button></td></tr>
-                <tr><td>PM-005</td><td>F-005: PR.IP-12 — Patch cycle 60 days</td><td>B. Osei (IT Director)</td><td><span class="badge badge-orange">High</span></td><td>Jun 30, 2026</td><td><span class="badge badge-blue">In Progress</span></td><td>50%</td><td><button class="btn btn-outline" style="padding:3px 10px;font-size:.75rem;" onclick="openPoamDetail(\'PM-005\')">View Details</button></td></tr>
-                <tr><td>PM-006</td><td>F-006: RC.RP-01 — Backup not tested</td><td>B. Osei (IT Director)</td><td><span class="badge badge-orange">High</span></td><td>May 30, 2026</td><td><span class="badge badge-green">Complete</span></td><td>100%</td><td><button class="btn btn-outline" style="padding:3px 10px;font-size:.75rem;" onclick="openPoamDetail(\'PM-006\')">View Details</button></td></tr>
+                <tr><td>PM-001</td><td>F-001: DE.CM-01 — No SIEM deployed</td><td>B. Osei (IT Director)</td><td><span class="badge badge-red">Critical</span></td><td>Jun 30, 2026</td><td><span class="badge badge-blue">In Progress</span></td><td>25%</td><td><button class="btn btn-outline" style="padding:3px 10px;font-size:.75rem;" onclick="openPoamDetail('PM-001')">View Details</button></td></tr>
+                <tr><td>PM-002</td><td>F-002: ID.AM-05 — PII classification incomplete</td><td>P. Hall (CISO)</td><td><span class="badge badge-red">Critical</span></td><td>May 31, 2026</td><td><span class="badge badge-blue">In Progress</span></td><td>60%</td><td><button class="btn btn-outline" style="padding:3px 10px;font-size:.75rem;" onclick="openPoamDetail('PM-002')">View Details</button></td></tr>
+                <tr><td>PM-003</td><td>F-003: RS.RP-01 — IR plan untested</td><td>P. Hall (CISO)</td><td><span class="badge badge-red">Critical</span></td><td>May 15, 2026</td><td><span class="badge badge-green">Complete</span></td><td>100%</td><td><button class="btn btn-outline" style="padding:3px 10px;font-size:.75rem;" onclick="openPoamDetail('PM-003')">View Details</button></td></tr>
+                <tr><td>PM-004</td><td>F-004: GV.SC-04 — Vendor access gaps</td><td>C. Williams (GRC Lead)</td><td><span class="badge badge-orange">High</span></td><td>Jun 15, 2026</td><td><span class="badge badge-blue">In Progress</span></td><td>40%</td><td><button class="btn btn-outline" style="padding:3px 10px;font-size:.75rem;" onclick="openPoamDetail('PM-004')">View Details</button></td></tr>
+                <tr><td>PM-005</td><td>F-005: PR.IP-12 — Patch cycle 60 days</td><td>B. Osei (IT Director)</td><td><span class="badge badge-orange">High</span></td><td>Jun 30, 2026</td><td><span class="badge badge-blue">In Progress</span></td><td>50%</td><td><button class="btn btn-outline" style="padding:3px 10px;font-size:.75rem;" onclick="openPoamDetail('PM-005')">View Details</button></td></tr>
+                <tr><td>PM-006</td><td>F-006: RC.RP-01 — Backup not tested</td><td>B. Osei (IT Director)</td><td><span class="badge badge-orange">High</span></td><td>May 30, 2026</td><td><span class="badge badge-green">Complete</span></td><td>100%</td><td><button class="btn btn-outline" style="padding:3px 10px;font-size:.75rem;" onclick="openPoamDetail('PM-006')">View Details</button></td></tr>
               </tbody>
             </table>
           </div>
@@ -947,7 +947,7 @@
           <button onclick="showSection('additional-findings',this)" style="padding:7px 20px;border:none;background:#2563eb;color:#fff;border-radius:7px;cursor:pointer;font-size:.82rem;font-weight:700;letter-spacing:.01em;">Additional Findings</button>
         </div>
         <div class="page-header">
-          <h1>Additional &amp; Additional Findings &#8212; MSDE</h1>
+          <h1>Additional Findings &#8212; MSDE</h1>
           <p>Risks identified during assessment that fall outside standard NIST CSF subcategory mappings. Each finding is anchored to a CSF Function, assigned severity and CMMI context &#8212; documented and delivered, not scored.</p>
         </div>
         <div class="anchor-banner" style="margin-bottom:20px;">
@@ -1032,10 +1032,10 @@
         </div>
 
         <div class="grid-4" style="margin-bottom:20px;">
-          <div class="stat-card accent"><div class="stat-label">Overall Maturity</div><div class="stat-value">2.3 / 5</div><div class="stat-sub">Managed level</div></div>
+          <div class="stat-card accent"><div class="stat-label">Overall Maturity</div><div class="stat-value"><span id="sar-overall-maturity">2.3</span> / 5</div><div class="stat-sub">Managed level</div></div>
           <div class="stat-card red"><div class="stat-label">Critical Findings</div><div class="stat-value">3</div><div class="stat-sub">Immediate action required</div></div>
           <div class="stat-card"><div class="stat-label">High Findings</div><div class="stat-value">7</div><div class="stat-sub">30-day remediation</div></div>
-          <div class="stat-card green"><div class="stat-label">Controls Assessed</div><div class="stat-value">106</div><div class="stat-sub">Priority CSF 2.0 subset</div></div>
+          <div class="stat-card green"><div class="stat-label">Controls Assessed</div><div class="stat-value">23</div><div class="stat-sub">NIST CSF 2.0</div></div>
         </div>
 
         <!-- SAR: Flat layout, no tabs -->
@@ -1982,7 +1982,7 @@
 
     function initAgencyCharts() {
       if (typeof Chart === 'undefined') return;
-      ['radarChart','riskChart','sarRadarChart'].forEach(id => {
+      ['radarChart','riskChart','findingsChart','sarRadarChart'].forEach(id => {
         const el = document.getElementById(id);
         if (el) { const existing = Chart.getChart(el); if (existing) existing.destroy(); }
       });
@@ -1993,6 +1993,10 @@
       const riskEl = document.getElementById('riskChart');
       if (riskEl) {
         new Chart(riskEl, { type:'doughnut', data:{labels:['Critical','High','Medium','Low'],datasets:[{data:[0,2,5,3],backgroundColor:['#dc2626','#ea580c','#d97706','#16a34a'],borderWidth:0}]}, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right'}}} });
+      }
+      const findingsEl = document.getElementById('findingsChart');
+      if (findingsEl) {
+        new Chart(findingsEl, { type:'bar', data:{ labels:['Govern','Identify','Protect','Detect','Respond','Recover'], datasets:[{label:'Critical',data:[0,1,0,1,1,0],backgroundColor:'#dc2626',borderRadius:4},{label:'High',data:[1,0,1,0,0,1],backgroundColor:'#ea580c',borderRadius:4},{label:'Medium',data:[0,0,0,0,0,0],backgroundColor:'#d97706',borderRadius:4},{label:'Low',data:[0,0,0,0,0,0],backgroundColor:'#16a34a',borderRadius:4}] }, options:{responsive:true,maintainAspectRatio:false,scales:{x:{stacked:true},y:{stacked:true}},plugins:{legend:{position:'bottom'}}} });
       }
       const sarRadarEl = document.getElementById('sarRadarChart');
       if (sarRadarEl) {
@@ -2314,6 +2318,11 @@
       // Update Overall CMMI display in any additional spans
       var overallSpans = riskSec.querySelectorAll('.cmmi-overall, #cmmi-overall-val');
       overallSpans.forEach(function(s) { s.textContent = overallCmmi; });
+      // Update SAR overall maturity span
+      var sarMatEl = document.getElementById('sar-overall-maturity');
+      if (sarMatEl && overallCmmi !== '—') sarMatEl.textContent = overallCmmi;
+      var riskMatEl = document.getElementById('risk-overall-maturity');
+      if (riskMatEl && overallCmmi !== '—') riskMatEl.textContent = overallCmmi;
     }
 
     // Hook into showSection to update risk when tab is activated
