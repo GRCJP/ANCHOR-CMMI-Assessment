@@ -13,7 +13,10 @@
 
   function _revealBody() {
     _hideStyle.remove();
+    const gate = document.getElementById('pre-auth-gate');
+    if (gate) gate.remove();
     if (document.body) document.body.style.visibility = '';
+    document.documentElement.style.visibility = '';
   }
 
   // Fast unauthenticated check — no DOM needed, runs immediately

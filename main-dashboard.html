@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style id="pre-auth-gate">html{visibility:hidden}</style>
   <title>ANCHOR Platform | ANCHOR Portfolio Dashboard</title>
   <meta name="description" content="Main portfolio dashboard for 6-agency demo cohort.">
   <link rel="stylesheet" href="src/css/main.css?v=10">
@@ -205,7 +206,7 @@
         <div class="grid-4" style="margin-bottom:20px;">
           <div class="stat-card accent"><div class="stat-label">Avg Statewide Maturity</div><div class="stat-value" id="stat-maturity">2.9</div><div class="stat-sub">Up from 2.1 (Program Baseline)</div></div>
           <div class="stat-card green"><div class="stat-label">Critical Findings Closed</div><div class="stat-value" id="stat-findings">38</div><div class="stat-sub">Across <span id="stat-finding-agencies">23</span> completed agencies</div></div>
-          <div class="stat-card" style="cursor:pointer;" onclick="showSection('scorecard',document.querySelector('[onclick*=\"scorecard\"]'));setTimeout(function(){var sc=document.querySelector('[onclick*=\"sc-tab-poam\"]');if(sc)sc.click();},200);" title="Click to view all POA&amp;M items"><div class="stat-label">POA&amp;M Items Tracked</div><div class="stat-value">30</div><div class="stat-sub">Across all agencies &mdash; click to view</div></div>
+          <div class="stat-card" style="cursor:pointer;" onclick="notify('POA&amp;M items tracked across all assessed agencies — drill into individual agency assessments for details')" title="POA&amp;M items tracked across all assessed agencies"><div class="stat-label">POA&amp;M Items Tracked</div><div class="stat-value">30</div><div class="stat-sub">Across all agencies &mdash; click for info</div></div>
           <div class="stat-card"><div class="stat-label">Avg Days to SAR</div><div class="stat-value">41</div><div class="stat-sub">Large: 63 · Med: 42 · Small: 21</div></div>
         </div>
 
@@ -704,11 +705,13 @@
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
                 <div>
                   <label style="font-size:.78rem;font-weight:700;display:block;margin-bottom:6px;color:#374151;">Start Date</label>
-                  <input type="text" id="wem-start" placeholder="e.g. Jan 2026" style="width:100%;padding:8px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:.85rem;font-family:inherit;box-sizing:border-box;">
+                  <input type="text" id="wem-start" placeholder="e.g. Jan 2026" pattern="[A-Z][a-z]{2}\s\d{4}" style="width:100%;padding:8px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:.85rem;font-family:inherit;box-sizing:border-box;">
+                  <div style="font-size:.7rem;color:#6b7280;margin-top:4px;">Format: Mon YYYY (e.g. Jan 2026)</div>
                 </div>
                 <div>
                   <label style="font-size:.78rem;font-weight:700;display:block;margin-bottom:6px;color:#374151;">End Date</label>
-                  <input type="text" id="wem-end" placeholder="e.g. Jun 2026" style="width:100%;padding:8px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:.85rem;font-family:inherit;box-sizing:border-box;">
+                  <input type="text" id="wem-end" placeholder="e.g. Jun 2026" pattern="[A-Z][a-z]{2}\s\d{4}" style="width:100%;padding:8px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:.85rem;font-family:inherit;box-sizing:border-box;">
+                  <div style="font-size:.7rem;color:#6b7280;margin-top:4px;">Format: Mon YYYY (e.g. Jun 2026)</div>
                 </div>
               </div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
@@ -3295,10 +3298,40 @@
       renderWavesTable();
     });
 
+    function normalizeMonthYear(val) {
+      // Attempt to normalize various date inputs to "Mon YYYY" format
+      if (!val) return '';
+      val = val.trim();
+      // Already in "Mon YYYY" format (e.g. "Jan 2026")
+      if (/^[A-Z][a-z]{2}\s\d{4}$/.test(val)) return val;
+      // Handle "January 2026" -> "Jan 2026"
+      var d = new Date(val + ' 1');
+      if (!isNaN(d.getTime())) {
+        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        return months[d.getMonth()] + ' ' + d.getFullYear();
+      }
+      // Handle "2026-01" or "01/2026" style
+      var m = val.match(/(\d{4})[\/\-](\d{1,2})/);
+      if (m) {
+        var months2 = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        var mi = parseInt(m[2],10) - 1;
+        if (mi >= 0 && mi < 12) return months2[mi] + ' ' + m[1];
+      }
+      m = val.match(/(\d{1,2})[\/\-](\d{4})/);
+      if (m) {
+        var months3 = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        var mi2 = parseInt(m[1],10) - 1;
+        if (mi2 >= 0 && mi2 < 12) return months3[mi2] + ' ' + m[2];
+      }
+      return val; // Return as-is if we can't parse
+    }
+
     function saveWaveEdit() {
       const key      = document.getElementById('wem-wave-key').value;
-      const start    = document.getElementById('wem-start').value.trim();
-      const end      = document.getElementById('wem-end').value.trim();
+      const startRaw = document.getElementById('wem-start').value.trim();
+      const endRaw   = document.getElementById('wem-end').value.trim();
+      const start    = normalizeMonthYear(startRaw);
+      const end      = normalizeMonthYear(endRaw);
       const status   = document.getElementById('wem-status').value;
       const agencies = document.getElementById('wem-agencies').value.trim();
       const pods     = document.getElementById('wem-pods').value.trim();
@@ -3309,7 +3342,7 @@
       if (!state[key]) return;
       state[key].start    = start;
       state[key].end      = end;
-      state[key].period   = start && end ? start + '–' + end : state[key].period;
+      state[key].period   = start && end ? start + ' – ' + end : state[key].period;
       state[key].status   = status;
       state[key].agencies = agencies;
       state[key].pods     = pods;
