@@ -443,7 +443,7 @@
           <div style="font-size:2rem;flex-shrink:0;">🏛️</div>
           <div>
             <div style="font-size:1.05rem;font-weight:800;margin-bottom:6px;">Welcome to Your Cybersecurity Self-Assessment</div>
-            <div style="font-size:.84rem;opacity:.92;line-height:1.6;margin-bottom:14px;">This portal is your agency's official submission point for the Maryland DoIT Cybersecurity Assessment Program. Your responses and evidence directly inform your agency's cybersecurity maturity rating and the resulting System Assessment Report (SAR).</div>
+            <div style="font-size:.84rem;opacity:.92;line-height:1.6;margin-bottom:14px;">This portal is your agency's official submission point for the Maryland DoIT Cybersecurity Assessment Program. Your responses and evidence directly inform your agency's cybersecurity maturity rating and the resulting Security Assessment Report (SAR).</div>
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;">
               <div style="background:rgba(255,255,255,.12);border-radius:8px;padding:12px 14px;">
                 <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;opacity:.8;margin-bottom:4px;">Step 1 — Questionnaire</div>
