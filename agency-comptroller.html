@@ -87,7 +87,7 @@
       <button class="nav-item" onclick="showSection('csf', this)" data-visible-to="admin lead_assessor assessor doit_reviewer">CSF Assessment</button>
       <button class="nav-item" onclick="showSection('mapping', this)" data-visible-to="admin lead_assessor assessor doit_reviewer">CSF Mapping</button>
       <button class="nav-item" onclick="showSection('risk', this)" data-visible-to="admin lead_assessor assessor doit_reviewer">Findings &amp; Remediation</button>
-      <button class="nav-item" onclick="showSection('poam', this)" data-visible-to="admin lead_assessor assessor doit_reviewer" style="display:none;">POA&amp;M</button>
+      <button class="nav-item" onclick="showSection('poam', this)" data-visible-to="admin lead_assessor assessor doit_reviewer">POA&amp;M</button>
       <button class="nav-item" onclick="showSection('sar', this)" data-visible-to="admin lead_assessor assessor doit_reviewer">SAR</button>
     </div>
   </nav>
@@ -153,7 +153,7 @@
                 </div>
               </div>
               <div style="margin-top:8px; display:flex; align-items:center; gap:8px;">
-                <button class="btn btn-outline btn-sm" onclick="saveIntakeSection('profile', this)" style="font-size:.75rem; padding:5px 14px;">Save Profile</button>
+                <button class="btn btn-outline btn-sm" onclick="saveIntakeSection('profile', this)" style="font-size:.75rem; padding:5px 14px;" data-write-only="true">Save Profile</button>
                 <span style="font-size:.7rem; color:var(--text-muted);">Auto-saved on change</span>
               </div>
             </div>
@@ -221,7 +221,7 @@
                 </div>
               </div>
               <div style="margin-top:8px; display:flex; align-items:center; gap:8px;">
-                <button class="btn btn-outline btn-sm" onclick="saveIntakeSection('environment', this)" style="font-size:.75rem; padding:5px 14px;">Save IT Environment</button>
+                <button class="btn btn-outline btn-sm" onclick="saveIntakeSection('environment', this)" style="font-size:.75rem; padding:5px 14px;" data-write-only="true">Save IT Environment</button>
               </div>
             </div>
 
@@ -275,7 +275,7 @@
                 </div>
               </div>
               <div style="margin-top:8px; display:flex; align-items:center; gap:8px;">
-                <button class="btn btn-outline btn-sm" onclick="saveIntakeSection('posture', this)" style="font-size:.75rem; padding:5px 14px;">Save Security Posture</button>
+                <button class="btn btn-outline btn-sm" onclick="saveIntakeSection('posture', this)" style="font-size:.75rem; padding:5px 14px;" data-write-only="true">Save Security Posture</button>
               </div>
             </div>
 
@@ -330,7 +330,7 @@
                 </tbody>
               </table>
               <div style="margin-top:10px; display:flex; align-items:center; gap:8px;">
-                <button class="btn btn-outline btn-sm" onclick="saveIntakeSection('timeline', this)" style="font-size:.75rem; padding:5px 14px;">Save Timeline</button>
+                <button class="btn btn-outline btn-sm" onclick="saveIntakeSection('timeline', this)" style="font-size:.75rem; padding:5px 14px;" data-write-only="true">Save Timeline</button>
               </div>
             </div>
 
@@ -946,7 +946,7 @@
         <div class="card">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
             <div class="card-title" style="margin:0;">Additional Findings Register</div>
-            <button class="btn btn-primary btn-sm" data-visible-to="admin lead_assessor assessor" onclick="showAddFindingForm()">+ Add Finding</button>
+            <button class="btn btn-primary btn-sm" data-visible-to="admin lead_assessor assessor" data-write-only="true" onclick="showAddFindingForm()">+ Add Finding</button>
           </div>
           <div id="af-add-form" style="display:none;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin-bottom:16px;">
             <div style="font-size:.82rem;font-weight:700;color:#1e293b;margin-bottom:12px;">New Additional Finding</div>
@@ -1044,8 +1044,8 @@
             </tbody>
           </table></div>
           <div class="btn-row">
-            <button class="btn btn-primary" onclick="generateSarReport()">Generate SAR Report</button>
-            <button class="btn btn-outline" onclick="notify('Executive brief exported: COMP_ExecBrief.pptx')">Export Executive Brief</button>
+            <button class="btn btn-primary" onclick="generateSarReport()" data-write-only="true">Generate SAR Report</button>
+            <button class="btn btn-outline" onclick="notify('Executive brief exported: COMP_ExecBrief.pptx')" data-write-only="true">Export Executive Brief</button>
             <button class="btn btn-outline" onclick="notify('SAR synced to ServiceNow GRC')">Sync to GRC</button>
           </div>
         </div>
@@ -1549,9 +1549,9 @@
             <span class="srtm-method-tag">TEST: ${p.test}</span>
           </div>
           <div class="srtm-proc-fields" style="margin-top:10px;">
-            <div class="srtm-field"><label>Implementation Status</label><select onchange="updateProcState('${ctrl.id}','${p.id}','impl',this.value)"><option value="">&#8212; Select &#8212;</option><option value="Implemented">Implemented</option><option value="Partially Implemented">Partially Implemented</option><option value="Planned">Planned</option><option value="Not Implemented">Not Implemented</option><option value="Not Applicable">Not Applicable</option></select></div>
-            <div class="srtm-field"><label>Assessment Result</label><select onchange="updateProcState('${ctrl.id}','${p.id}','result',this.value)"><option value="">&#8212; Select &#8212;</option><option value="MET">MET</option><option value="NOT MET">NOT MET</option><option value="N/A">N/A</option></select></div>
-            <div class="srtm-field full"><label>Observation Statement</label><textarea placeholder="Document observation/finding for this procedure..." onchange="updateProcState('${ctrl.id}','${p.id}','obs',this.value)"></textarea></div>
+            <div class="srtm-field"><label>Implementation Status</label><select data-write-only="true" onchange="updateProcState('${ctrl.id}','${p.id}','impl',this.value)"><option value="">&#8212; Select &#8212;</option><option value="Implemented">Implemented</option><option value="Partially Implemented">Partially Implemented</option><option value="Planned">Planned</option><option value="Not Implemented">Not Implemented</option><option value="Not Applicable">Not Applicable</option></select></div>
+            <div class="srtm-field"><label>Assessment Result</label><select data-write-only="true" onchange="updateProcState('${ctrl.id}','${p.id}','result',this.value)"><option value="">&#8212; Select &#8212;</option><option value="MET">MET</option><option value="NOT MET">NOT MET</option><option value="N/A">N/A</option></select></div>
+            <div class="srtm-field full"><label>Observation Statement</label><textarea data-write-only="true" placeholder="Document observation/finding for this procedure..." onchange="updateProcState('${ctrl.id}','${p.id}','obs',this.value)"></textarea></div>
             <div class="srtm-field full"><label>Submitted Evidence</label><button type="button" onclick="openArtifactModal('${ctrl.id}','${fn}')" style="padding:5px 14px; font-size:.75rem; background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; border-radius:5px; cursor:pointer; margin-top:4px;">&#128196; View Submitted Evidence</button></div>
           </div>
         </div>`).join('');
@@ -1565,8 +1565,8 @@
         </div>
         <div class="srtm-ctrl-body" id="sbody-${ctrl.id.replace(/\./g,'-')}">
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;">
-            <div class="srtm-field"><label>Overall Assessment Result</label><select onchange="updateCtrlResult('${ctrl.id}',this.value)"><option value="">&#8212; Select &#8212;</option><option value="MET">MET</option><option value="NOT MET">NOT MET</option><option value="N/A">N/A</option></select></div>
-            <div class="srtm-field"><label>CMMI Maturity Level (0&#8211;5)</label><select onchange="updateCtrlCmmi('${ctrl.id}',this.value)"><option value="">&#8212; Select &#8212;</option><option value="0">0 &#8212; Nonexistent</option><option value="1">1 &#8212; Performed</option><option value="2">2 &#8212; Managed</option><option value="3">3 &#8212; Defined</option><option value="4">4 &#8212; Measured</option><option value="5">5 &#8212; Optimized</option></select></div>
+            <div class="srtm-field"><label>Overall Assessment Result</label><select data-write-only="true" onchange="updateCtrlResult('${ctrl.id}',this.value)"><option value="">&#8212; Select &#8212;</option><option value="MET">MET</option><option value="NOT MET">NOT MET</option><option value="N/A">N/A</option></select></div>
+            <div class="srtm-field"><label>CMMI Maturity Level (0&#8211;5)</label><select data-write-only="true" onchange="updateCtrlCmmi('${ctrl.id}',this.value)"><option value="">&#8212; Select &#8212;</option><option value="0">0 &#8212; Nonexistent</option><option value="1">1 &#8212; Performed</option><option value="2">2 &#8212; Managed</option><option value="3">3 &#8212; Defined</option><option value="4">4 &#8212; Measured</option><option value="5">5 &#8212; Optimized</option></select></div>
           </div>
           <div style="font-size:.75rem; font-weight:700; color:var(--primary); margin-bottom:8px;">Assessment Procedures (${ctrl.procs.length})</div>
           ${procHtml}
