@@ -832,6 +832,7 @@
         <div style="display:flex;align-items:center;gap:0;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:4px;margin-bottom:24px;width:fit-content;">
           <button onclick="showSection('risk',this)" style="padding:7px 20px;border:none;background:#2563eb;color:#fff;border-radius:7px;cursor:pointer;font-size:.82rem;font-weight:700;letter-spacing:.01em;">Risk &amp; CMMI</button>
           <button onclick="showSection('poam',this)" style="padding:7px 20px;border:none;background:none;color:#475569;border-radius:7px;cursor:pointer;font-size:.82rem;font-weight:600;">POA&amp;M</button>
+          <button onclick="showSection('additional-findings',this)" style="padding:7px 20px;border:none;background:none;color:#475569;border-radius:7px;cursor:pointer;font-size:.82rem;font-weight:600;">Additional Findings</button>
         </div>
         <div class="page-header">
           <h1>Risk Register &amp; CMMI Scoring — MDOT</h1>
@@ -900,6 +901,7 @@
         <div style="display:flex;align-items:center;gap:0;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:4px;margin-bottom:24px;width:fit-content;">
           <button onclick="showSection('risk',this)" style="padding:7px 20px;border:none;background:none;color:#475569;border-radius:7px;cursor:pointer;font-size:.82rem;font-weight:600;">Risk &amp; CMMI</button>
           <button onclick="showSection('poam',this)" style="padding:7px 20px;border:none;background:#2563eb;color:#fff;border-radius:7px;cursor:pointer;font-size:.82rem;font-weight:700;letter-spacing:.01em;">POA&amp;M</button>
+          <button onclick="showSection('additional-findings',this)" style="padding:7px 20px;border:none;background:none;color:#475569;border-radius:7px;cursor:pointer;font-size:.82rem;font-weight:600;">Additional Findings</button>
         </div>
         <div class="page-header">
           <h1>Plan of Action &amp; Milestones (POA&amp;M) — MDOT</h1>
@@ -953,7 +955,93 @@
         </div>
       </div>
 
-            <!-- SAR DASHBOARD SECTION -->
+            
+      <!-- ADDITIONAL FINDINGS SECTION -->
+      <section class="section" id="additional-findings" aria-hidden="true">
+        <div style="display:flex;align-items:center;gap:0;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:4px;margin-bottom:24px;width:fit-content;">
+          <button onclick="showSection('risk',this)" style="padding:7px 20px;border:none;background:none;color:#475569;border-radius:7px;cursor:pointer;font-size:.82rem;font-weight:600;">Risk &amp; CMMI</button>
+          <button onclick="showSection('poam',this)" style="padding:7px 20px;border:none;background:none;color:#475569;border-radius:7px;cursor:pointer;font-size:.82rem;font-weight:600;">POA&amp;M</button>
+          <button onclick="showSection('additional-findings',this)" style="padding:7px 20px;border:none;background:#2563eb;color:#fff;border-radius:7px;cursor:pointer;font-size:.82rem;font-weight:700;letter-spacing:.01em;">Additional Findings</button>
+        </div>
+        <div class="page-header">
+          <h1>Additional &amp; Out-of-Framework Findings &#8212; MDOT</h1>
+          <p>Risks identified during assessment that fall outside standard NIST CSF subcategory mappings. Each finding is anchored to a CSF Function, assigned severity and CMMI context &#8212; documented and delivered, not scored.</p>
+        </div>
+        <div class="anchor-banner" style="margin-bottom:20px;">
+          <div><strong>Contextual Risk Capture:</strong> These findings are identified by the Risk Assessment Consultant and surfaced during Optimize-phase analysis. They do not affect maturity scores but appear in the agency SAR for risk-informed decision-making by the agency and OSM.</div>
+        </div>
+        <div class="grid-4" style="margin-bottom:20px;">
+          <div class="stat-card"><div class="stat-label">Total Findings</div><div class="stat-value" id="af-total">0</div><div class="stat-sub">Contextual, not scored</div></div>
+          <div class="stat-card red"><div class="stat-label">Critical</div><div class="stat-value" id="af-critical">0</div><div class="stat-sub">Immediate attention</div></div>
+          <div class="stat-card accent"><div class="stat-label">High</div><div class="stat-value" id="af-high">0</div><div class="stat-sub">30-day remediation</div></div>
+          <div class="stat-card"><div class="stat-label">Functions Affected</div><div class="stat-value" id="af-functions">0</div><div class="stat-sub">CSF functions impacted</div></div>
+        </div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <div class="card-title" style="margin:0;">Out-of-Framework Risk Register</div>
+            <button class="btn btn-primary btn-sm" data-visible-to="admin lead_assessor assessor" onclick="showAddFindingForm()">+ Add Finding</button>
+          </div>
+          <div id="af-add-form" style="display:none;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin-bottom:16px;">
+            <div style="font-size:.82rem;font-weight:700;color:#1e293b;margin-bottom:12px;">New Out-of-Framework Finding</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+              <div style="grid-column:1/-1;">
+                <label style="font-size:.75rem;font-weight:700;display:block;margin-bottom:4px;">Finding Description *</label>
+                <textarea id="af-desc" rows="2" placeholder="Describe the risk or exposure identified..." style="width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:8px;font-size:.82rem;font-family:inherit;resize:vertical;box-sizing:border-box;"></textarea>
+              </div>
+              <div>
+                <label style="font-size:.75rem;font-weight:700;display:block;margin-bottom:4px;">CSF Function *</label>
+                <select id="af-function" style="width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:8px;font-size:.82rem;font-family:inherit;">
+                  <option value="">&#8212; Select &#8212;</option>
+                  <option>GOVERN</option><option>IDENTIFY</option><option>PROTECT</option>
+                  <option>DETECT</option><option>RESPOND</option><option>RECOVER</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size:.75rem;font-weight:700;display:block;margin-bottom:4px;">Risk Type *</label>
+                <select id="af-type" style="width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:8px;font-size:.82rem;font-family:inherit;">
+                  <option value="">&#8212; Select &#8212;</option>
+                  <option>Shadow IT</option><option>Vendor Dependency</option><option>Legacy System</option>
+                  <option>Organizational Gap</option><option>Operational Risk</option><option>Other</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size:.75rem;font-weight:700;display:block;margin-bottom:4px;">Severity *</label>
+                <select id="af-severity" style="width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:8px;font-size:.82rem;font-family:inherit;">
+                  <option value="">&#8212; Select &#8212;</option>
+                  <option>Critical</option><option>High</option><option>Medium</option><option>Low</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size:.75rem;font-weight:700;display:block;margin-bottom:4px;">CMMI Context Level</label>
+                <select id="af-cmmi" style="width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:8px;font-size:.82rem;font-family:inherit;">
+                  <option value="">&#8212; Not specified &#8212;</option>
+                  <option value="0">0 &#8212; Nonexistent</option><option value="1">1 &#8212; Performed</option>
+                  <option value="2">2 &#8212; Managed</option><option value="3">3 &#8212; Defined</option>
+                  <option value="4">4 &#8212; Measured</option><option value="5">5 &#8212; Optimized</option>
+                </select>
+              </div>
+              <div style="grid-column:1/-1;">
+                <label style="font-size:.75rem;font-weight:700;display:block;margin-bottom:4px;">Recommendation</label>
+                <textarea id="af-rec" rows="2" placeholder="Recommended action or remediation path..." style="width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:8px;font-size:.82rem;font-family:inherit;resize:vertical;box-sizing:border-box;"></textarea>
+              </div>
+            </div>
+            <div class="btn-row">
+              <button class="btn btn-primary btn-sm" onclick="saveAdditionalFinding()">Save Finding</button>
+              <button class="btn btn-outline btn-sm" onclick="document.getElementById('af-add-form').style.display='none'">Cancel</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table><thead><tr><th>#</th><th>Finding</th><th>CSF Function</th><th>Risk Type</th><th>Severity</th><th>CMMI Context</th><th>Recommendation</th><th>Status</th></tr></thead>
+              <tbody id="af-tbody"></tbody>
+            </table>
+          </div>
+          <div class="btn-row" style="margin-top:12px;">
+            <button class="btn btn-outline btn-sm" onclick="notify('mdot_AdditionalFindings.xlsx exported.')">Export</button>
+          </div>
+        </div>
+      </section>
+
+<!-- SAR DASHBOARD SECTION -->
       <section class="section" id="sar" aria-hidden="true">
         <div class="page-header">
           <h1>System Assessment Report (SAR) &#8212; MDOT</h1>
@@ -2718,6 +2806,65 @@
     });
     // \u2500\u2500 End POA&M Detail Modal \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500────────────────────────
 
-  </script>
+  
+    // Additional Findings — Out-of-Framework Risk Register
+    (function() {
+      var STORE = 'anchor_additional_risks_mdot';
+      var SEED  = [{"id": "AF-001", "desc": "OT/ICS systems managing transportation infrastructure lack network segmentation from enterprise IT environment", "fn": "PROTECT", "type": "Legacy System", "severity": "Critical", "cmmi": "1", "rec": "Implement OT/IT network segmentation with monitored DMZ; engage ICS-specific security specialist", "status": "Open"}, {"id": "AF-002", "desc": "Third-party traffic management vendors have no formal cybersecurity SLA or security assessment requirements", "fn": "GOVERN", "type": "Vendor Dependency", "severity": "High", "cmmi": "2", "rec": "Establish vendor security assessment program; require cybersecurity SLA in all traffic management contracts", "status": "Open"}, {"id": "AF-003", "desc": "Field operations staff using personal mobile devices to access enterprise systems without MDM enforcement", "fn": "PROTECT", "type": "Shadow IT", "severity": "High", "cmmi": "1", "rec": "Enforce Mobile Device Management (MDM) policy; restrict enterprise access to managed devices only", "status": "Open"}];
+      function getF() { var s=localStorage.getItem(STORE); return s?JSON.parse(s):SEED; }
+      function saveF(f) { localStorage.setItem(STORE,JSON.stringify(f)); }
+      function fnCls(fn) { return {GOVERN:"fn-govern",IDENTIFY:"fn-identify",PROTECT:"fn-protect",DETECT:"fn-detect",RESPOND:"fn-respond",RECOVER:"fn-recover"}[fn]||""; }
+      function sevBadge(s) { var m={Critical:"badge-red",High:"badge-orange",Medium:"badge-yellow",Low:"badge-green"}; return '<span class="badge '+(m[s]||"")+'">'+ s+'</span>'; }
+      window.renderAdditionalFindings = function() {
+        var findings=getF(), tbody=document.getElementById("af-tbody"); if(!tbody) return;
+        var crit=findings.filter(function(f){return f.severity==="Critical";}).length;
+        var high=findings.filter(function(f){return f.severity==="High";}).length;
+        var fns=new Set(findings.map(function(f){return f.fn;})).size;
+        var el; el=document.getElementById("af-total"); if(el) el.textContent=findings.length;
+        el=document.getElementById("af-critical"); if(el) el.textContent=crit;
+        el=document.getElementById("af-high"); if(el) el.textContent=high;
+        el=document.getElementById("af-functions"); if(el) el.textContent=fns;
+        if(!findings.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:#94a3b8;padding:24px;font-size:.82rem;">No additional findings logged. Use &ldquo;+ Add Finding&rdquo; to document out-of-framework risks.</td></tr>';return;}
+        tbody.innerHTML=findings.map(function(f){
+          var cmmiLbl=f.cmmi!=="" ? "CMMI "+f.cmmi+' <span style="font-size:.68rem;color:#94a3b8;">(contextual)</span>' : "&#8212;";
+          var sCls=f.status==="Open"?"badge-orange":f.status==="In Remediation"?"badge-blue":"badge-green";
+          return "<tr>"+
+            '<td style="font-size:.73rem;color:#94a3b8;white-space:nowrap;">'+f.id+"</td>"+
+            '<td style="font-size:.78rem;max-width:200px;">'+f.desc+"</td>"+
+            '<td><span class="fn-tag '+fnCls(f.fn)+'">'+f.fn+"</span></td>"+
+            '<td style="font-size:.76rem;white-space:nowrap;">'+f.type+"</td>"+
+            "<td>"+sevBadge(f.severity)+"</td>"+
+            '<td style="font-size:.75rem;">'+cmmiLbl+"</td>"+
+            '<td style="font-size:.76rem;max-width:180px;">'+f.rec+"</td>"+
+            '<td><span class="badge '+sCls+'">'+f.status+"</span></td>"+
+          "</tr>";
+        }).join("");
+      };
+      window.showAddFindingForm = function() { var f=document.getElementById("af-add-form"); if(f) f.style.display=f.style.display==="none"?"block":"none"; };
+      window.saveAdditionalFinding = function() {
+        var desc=(document.getElementById("af-desc")||{}).value||"",
+            fn=(document.getElementById("af-function")||{}).value||"",
+            type=(document.getElementById("af-type")||{}).value||"",
+            sev=(document.getElementById("af-severity")||{}).value||"",
+            cmmi=(document.getElementById("af-cmmi")||{}).value||"",
+            rec=(document.getElementById("af-rec")||{}).value||"";
+        desc=desc.trim(); rec=rec.trim();
+        if(!desc||!fn||!type||!sev){notify("Please complete all required fields: Description, CSF Function, Risk Type, and Severity.");return;}
+        var findings=getF(), newId="AF-"+String(findings.length+1).padStart(3,"0");
+        findings.push({id:newId,desc:desc,fn:fn,type:type,severity:sev,cmmi:cmmi,rec:rec,status:"Open"});
+        saveF(findings);
+        ["af-desc","af-rec"].forEach(function(id){var el=document.getElementById(id);if(el)el.value="";});
+        ["af-function","af-type","af-severity","af-cmmi"].forEach(function(id){var el=document.getElementById(id);if(el)el.value="";});
+        var form=document.getElementById("af-add-form"); if(form) form.style.display="none";
+        renderAdditionalFindings();
+        notify("Finding "+newId+" saved to Additional Findings register.");
+      };
+      // Hook showSection
+      var _oShow=window.showSection;
+      window.showSection=function(id,el){if(_oShow)_oShow(id,el);if(id==="additional-findings")setTimeout(renderAdditionalFindings,50);};
+      if(!localStorage.getItem(STORE)) saveF(SEED);
+      setTimeout(renderAdditionalFindings,300);
+    })();
+</script>
 </body>
 </html>
