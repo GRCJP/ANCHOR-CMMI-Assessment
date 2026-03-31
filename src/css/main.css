@@ -192,7 +192,7 @@ body.has-agency-bar #main-content { margin-top: 142px; min-height: calc(100vh - 
 
 /* CONTENT */
 .content {
-  padding: 0 28px 28px;
+  padding: 0;
   flex: 1;
 }
 
@@ -204,7 +204,13 @@ body.has-agency-bar #main-content { margin-top: 142px; min-height: calc(100vh - 
   display: block;
 }
 
-/* All agency sections live outside .content — apply consistent padding */
+/* Questionnaire lives inside .content wrapper — give it side/bottom padding */
+#questionnaire.active,
+#self-assessment.active {
+  padding: 0 28px 28px;
+}
+
+/* All other agency sections are direct children of #main-content */
 #main-content > section.active {
   padding: 0 28px 28px;
 }
@@ -428,7 +434,7 @@ html, body {
 }
 
 .content {
-  padding: 28px;
+  padding: 0;
   flex: 1;
   overflow-x: hidden;
   overflow-y: auto;
