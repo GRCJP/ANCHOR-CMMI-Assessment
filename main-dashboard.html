@@ -1027,7 +1027,7 @@
                     <div class="form-group"><label>Full Name</label><input id="inv-name" placeholder="e.g., Lisa Harmon" oninput="updateEmailPreview()"></div>
                     <div class="form-group"><label>Email Address</label><input id="inv-email" placeholder="name@agency.maryland.gov" oninput="updateEmailPreview()"></div>
                     <div class="form-group"><label>Role</label>
-                      <select id="inv-role" onchange="updateEmailPreview()">
+                      <select id="inv-role" onchange="toggleAgencyField(); updateEmailPreview()">
                         <option value="">— Select Role —</option>
                         <option>Program Manager</option>
                         <option>Lead Assessor</option>
@@ -1394,7 +1394,10 @@
     const AGENCIES = {
       mdot:{name:'Maryland Dept. of Transportation (MDOT)', status:'In Progress', stage:'Evidence Collection', progress:'65%'},
       dpscs:{name:'MD Dept. of Public Safety & Correctional Services', status:'In Progress', stage:'CSF Assessment', progress:'35%'},
-      msde:{name:'Maryland State Dept. of Education (MSDE)', status:'Complete', stage:'SAR Delivered', progress:'100%'}
+      msde:{name:'Maryland State Dept. of Education (MSDE)', status:'Complete', stage:'SAR Delivered', progress:'100%'},
+      mdh:{name:'Maryland Department of Health (MDH)', status:'In Progress', stage:'CSF Assessment', progress:'48%'},
+      labor:{name:'Maryland Department of Labor', status:'In Progress', stage:'Intake & Scoping', progress:'20%'},
+      comptroller:{name:'Office of the Comptroller of Maryland', status:'In Progress', stage:'Intake & Scoping', progress:'15%'}
     };
     const ACTIVITY_LOG_KEY = 'demo_activity_log';
 
@@ -1613,7 +1616,7 @@
       
       setTimeout(() => {
         closeCreateAssessmentModal();
-        window.location.href = `index.html?agency=${agencyKey}`;
+        window.location.href = `agency-${agencyKey}.html`;
       }, 1200);
     }
 
@@ -2506,7 +2509,7 @@
         if (session) {
           const user = JSON.parse(session);
           if (user.role === 'assessor') {
-            const saNav = document.querySelector('[onclick*="showSection(\'sa\'"]');
+            const saNav = Array.from(document.querySelectorAll('.nav-item')).find(el => el.getAttribute('onclick')?.includes("'sa'"));
             showSection('sa', saNav);
           }
         }

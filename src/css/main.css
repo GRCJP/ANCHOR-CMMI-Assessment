@@ -30,7 +30,7 @@ body {
 
 /* ── APP HEADER ─────────────────────────────── */
 .app-header {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1100;
   height: 56px;
   background: #1e3a5f;
   display: flex; align-items: center; justify-content: space-between;
@@ -44,7 +44,7 @@ body {
 
 /* ── TOP NAV ─────────────────────────────────── */
 .topnav {
-  position: fixed; top: 56px; left: 0; right: 0; z-index: 190;
+  position: fixed; top: 56px; left: 0; right: 0; z-index: 1050;
   height: 44px;
   background: #e8edf4;
   border-bottom: 2px solid #c8d3e0;
@@ -550,7 +550,8 @@ html, body {
 .ml-block.filled-5 { background:#0d9488; }
 .ml-label { font-size:.65rem; color:var(--text-muted); margin-left:4px; }
 .lsp-ring { width:80px; height:80px; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:1.4rem; font-weight:800; border:5px solid var(--border); flex-shrink:0; }
-.srtm-score-sidebar { position:sticky; top:70px; }
+.srtm-score-sidebar { position:sticky; top:110px; }
+.chart-wrap-sm { position: relative; height: 260px; }
 .srtm-domain-bar { display:flex; gap:0; border-bottom:2px solid var(--border); margin-bottom:18px; overflow-x:auto; }
 .srtm-domain-tab { padding:9px 14px; cursor:pointer; font-size:.74rem; font-weight:700; border-bottom:3px solid transparent; margin-bottom:-2px; white-space:nowrap; transition:all .15s; color:var(--text-muted); }
 .srtm-domain-tab.active { border-bottom-color:var(--primary); color:var(--primary); }

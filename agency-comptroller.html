@@ -14,8 +14,12 @@
   <link rel="stylesheet" href="src/css/main.css?v=2">
   <link rel="stylesheet" href="src/css/components.css?v=2">
   <link rel="stylesheet" href="src/css/accessibility.css?v=2">
+
+  <!-- Auth -->
+  <script src="src/js/aws-auth.js"></script>
+  <script src="src/js/auth-guard.js"></script>
 </head>
-<body>
+<body data-require-auth="true" data-require-agency="COMPTROLLER">
 
   <!-- APP HEADER -->
   <header class="app-header">
@@ -732,7 +736,6 @@
         el.setAttribute('aria-expanded', 'true');
       }
       if (window.agencyAssessment) { window.agencyAssessment.initializeSection(id); }
-    }
     }
 
     function notify(msg) {
