@@ -9,13 +9,15 @@
 
   <!-- External dependencies -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="src/js/aws-auth.js"></script>
+  <script src="src/js/auth-guard.js"></script>
 
   <!-- CSS files -->
   <link rel="stylesheet" href="src/css/main.css">
   <link rel="stylesheet" href="src/css/components.css">
   <link rel="stylesheet" href="src/css/accessibility.css">
 </head>
-<body>
+<body data-require-auth="true" data-require-agency="COMPTROLLER">
   <!-- Skip to main content link for accessibility -->
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
@@ -515,7 +517,6 @@
             </div>
             <div class="btn-row">
               <button class="btn btn-primary btn-sm" onclick="notify('Assessment scoring exported: COMP_CSF_SRTM_Scoring.xlsx')">Export Full SRTM</button>
-              <button class="btn btn-outline btn-sm" onclick="notify('Scoring briefed to Lead Assessor')">Brief Assessor</button>
             </div>
           </div>
           <div class="card">
@@ -743,7 +744,7 @@
       const title = titles[sectionId] || 'Assessment';
       const titleElement = document.getElementById('topbar-title');
       if (titleElement) {
-        titleElement.innerHTML = `${title} - Office of the Comptroller of Maryland<span>Current Stage: Intake &amp; Scoping</span>`;
+        titleElement.textContent = `${title} — Office of the Comptroller of Maryland`;
       }
     }
 
@@ -1063,7 +1064,102 @@
       tb.innerHTML = rows.join('');
     }
 
-    function updateSummaryCharts() {}
+    function updateSummaryCharts() {
+      if (typeof Chart === 'undefined') return;
+
+      // Compute per-function stats from srtmState
+      const fnStats = {};
+      SRTM_DATA.forEach(domain => {
+        const s = { fn: domain.fn, total: domain.controls.length, met: 0, notmet: 0, na: 0, unscored: 0, cmmiSum: 0, cmmiCnt: 0, notMetCtrls: [] };
+        domain.controls.forEach(ctrl => {
+          const st = srtmState[ctrl.id];
+          if (!st || !st.result) { s.unscored++; }
+          else if (st.result === 'MET')     { s.met++; }
+          else if (st.result === 'NOT MET') { s.notmet++; s.notMetCtrls.push({ id: ctrl.id, name: ctrl.name || ctrl.id, cmmi: st.cmmi || '—', obs: st.obs || '', impact: 'High' }); }
+          else if (st.result === 'N/A')     { s.na++; }
+          if (st && st.cmmi !== '' && st.cmmi !== undefined) { s.cmmiSum += Number(st.cmmi); s.cmmiCnt++; }
+        });
+        fnStats[domain.fn] = s;
+      });
+
+      // Populate summary table
+      const summaryTb = document.getElementById('s2-summary-table');
+      if (summaryTb) {
+        const cmmiColors = ['#6b7280','#dc2626','#ea580c','#d97706','#16a34a','#0d9488'];
+        summaryTb.innerHTML = Object.values(fnStats).map(s => {
+          const avg = s.cmmiCnt > 0 ? (s.cmmiSum / s.cmmiCnt).toFixed(1) : '—';
+          const ml  = s.cmmiCnt > 0 ? Math.min(5, Math.floor(s.cmmiSum / s.cmmiCnt)) : 0;
+          const pct = s.total > 0 ? Math.round((s.met + s.notmet + s.na) / s.total * 100) : 0;
+          const status = pct >= 100 ? '<span class="badge badge-green">Complete</span>' : pct > 0 ? '<span class="badge badge-blue">In Progress</span>' : '<span class="badge badge-gray">Not Started</span>';
+          return `<tr>
+            <td><span class="fn-tag ${fnMap[s.fn]}">${s.fn}</span></td>
+            <td>${s.total}</td>
+            <td style="color:#16a34a;font-weight:700;">${s.met}</td>
+            <td style="color:#dc2626;font-weight:700;">${s.notmet}</td>
+            <td>${s.na}</td>
+            <td>${s.unscored}</td>
+            <td><strong style="color:${s.cmmiCnt > 0 ? cmmiColors[ml] : '#6b7280'}">${avg}</strong></td>
+            <td>${status}</td>
+          </tr>`;
+        }).join('');
+      }
+
+      // Populate findings (NOT MET controls)
+      const findingsTb = document.getElementById('s2-findings-table');
+      if (findingsTb) {
+        const allFindings = Object.values(fnStats).flatMap(s => s.notMetCtrls.map(c => ({ ...c, fn: s.fn })));
+        if (allFindings.length === 0) {
+          findingsTb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:20px;">No controls marked NOT MET yet.</td></tr>';
+        } else {
+          findingsTb.innerHTML = allFindings.map(f => `<tr>
+            <td><code>${f.id}</code></td>
+            <td>${f.name}</td>
+            <td><span class="fn-tag ${fnMap[f.fn]}">${f.fn}</span></td>
+            <td><strong>${f.cmmi}</strong></td>
+            <td style="font-size:.78rem;color:var(--text-muted);">${f.obs || '—'}</td>
+            <td><span class="badge badge-orange">High</span></td>
+          </tr>`).join('');
+        }
+      }
+
+      // Radar chart — per-function avg CMMI
+      const radarEl = document.getElementById('s2SummaryRadar');
+      if (radarEl) {
+        const existing = Chart.getChart(radarEl); if (existing) existing.destroy();
+        const vals = Object.values(fnStats).map(s => s.cmmiCnt > 0 ? parseFloat((s.cmmiSum / s.cmmiCnt).toFixed(1)) : 0);
+        new Chart(radarEl, {
+          type: 'radar',
+          data: {
+            labels: Object.keys(fnStats),
+            datasets: [
+              { label: 'Current CMMI', data: vals, backgroundColor: 'rgba(37,99,168,.15)', borderColor: '#2563a8', pointBackgroundColor: '#2563a8', borderWidth: 2 },
+              { label: 'Target (3.0)', data: Object.keys(fnStats).map(() => 3), backgroundColor: 'rgba(39,174,96,.08)', borderColor: '#27ae60', borderDash: [5,4], borderWidth: 2, pointBackgroundColor: '#27ae60' }
+            ]
+          },
+          options: { responsive: true, maintainAspectRatio: false, scales: { r: { min: 0, max: 5, ticks: { stepSize: 1 } } }, plugins: { legend: { position: 'bottom' } } }
+        });
+      }
+
+      // Bar chart — MET / NOT MET / N/A / Unscored per function
+      const barEl = document.getElementById('s2SummaryBar');
+      if (barEl) {
+        const existing = Chart.getChart(barEl); if (existing) existing.destroy();
+        const fns = Object.values(fnStats);
+        new Chart(barEl, {
+          type: 'bar',
+          data: {
+            labels: fns.map(s => s.fn),
+            datasets: [
+              { label: 'MET',      data: fns.map(s => s.met),      backgroundColor: '#16a34a', borderRadius: 4 },
+              { label: 'NOT MET',  data: fns.map(s => s.notmet),   backgroundColor: '#dc2626', borderRadius: 4 },
+              { label: 'N/A',      data: fns.map(s => s.na),       backgroundColor: '#6b7280', borderRadius: 4 },
+              { label: 'Unscored', data: fns.map(s => s.unscored), backgroundColor: '#e5e7eb', borderRadius: 4 }
+            ]
+          },
+          options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true } }, plugins: { legend: { position: 'bottom' } } }
+        });
+      }
+    }
 
     function exportSrtm() { notify('SRTM exported: COMP_NIST_CSF_SRTM_Assessment.xlsx \u2014 All controls, procedures, observations, and evidence included.'); }
 
