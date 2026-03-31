@@ -213,18 +213,75 @@ body {
   color: #4b5563; 
 }
 
-.avatar { 
-  width: 34px; 
-  height: 34px; 
-  border-radius: 50%; 
-  background: var(--primary); 
-  color: #fff; 
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
-  font-size: .75rem; 
-  font-weight: 700; 
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .75rem;
+  font-weight: 800;
+  cursor: pointer;
+  border: none;
+  flex-shrink: 0;
+  letter-spacing: .03em;
+  transition: box-shadow .15s ease, transform .12s ease;
+  user-select: none;
 }
+.avatar:hover {
+  box-shadow: 0 0 0 3px rgba(99,102,241,.28);
+  transform: scale(1.07);
+}
+
+/* ── Avatar dropdown (details/summary pattern) ─────────── */
+details.av-wrap { position: relative; list-style: none; }
+details.av-wrap > summary { list-style: none; }
+details.av-wrap > summary::-webkit-details-marker { display: none; }
+
+.av-menu {
+  position: absolute; right: 0; top: calc(100% + 10px);
+  min-width: 228px; background: #fff; border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0,0,0,.14), 0 2px 8px rgba(0,0,0,.06);
+  border: 1px solid #e8ecf0; z-index: 2000;
+  animation: avSlideIn .16s ease;
+}
+@keyframes avSlideIn {
+  from { opacity: 0; transform: translateY(-8px) scale(.96); }
+  to   { opacity: 1; transform: none; }
+}
+
+.av-menu-header {
+  padding: 16px 16px 13px; display: flex; align-items: center; gap: 11px;
+}
+.av-menu-badge {
+  width: 42px; height: 42px; border-radius: 50%;
+  background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
+  color: #fff; font-size: .78rem; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; letter-spacing: .03em;
+}
+.av-menu-name { font-size: .84rem; font-weight: 700; color: #1e293b; line-height: 1.3; }
+.av-menu-role {
+  font-size: .64rem; font-weight: 700; color: #64748b;
+  text-transform: uppercase; letter-spacing: .07em; margin-top: 2px;
+}
+.av-menu-email { font-size: .67rem; color: #94a3b8; margin-top: 1px; }
+
+.av-divider { height: 1px; background: #f1f5f9; }
+
+.av-item {
+  display: flex; align-items: center; gap: 9px; width: 100%;
+  padding: 10px 16px; background: none; border: none; font-family: inherit;
+  font-size: .8rem; color: #374151; cursor: pointer; text-align: left;
+  transition: background .1s;
+}
+.av-item:hover { background: #f8fafc; }
+.av-item:last-child { border-radius: 0 0 12px 12px; }
+.av-signout { color: #dc2626; }
+.av-signout:hover { background: #fef2f2; color: #b91c1c; }
 
 /* CONTENT */
 .content { 

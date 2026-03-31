@@ -17,6 +17,21 @@
   <link rel="stylesheet" href="src/css/main.css">
   <link rel="stylesheet" href="src/css/components.css">
   <link rel="stylesheet" href="src/css/accessibility.css">
+  <style>
+    @media print {
+      body > *:not(#sar-modal) { display: none !important; }
+      #sar-modal { position: static !important; background: none !important; padding: 0 !important; overflow: visible !important; display: block !important; }
+      #sar-modal > div { box-shadow: none !important; border-radius: 0 !important; max-width: 100% !important; }
+      #sar-modal > div > div:first-child { display: none !important; } /* hide toolbar */
+      #sar-modal > div > div:last-child > div:last-child { display: none !important; } /* hide bottom print buttons */
+      @page { margin: 0.85in 0.75in; }
+      body { background: #fff !important; }
+      table { page-break-inside: auto; }
+      tr { page-break-inside: avoid; }
+      h2, h3 { page-break-after: avoid; }
+      .sar-section { page-break-inside: avoid; }
+    }
+  </style>
 </head>
 <body data-require-auth="true" data-require-agency="MDOT">
   <!-- Skip to main content link for accessibility -->
@@ -78,20 +93,12 @@
     <header class="topbar">
       <div class="topbar-title" id="topbar-title">
         MDOT Assessment Dashboard
-        <span>Maryland Dept. of Transportation (MDOT)</span>
       </div>
       <div class="topbar-right">
-        <span class="badge badge-blue" aria-label="Framework">🔒 NIST CSF 2.0</span>
-        <span class="badge badge-orange" aria-label="Status">In Progress</span>
-        <span class="badge badge-green" aria-label="Progress">📈 65% Complete</span>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div style="text-align:right;line-height:1.2;">
-            <div id="user-name" style="font-size:.75rem;font-weight:600;color:#374151;">Loading...</div>
-            <div id="user-role" style="font-size:.65rem;color:#6b7280;"></div>
-          </div>
-          <div class="avatar" id="user-avatar" aria-label="Logged-in user">JW</div>
-          <button class="btn btn-outline btn-sm" data-action="logout" style="font-size:.72rem;padding:4px 10px;">Logout</button>
-        </div>
+        <button class="btn btn-outline btn-sm" onclick="doLogout()" style="display:flex;align-items:center;gap:6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sign Out
+        </button>
       </div>
     </header>
 
@@ -193,7 +200,6 @@
       <!-- QUESTIONNAIRE + INTAKE & SCOPING SECTION (combined) -->
       <section class="section active" id="questionnaire" aria-hidden="false" data-visible-to="admin lead_assessor assessor">
         <div class="page-header">
-          <div class="step-tag">Step 1 | ANCHOR Phase 0–1</div>
           <h1>Agency Setup &amp; Intake</h1>
           <p>Capture agency profile, IT environment, and security posture to configure the assessment. Pod assignment and wave scheduling are predefined by the client.</p>
         </div>
@@ -205,12 +211,13 @@
         <!-- PRE-ASSESS PROGRESS BANNER -->
         <div style="background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:10px 20px 12px; margin-bottom:14px;">
           <div style="font-size:.62rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px;">Pre-Assessment Stage Progress</div>
-          <div class="h-stepper" style="margin:0;">
+          <div class="h-stepper" style="margin:0;" id="pre-assess-stepper">
             <div class="h-step done"><div class="h-step-circle">✓</div><div class="h-step-label">Setup Tool &amp; Profile</div></div>
-            <div class="h-step active"><div class="h-step-circle">2</div><div class="h-step-label">Confirm Assignment &amp; Schedule</div></div>
-            <div class="h-step"><div class="h-step-circle">3</div><div class="h-step-label">Send Questionnaire</div></div>
-            <div class="h-step"><div class="h-step-circle">4</div><div class="h-step-label">Receive Agency Responses</div></div>
-            <div class="h-step"><div class="h-step-circle">5</div><div class="h-step-label">Issue Kick-Off Package</div></div>
+            <div class="h-step done"><div class="h-step-circle">✓</div><div class="h-step-label">Confirm Assignment &amp; Schedule</div></div>
+            <div class="h-step done" id="pre-step-3"><div class="h-step-circle">✓</div><div class="h-step-label">Send Kick-Off Presentation</div></div>
+            <div class="h-step done" id="pre-step-4"><div class="h-step-circle">✓</div><div class="h-step-label">Create Account Credentials</div></div>
+            <div class="h-step done" id="pre-step-5"><div class="h-step-circle">✓</div><div class="h-step-label">Schedule Preliminary Meeting</div></div>
+            <div class="h-step done" id="pre-step-6"><div class="h-step-circle">✓</div><div class="h-step-label">Save &amp; Complete</div></div>
           </div>
         </div>
 
@@ -361,16 +368,32 @@
               </div>
             </div>
 
-            <div class="btn-row">
-              <button id="intake-draft-btn" class="btn btn-outline" onclick="saveIntakeDraft()">Save Draft</button>
-              <button id="intake-submit-btn" class="btn btn-primary" onclick="submitIntakeForm()">Save &amp; Submit Intake</button>
-              <button class="btn btn-outline" onclick="notify('Kick-off presentation sent to l.harmon@mdot.maryland.gov')">Send Kick-Off Package</button>
-              <button class="btn btn-outline" onclick="notify('Questionnaire exported: MDOT_PreAssess_Q.pdf')">Export PDF</button>
+            <!-- Workflow Action Strip -->
+            <div style="background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-top:4px;">
+              <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:10px;">Pre-Assessment Workflow — Complete Steps 3–6 in Order</div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <span id="step-kickoff-icon" style="width:22px;height:22px;border-radius:50%;background:#e2e8f0;color:#64748b;font-size:.65rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</span>
+                  <button id="intake-kickoff-btn" class="btn btn-outline btn-sm" style="flex:1;border-color:#7c3aed;color:#7c3aed;" onclick="sendKickoffPackage()">Send Kick-Off</button>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <span id="step-creds-icon" style="width:22px;height:22px;border-radius:50%;background:#e2e8f0;color:#64748b;font-size:.65rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</span>
+                  <button id="intake-creds-btn" class="btn btn-outline btn-sm" style="flex:1;border-color:#0891b2;color:#0891b2;" onclick="createAccountCredentials()">Create Credentials</button>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <span id="step-meeting-icon" style="width:22px;height:22px;border-radius:50%;background:#e2e8f0;color:#64748b;font-size:.65rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">5</span>
+                  <button id="intake-meeting-btn" class="btn btn-outline btn-sm" style="flex:1;border-color:#d97706;color:#d97706;" onclick="schedulePrelimMeeting()">Schedule Meeting</button>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <span id="step-submit-icon" style="width:22px;height:22px;border-radius:50%;background:#e2e8f0;color:#64748b;font-size:.65rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">6</span>
+                  <button id="intake-submit-btn" class="btn btn-primary btn-sm" style="flex:1;" onclick="submitIntakeForm()">Save &amp; Complete</button>
+                </div>
+              </div>
             </div>
             <div id="intake-locked-indicator" style="display:none;align-items:center;gap:10px;padding:10px 16px;background:#d1fae5;border:1px solid #6ee7b7;border-radius:8px;margin-top:8px;">
               <span style="font-size:1rem;">✅</span>
               <span style="font-size:.8rem;font-weight:700;color:#065f46;">Intake Submitted — Assessment advanced to Evidence Collection</span>
-              <button id="intake-unlock-btn" onclick="unlockIntakeForm()" style="display:none;margin-left:auto;font-size:.72rem;padding:4px 12px;border-radius:6px;border:1px solid #059669;background:#fff;color:#065f46;cursor:pointer;font-weight:600;">Unlock for Editing</button>
+              <button id="intake-unlock-btn" onclick="unlockIntakeForm()" style="display:none;margin-left:auto;font-size:.75rem;padding:6px 14px;border-radius:6px;border:1.5px solid #2563a8;background:#2563a8;color:#fff;cursor:pointer;font-weight:700;">✏️ Edit Intake</button>
             </div>
           </div>
 
@@ -435,20 +458,8 @@
                   <tr><td style="padding:5px 4px; color:var(--text-muted); white-space:nowrap;">Maturity Group</td><td style="padding:5px 4px;"><select id="sq-matgroup" style="border:1px solid var(--border); border-radius:5px; padding:3px 7px; font-size:.78rem; width:100%;"><option>Group A (0.0–1.4)</option><option selected>Group B (1.5–2.5)</option><option>Group C (2.6–3.4)</option><option>Group D (3.5–4.4)</option><option>Group E (4.5–5.0)</option></select></td></tr>
                 </tbody>
               </table>
-              <div style="margin-top:10px;display:flex;flex-direction:column;gap:5px;">
-                <button class="btn btn-primary btn-sm" onclick="submitIntakeForm()">Save &amp; Submit Intake</button>
-                <button class="btn btn-outline btn-sm" onclick="saveIntakeDraft()">Save Draft</button>
-              </div>
             </div>
 
-            <!-- Stage Actions -->
-            <div style="background:var(--card-bg); border:1px solid var(--border); border-left:4px solid #059669; border-radius:8px; padding:14px 16px; box-shadow:0 1px 4px rgba(0,0,0,.04);">
-              <div style="font-size:.78rem; font-weight:800; color:#059669; text-transform:uppercase; letter-spacing:.5px; margin-bottom:10px;">Stage Actions</div>
-              <div style="display:flex; flex-direction:column; gap:6px;">
-                <button class="btn btn-accent btn-sm" style="justify-content:flex-start;" onclick="notify('Kick-off presentation sent to l.harmon@mdot.maryland.gov')">Send Kick-Off Presentation</button>
-                <button class="btn btn-outline btn-sm" style="justify-content:flex-start;" onclick="submitIntakeForm()">Submit Intake &amp; Advance Pipeline</button>
-              </div>
-            </div>
 
           </div>
         </div>
@@ -458,7 +469,6 @@
       <!-- CSF ASSESSMENT SECTION -->
       <section class="section" id="csf" aria-hidden="true">
         <div class="page-header">
-          <div class="step-tag">CSF Assessment | ANCHOR ASSESS Phase</div>
           <h1>NIST CSF 2.0 Assessment — SRTM Workbook</h1>
           <p>Conduct the full NIST CSF 2.0 assessment aligned with the ANCHOR framework. Each control has assessment procedures with EXAMINE / INTERVIEW / TEST methods, implementation status, result scoring, and evidence mapping.</p>
         </div>
@@ -752,7 +762,6 @@
           <div class="btn-row">
             <button class="btn btn-primary btn-sm" onclick="notify('Automated reminders sent to pending evidence owners')">Send Reminders</button>
             <button class="btn btn-outline btn-sm" onclick="notify('Evidence tracker exported: MDOT_Evidence_Log.xlsx')">Export</button>
-            <button class="btn btn-outline btn-sm" onclick="notify('Evidence synced with ServiceNow GRC')">Sync to GRC</button>
           </div>
         </div>
 
@@ -837,7 +846,7 @@
           <div class="stat-card accent"><div class="stat-label">Overall CMMI</div><div class="stat-value">2.5</div><div class="stat-sub">Target: 3.0</div></div>
           <div class="stat-card red"><div class="stat-label">Critical Risks</div><div class="stat-value">4</div><div class="stat-sub">Immediate action</div></div>
           <div class="stat-card"><div class="stat-label">High Risks</div><div class="stat-value">9</div><div class="stat-sub">30-day remediation</div></div>
-          <div class="stat-card green"><div class="stat-label">Controls Assessed</div><div class="stat-value">72</div><div class="stat-sub">of 106 total</div></div>
+          <div class="stat-card green"><div class="stat-label">Controls Assessed</div><div class="stat-value">23</div><div class="stat-sub">of 23 NIST CSF 2.0</div></div>
         </div>
 
         <div class="grid-2">
@@ -885,8 +894,9 @@
         </div>
 
         <div class="btn-row">
-          <button class="btn btn-outline" onclick="showSection('questionnaire', document.querySelector('[onclick*=\'questionnaire\']'))">Back to Intake</button>
-          <button class="btn btn-outline" onclick="notify('Risk register exported: MDOT_Risk_Register.xlsx')">Export Risk Register</button>
+          <button class="btn btn-outline" onclick="showSection('csf', document.querySelector('[onclick*=\'csf\']'))">← Back to CSF Assessment</button>
+          <button class="btn btn-outline" onclick="openRiskModal()">Export Risk Register</button>
+          <button class="btn btn-outline" onclick="showSection('poam', document.querySelector('[onclick*=\'poam\']'))">Next: POA&amp;M →</button>
         </div>
       </section>
 
@@ -920,8 +930,9 @@
             </table>
           </div>
           <div class="btn-row">
-            <button class="btn btn-outline" onclick="notify('POA&M exported: MDOT_POAM_v1.xlsx')">Export POA&amp;M</button>
-            <button class="btn btn-outline" onclick="notify('POA&M synced with ServiceNow GRC')">Sync to GRC</button>
+            <button class="btn btn-outline" onclick="showSection('risk', document.querySelector('[onclick*=\'risk\']'))">← Back to Risk</button>
+            <button class="btn btn-outline" onclick="openPoamModal()">Export POA&amp;M</button>
+            <button class="btn btn-primary" onclick="showSection('sar', document.querySelector('[onclick*=\'sar\']'))">Next: SAR Dashboard →</button>
           </div>
         </div>
       </section>
@@ -983,7 +994,6 @@
           <div class="btn-row">
             <button class="btn btn-primary" onclick="generateSarReport()">Generate SAR Report</button>
             <button class="btn btn-outline" onclick="notify('Executive brief exported: MDOT_ExecBrief.pptx')">Export Executive Brief</button>
-            <button class="btn btn-outline" onclick="notify('SAR synced to ServiceNow GRC')">Sync to GRC</button>
           </div>
         </div>
       </section>
@@ -1001,7 +1011,7 @@
   <script src="src/js/agency-assessment.js"></script>
   <script src="src/js/navigation.js"></script>
   <script src="src/js/data.js"></script>
-  <script src="src/js/agency-self-assessment.js?v=2"></script>
+  <script src="src/js/agency-self-assessment.js?v=3"></script>
   
   <!-- Navigation functionality script -->
   <script>
@@ -1028,6 +1038,7 @@
         console.log('Agency section activated:', id);
         if(id==='csf') initSrtm();
         if(id==='risk' || id==='sar') setTimeout(initAgencyCharts, 50);
+        if(id==='poam') buildDynamicPoam();
       }
 
       // Update nav item
@@ -1060,7 +1071,9 @@
       const title = titles[sectionId] || 'Assessment';
       const titleElement = document.getElementById('topbar-title');
       if (titleElement) {
-        titleElement.innerHTML = `${title} - Maryland Dept. of Transportation (MDOT)<span>Current Stage: Evidence Collection</span>`;
+        const agencyNames = { mdot:'Maryland Dept. of Transportation (MDOT)', dpscs:'Maryland Dept. of Public Safety (DPSCS)', msde:'Maryland State Dept. of Education (MSDE)', mdh:'Maryland Dept. of Health (MDH)' };
+        const agencyLabel = agencyNames[window.AGENCY_KEY] || window.AGENCY_KEY?.toUpperCase() || 'Agency';
+        titleElement.innerHTML = `${title} — ${agencyLabel}<span>ANCHOR Platform Assessment</span>`;
       }
     }
     
@@ -1075,7 +1088,15 @@
         }, 3000);
       }
     }
-    
+    function doLogout() {
+      if (window.anchorAuth && typeof window.anchorAuth.logout === 'function') {
+        window.anchorAuth.logout();
+      } else {
+        localStorage.removeItem('anchor_session');
+        window.location.href = 'index.html';
+      }
+    }
+
     // ── Intake / Scoping interactive functions ──────────────────────────
     const scopeScores = { fte: 3, itc: 3, data: 3 };
 
@@ -1941,6 +1962,108 @@
   </script>
   <script src="src/js/intake-workflow.js"></script>
 
+  <!-- Credentials Modal -->
+  <div id="creds-modal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:9100;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:14px;width:min(520px,94vw);box-shadow:0 24px 60px rgba(0,0,0,.25);overflow:hidden;">
+      <div style="background:linear-gradient(135deg,#0369a1,#0891b2);color:#fff;padding:20px 24px;">
+        <div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;opacity:.8;margin-bottom:4px;">Step 4 — Account Setup</div>
+        <div style="font-size:1.15rem;font-weight:800;">Create Agency Account Credentials</div>
+      </div>
+      <div style="padding:20px 24px;">
+        <p style="font-size:.83rem;color:#475569;margin-bottom:16px;">The following credentials will be provisioned for the agency primary contact and sent via secure email. The user must change their password on first login.</p>
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;margin-bottom:16px;font-family:monospace;">
+          <div style="font-size:.72rem;color:#64748b;font-weight:700;margin-bottom:8px;">ANCHOR PLATFORM — AGENCY ACCESS</div>
+          <div style="margin-bottom:6px;"><span style="font-size:.73rem;color:#94a3b8;">Username: </span><strong style="font-size:.84rem;">l.harmon@mdot.maryland.gov</strong></div>
+          <div style="margin-bottom:6px;"><span style="font-size:.73rem;color:#94a3b8;">Temp Password: </span><strong style="font-size:.84rem;">Anchor@MDT2026!</strong></div>
+          <div><span style="font-size:.73rem;color:#94a3b8;">Portal URL: </span><strong style="font-size:.84rem;">https://dqf6m8xu3v66j.cloudfront.net</strong></div>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;">
+          <button class="btn btn-outline btn-sm" onclick="document.getElementById('creds-modal').style.display='none';document.body.style.overflow='';">Cancel</button>
+          <button class="btn btn-primary btn-sm" onclick="confirmCreateCredentials()">✓ Create &amp; Send Credentials</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preliminary Meeting Modal -->
+  <div id="meeting-modal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:9100;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:14px;width:min(500px,94vw);box-shadow:0 24px 60px rgba(0,0,0,.25);overflow:hidden;">
+      <div style="background:linear-gradient(135deg,#b45309,#d97706);color:#fff;padding:20px 24px;">
+        <div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;opacity:.8;margin-bottom:4px;">Step 5 — Preliminary Meeting</div>
+        <div style="font-size:1.15rem;font-weight:800;">Schedule Preliminary Kick-Off Meeting</div>
+      </div>
+      <div style="padding:20px 24px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+          <div>
+            <label style="font-size:.75rem;font-weight:600;display:block;margin-bottom:4px;">Meeting Date</label>
+            <input type="date" id="meet-date" value="2026-04-03" style="width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:7px 10px;font-size:.82rem;">
+          </div>
+          <div>
+            <label style="font-size:.75rem;font-weight:600;display:block;margin-bottom:4px;">Time</label>
+            <select style="width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:7px 10px;font-size:.82rem;"><option>10:00 AM EST</option><option selected>2:00 PM EST</option><option>3:30 PM EST</option></select>
+          </div>
+          <div style="grid-column:1/-1;">
+            <label style="font-size:.75rem;font-weight:600;display:block;margin-bottom:4px;">Attendees</label>
+            <input type="text" value="J. Williams (Lead Assessor), Lisa Harmon (MDOT CISO), MDOT IT Team" style="width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:7px 10px;font-size:.82rem;">
+          </div>
+          <div style="grid-column:1/-1;">
+            <label style="font-size:.75rem;font-weight:600;display:block;margin-bottom:4px;">Meeting Format</label>
+            <select style="width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:7px 10px;font-size:.82rem;"><option selected>MS Teams — Virtual</option><option>In-Person — DoIT Offices</option><option>Hybrid</option></select>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;">
+          <button class="btn btn-outline btn-sm" onclick="document.getElementById('meeting-modal').style.display='none';document.body.style.overflow='';">Cancel</button>
+          <button class="btn btn-primary btn-sm" onclick="confirmScheduleMeeting()">📅 Confirm &amp; Schedule</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kick-Off Package Preview Modal -->
+  <div id="kickoff-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;overflow-y:auto;padding:32px 16px;">
+    <div style="max-width:680px;margin:0 auto;background:#fff;border-radius:10px;box-shadow:0 8px 40px rgba(0,0,0,.3);overflow:hidden;">
+      <div style="background:#1e3a5f;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;">
+        <span style="color:#fff;font-weight:700;font-size:.9rem;">📧 Kick-Off Package — Email Preview</span>
+        <div style="display:flex;gap:8px;">
+          <button onclick="confirmSendKickoff()" style="background:#059669;color:#fff;border:none;padding:5px 14px;border-radius:5px;cursor:pointer;font-size:.8rem;font-weight:700;">✓ Send Now</button>
+          <button onclick="document.getElementById('kickoff-modal').style.display='none';document.body.style.overflow='';" style="background:#64748b;color:#fff;border:none;padding:5px 14px;border-radius:5px;cursor:pointer;font-size:.8rem;">✕ Close</button>
+        </div>
+      </div>
+      <div style="padding:28px 36px;font-family:Arial,sans-serif;color:#1a1a1a;font-size:.84rem;">
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:12px 16px;margin-bottom:20px;">
+          <div style="display:grid;grid-template-columns:60px 1fr;gap:6px;font-size:.8rem;">
+            <span style="color:#64748b;font-weight:700;">To:</span><span>Lisa Harmon, CISO &lt;l.harmon@mdot.maryland.gov&gt;</span>
+            <span style="color:#64748b;font-weight:700;">Cc:</span><span>DoIT Security Management &lt;security@maryland.gov&gt;</span>
+            <span style="color:#64748b;font-weight:700;">From:</span><span>J. Williams &lt;j.williams@assurit.com&gt;</span>
+            <span style="color:#64748b;font-weight:700;">Subject:</span><strong>ANCHOR Cybersecurity Assessment — Kick-Off Package | MD-MDOT-2026-041</strong>
+          </div>
+        </div>
+        <p>Dear Ms. Harmon,</p>
+        <p>I am writing to formally initiate the Maryland DoIT ANCHOR Cybersecurity Maturity Assessment for the Maryland Department of Transportation (MDOT). Your agency has been scheduled for <strong>Wave 1, Q1–Q2 2026</strong>.</p>
+        <p><strong>Assessment Overview:</strong></p>
+        <ul style="padding-left:18px;line-height:1.8;">
+          <li>Framework: NIST Cybersecurity Framework (CSF) 2.0 + CMMI Maturity Levels 0–5</li>
+          <li>Assessment ID: MD-MDOT-2026-041</li>
+          <li>Assessment Period: April 7 – May 19, 2026</li>
+          <li>Lead Assessor: J. Williams, Assurit LLC</li>
+          <li>Pod Assignment: POD LARGE (6–8 assessors)</li>
+        </ul>
+        <p><strong>Your Next Steps:</strong></p>
+        <ol style="padding-left:18px;line-height:1.8;">
+          <li>Log in to the ANCHOR Platform and complete the Agency Questionnaire</li>
+          <li>Upload required artifacts for all 23 NIST CSF 2.0 controls</li>
+          <li>Coordinate interview scheduling with your assessor team</li>
+          <li>Ensure your IT and security staff are available Apr 7–May 19</li>
+        </ol>
+        <p>Attached: ANCHOR_Kickoff_Presentation_MDOT_2026.pptx &nbsp;|&nbsp; ANCHOR_Agency_Onboarding_Guide.pdf</p>
+        <p style="margin-top:20px;">Respectfully,<br><strong>J. Williams</strong><br>Lead Assessor, Assurit LLC<br>j.williams@assurit.com | (410) 555-0192</p>
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid #e2e8f0;font-size:.72rem;color:#94a3b8;">
+          Maryland Department of Information Technology — ANCHOR Assessment Program &nbsp;|&nbsp; This message and any attachments are Official Use Only.
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- SAR Preview Modal -->
   <div id="sar-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;overflow-y:auto;padding:32px 16px;">
     <div style="max-width:780px;margin:0 auto;background:#fff;border-radius:10px;box-shadow:0 8px 40px rgba(0,0,0,.3);overflow:hidden;">
@@ -1954,17 +2077,57 @@
       </div>
       <!-- Document body -->
       <div style="padding:40px 48px;font-family:Georgia,serif;color:#1a1a1a;line-height:1.6;">
-        <!-- Letterhead -->
-        <div style="border-bottom:3px solid #1e3a5f;padding-bottom:16px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:flex-start;">
-          <div>
-            <div style="font-size:1.4rem;font-weight:800;color:#1e3a5f;font-family:Arial,sans-serif;">Maryland Department of Information Technology</div>
-            <div style="font-size:.85rem;color:#64748b;margin-top:2px;">Office of Security Management — Cybersecurity Assessment Program</div>
+        <!-- Letterhead with MD State Seal -->
+        <div style="border-bottom:3px solid #1e3a5f;padding-bottom:18px;margin-bottom:24px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <!-- Maryland State Seal (SVG inline) -->
+            <div style="display:flex;align-items:center;gap:16px;">
+              <div style="width:64px;height:64px;flex-shrink:0;">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="64" height="64">
+                  <circle cx="50" cy="50" r="48" fill="#1e3a5f" stroke="#c9a84c" stroke-width="3"/>
+                  <!-- MD Flag quadrants: top-left black/gold cross, top-right red/white cross, bottom-left red/white, bottom-right black/gold -->
+                  <clipPath id="sarCircleClip"><circle cx="50" cy="50" r="46"/></clipPath>
+                  <g clip-path="url(#sarCircleClip)">
+                    <rect x="4" y="4" width="46" height="46" fill="#2c2c2c"/>
+                    <polygon points="4,4 50,4 50,50" fill="#c9a84c"/>
+                    <polygon points="4,4 4,50 50,50" fill="#c9a84c"/>
+                    <polygon points="4,4 27,27 4,50" fill="#2c2c2c"/>
+                    <polygon points="4,4 50,4 27,27" fill="#2c2c2c"/>
+                    <rect x="50" y="4" width="46" height="46" fill="#fff"/>
+                    <polygon points="50,4 96,4 96,50 50,50" fill="#fff"/>
+                    <polygon points="50,4 73,27 96,4" fill="#c0392b"/>
+                    <polygon points="96,4 96,50 73,27" fill="#c0392b"/>
+                    <polygon points="96,50 50,50 73,27" fill="#c0392b"/>
+                    <polygon points="50,4 50,50 73,27" fill="#c0392b"/>
+                    <rect x="4" y="50" width="46" height="46" fill="#fff"/>
+                    <polygon points="4,50 50,50 50,96 4,96" fill="#fff"/>
+                    <polygon points="4,50 27,73 50,50" fill="#c0392b"/>
+                    <polygon points="50,50 50,96 27,73" fill="#c0392b"/>
+                    <polygon points="50,96 4,96 27,73" fill="#c0392b"/>
+                    <polygon points="4,96 4,50 27,73" fill="#c0392b"/>
+                    <rect x="50" y="50" width="46" height="46" fill="#2c2c2c"/>
+                    <polygon points="50,50 96,50 73,73" fill="#c9a84c"/>
+                    <polygon points="96,50 96,96 73,73" fill="#c9a84c"/>
+                    <polygon points="96,96 50,96 73,73" fill="#c9a84c"/>
+                    <polygon points="50,96 50,50 73,73" fill="#c9a84c"/>
+                  </g>
+                  <text x="50" y="55" text-anchor="middle" fill="#fff" font-size="11" font-weight="800" font-family="Arial,sans-serif">MD</text>
+                </svg>
+              </div>
+              <div>
+                <div style="font-size:.62rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">State of Maryland</div>
+                <div style="font-size:1.3rem;font-weight:800;color:#1e3a5f;font-family:Arial,sans-serif;line-height:1.2;">Department of Information Technology</div>
+                <div style="font-size:.82rem;color:#475569;margin-top:3px;">Office of Security Management — Cybersecurity Assessment Program</div>
+              </div>
+            </div>
+            <div style="text-align:right;font-size:.75rem;color:#64748b;border:1px solid #e2e8f0;border-radius:6px;padding:8px 14px;background:#f8fafc;">
+              <div style="font-weight:800;color:#c0392b;font-size:.78rem;margin-bottom:4px;">⬛ OFFICIAL USE ONLY</div>
+              <div style="margin-bottom:2px;">ANCHOR Platform v2.0</div>
+              <div style="margin-bottom:2px;">NIST CSF 2.0 / CMMI</div>
+              <div style="color:#94a3b8;font-size:.68rem;margin-top:4px;">Sensitive but Unclassified</div>
+            </div>
           </div>
-          <div style="text-align:right;font-size:.78rem;color:#64748b;">
-            <div style="font-weight:700;color:#1e3a5f;">OFFICIAL USE ONLY</div>
-            <div>ANCHOR Platform v2.0</div>
-            <div>NIST CSF 2.0 / CMMI</div>
-          </div>
+          <div style="background:#1e3a5f;color:#fff;text-align:center;padding:5px;font-size:.68rem;font-weight:700;letter-spacing:.1em;border-radius:4px;">MARYLAND EXECUTIVE BRANCH CYBERSECURITY ASSESSMENT — ANCHOR PROGRAM</div>
         </div>
         <!-- Report title block -->
         <div style="text-align:center;margin-bottom:28px;">
@@ -1978,7 +2141,7 @@
             <td style="padding:6px 10px;font-weight:700;width:30%;border:1px solid #e2e8f0;">Agency</td>
             <td style="padding:6px 10px;border:1px solid #e2e8f0;">Maryland Department of Transportation (MDOT)</td>
             <td style="padding:6px 10px;font-weight:700;width:25%;border:1px solid #e2e8f0;">Assessment ID</td>
-            <td style="padding:6px 10px;border:1px solid #e2e8f0;">MD-MDOT-2026-001</td>
+            <td style="padding:6px 10px;border:1px solid #e2e8f0;">MD-MDOT-2026-041</td>
           </tr>
           <tr>
             <td style="padding:6px 10px;font-weight:700;border:1px solid #e2e8f0;">Agency POC</td>
@@ -2054,6 +2217,78 @@
             </tbody>
           </table>
         </div>
+        <!-- Section 4: Control Assessment Detail -->
+        <div style="margin-bottom:24px;">
+          <div style="font-size:1rem;font-weight:800;color:#1e3a5f;font-family:Arial,sans-serif;border-bottom:2px solid #1e3a5f;padding-bottom:4px;margin-bottom:10px;">4. CONTROL ASSESSMENT DETAIL</div>
+          <p style="font-size:.8rem;color:#64748b;margin:0 0 10px;">Results for all 23 NIST CSF 2.0 controls assessed. <span style="color:#15803d;font-weight:700;">MET</span> = CMMI ML ≥ 3 &nbsp;|&nbsp; <span style="color:#854d0e;font-weight:700;">PARTIAL</span> = CMMI ML 2 &nbsp;|&nbsp; <span style="color:#991b1b;font-weight:700;">NOT MET</span> = CMMI ML ≤ 1</p>
+          <table style="width:100%;border-collapse:collapse;font-size:.76rem;font-family:Arial,sans-serif;">
+            <thead><tr style="background:#1e3a5f;color:#fff;"><th style="padding:5px 8px;text-align:left;border:1px solid #1e3a5f;">Control</th><th style="padding:5px 8px;text-align:left;border:1px solid #1e3a5f;">Name</th><th style="padding:5px 8px;text-align:center;border:1px solid #1e3a5f;">Fn</th><th style="padding:5px 8px;text-align:center;border:1px solid #1e3a5f;">Result</th><th style="padding:5px 8px;text-align:center;border:1px solid #1e3a5f;">ML</th><th style="padding:5px 8px;text-align:left;border:1px solid #1e3a5f;">Assessor Notes</th></tr></thead>
+            <tbody>
+              <tr style="background:#f8fafc;"><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;font-family:monospace;font-size:.72rem;">GV.OC-01</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Organizational Context</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#ede9fe;color:#5b21b6;padding:1px 5px;border-radius:3px;font-size:.68rem;font-weight:700;">GV</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dcfce7;color:#15803d;padding:1px 7px;border-radius:10px;font-weight:700;font-size:.72rem;">MET</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;">3</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Cybersecurity strategy documented and aligned to agency mission</td></tr>
+              <tr><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;font-family:monospace;font-size:.72rem;">GV.OC-02</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Roles &amp; Responsibilities</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#ede9fe;color:#5b21b6;padding:1px 5px;border-radius:3px;font-size:.68rem;font-weight:700;">GV</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dcfce7;color:#15803d;padding:1px 7px;border-radius:10px;font-weight:700;font-size:.72rem;">MET</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;">3</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">CISO role established; security responsibilities in position descriptions</td></tr>
+              <tr style="background:#f8fafc;"><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;font-family:monospace;font-size:.72rem;">GV.RM-01</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Risk Management Strategy</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#ede9fe;color:#5b21b6;padding:1px 5px;border-radius:3px;font-size:.68rem;font-weight:700;">GV</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dcfce7;color:#15803d;padding:1px 7px;border-radius:10px;font-weight:700;font-size:.72rem;">MET</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;">3</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Risk management framework in place; annual risk assessments conducted</td></tr>
+              <tr><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;font-family:monospace;font-size:.72rem;">GV.RM-02</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Risk Tolerance &amp; Appetite</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#ede9fe;color:#5b21b6;padding:1px 5px;border-radius:3px;font-size:.68rem;font-weight:700;">GV</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#fef9c3;color:#854d0e;padding:1px 7px;border-radius:10px;font-weight:700;font-size:.72rem;">PARTIAL</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;">2</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Risk appetite defined at exec level; not communicated agency-wide</td></tr>
+              <tr style="background:#fef2f2;"><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;font-family:monospace;font-size:.72rem;">GV.SC-01</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Supply Chain Risk Mgmt</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#ede9fe;color:#5b21b6;padding:1px 5px;border-radius:3px;font-size:.68rem;font-weight:700;">GV</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#fee2e2;color:#991b1b;padding:1px 7px;border-radius:10px;font-weight:700;font-size:.72rem;">NOT MET</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#dc2626;">1</td><td style="padding:5px 8px;border:1px solid #e2e8f0;color:#dc2626;font-weight:600;">No formal TPRM program; vendor security reviews not conducted (F-006)</td></tr>
+              <tr><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;font-family:monospace;font-size:.72rem;">ID.AM-01</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Hardware Asset Inventory</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dbeafe;color:#1e40af;padding:1px 5px;border-radius:3px;font-size:.68rem;font-weight:700;">ID</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#fef9c3;color:#854d0e;padding:1px 7px;border-radius:10px;font-weight:700;font-size:.72rem;">PARTIAL</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;">2</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Inventory gaps ~40%; cloud and OT assets not included (F-003)</td></tr>
+              <tr style="background:#f8fafc;"><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;font-family:monospace;font-size:.72rem;">ID.AM-02</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Software Asset Inventory</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dbeafe;color:#1e40af;padding:1px 5px;border-radius:3px;font-size:.68rem;font-weight:700;">ID</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dcfce7;color:#15803d;padding:1px 7px;border-radius:10px;font-weight:700;font-size:.72rem;">MET</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;">3</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">SCCM-managed software inventory current; exceptions tracked</td></tr>
+              <tr><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;font-family:monospace;font-size:.72rem;">ID.AM-05</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">System &amp; Data Classification</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dbeafe;color:#1e40af;padding:1px 5px;border-radius:3px;font-size:.68rem;font-weight:700;">ID</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dcfce7;color:#15803d;padding:1px 7px;border-radius:10px;font-weight:700;font-size:.72rem;">MET</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;">3</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Data classification policy in place; Confidential/Public tiers enforced</td></tr>
+              <tr style="background:#f8fafc;"><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;font-family:monospace;font-size:.72rem;">ID.RA-01</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Vulnerability Management</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dbeafe;color:#1e40af;padding:1px 5px;border-radius:3px;font-size:.68rem;font-weight:700;">ID</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dcfce7;color:#15803d;padding:1px 7px;border-radius:10px;font-weight:700;font-size:.72rem;">MET</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;">3</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Tenable scans bi-weekly; findings tracked in vulnerability register</td></tr>
+              <tr><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;font-family:monospace;font-size:.72rem;">PR.AA-01</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Identity &amp; Credential Mgmt</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#ccfbf1;color:#065f46;padding:1px 5px;border-radius:3px;font-size:.68rem;font-weight:700;">PR</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dcfce7;color:#15803d;padding:1px 7px;border-radius:10px;font-weight:700;font-size:.72rem;">MET</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;">3</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Active Directory managed; PAM solution deployed for privileged accounts</td></tr>
+              <tr style="background:#fef2f2;"><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;font-family:monospace;font-size:.72rem;">PR.AC-06</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">MFA / Remote Access Control</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#ccfbf1;color:#065f46;padding:1px 5px;border-radius:3px;font-size:.68rem;font-weight:700;">PR</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#fee2e2;color:#991b1b;padding:1px 7px;border-radius:10px;font-weight:700;font-size:.72rem;">NOT MET</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#dc2626;">1</td><td style="padding:5px 8px;border:1px solid #e2e8f0;color:#dc2626;font-weight:600;">MFA absent for privileged/remote accounts; legacy auth enabled (F-002)</td></tr>
+              <tr><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;font-family:monospace;font-size:.72rem;">PR.DS-01</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Data-at-Rest Protection</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#ccfbf1;color:#065f46;padding:1px 5px;border-radius:3px;font-size:.68rem;font-weight:700;">PR</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dcfce7;color:#15803d;padding:1px 7px;border-radius:10px;font-weight:700;font-size:.72rem;">MET</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;">4</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">BitLocker deployed on all managed endpoints; AES-256 validated</td></tr>
+              <tr style="background:#fef2f2;"><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;font-family:monospace;font-size:.72rem;">PR.IP-12</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Vulnerability Remediation</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#ccfbf1;color:#065f46;padding:1px 5px;border-radius:3px;font-size:.68rem;font-weight:700;">PR</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#fee2e2;color:#991b1b;padding:1px 7px;border-radius:10px;font-weight:700;font-size:.72rem;">NOT MET</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#dc2626;">2</td><td style="padding:5px 8px;border:1px solid #e2e8f0;color:#dc2626;font-weight:600;">Avg patch cycle 97 days for critical CVEs; exceeds 30-day SLA (F-005)</td></tr>
+              <tr><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;font-family:monospace;font-size:.72rem;">PR.PS-01</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Secure Configuration Mgmt</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#ccfbf1;color:#065f46;padding:1px 5px;border-radius:3px;font-size:.68rem;font-weight:700;">PR</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#fef9c3;color:#854d0e;padding:1px 7px;border-radius:10px;font-weight:700;font-size:.72rem;">PARTIAL</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;">2</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">CIS baselines applied to ~60% of systems; OT/IoT devices excluded</td></tr>
+              <tr style="background:#fef2f2;"><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;font-family:monospace;font-size:.72rem;">DE.AE-01</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Adverse Event Analysis</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#fef3c7;color:#92400e;padding:1px 5px;border-radius:3px;font-size:.68rem;font-weight:700;">DE</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#fef9c3;color:#854d0e;padding:1px 7px;border-radius:10px;font-weight:700;font-size:.72rem;">PARTIAL</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;">2</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Baseline established for on-prem; cloud telemetry gaps exist</td></tr>
+              <tr style="background:#fef2f2;"><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;font-family:monospace;font-size:.72rem;">DE.CM-01</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Continuous Monitoring</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#fef3c7;color:#92400e;padding:1px 5px;border-radius:3px;font-size:.68rem;font-weight:700;">DE</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#fee2e2;color:#991b1b;padding:1px 7px;border-radius:10px;font-weight:700;font-size:.72rem;">NOT MET</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#dc2626;">1</td><td style="padding:5px 8px;border:1px solid #e2e8f0;color:#dc2626;font-weight:600;">No SIEM deployed; no centralized log aggregation or alerting (F-001)</td></tr>
+              <tr><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;font-family:monospace;font-size:.72rem;">DE.CM-06</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Third-Party Activity Monitoring</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#fef3c7;color:#92400e;padding:1px 5px;border-radius:3px;font-size:.68rem;font-weight:700;">DE</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#fee2e2;color:#991b1b;padding:1px 7px;border-radius:10px;font-weight:700;font-size:.72rem;">NOT MET</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#dc2626;">1</td><td style="padding:5px 8px;border:1px solid #e2e8f0;color:#dc2626;font-weight:600;">No capability to monitor vendor/third-party network activity</td></tr>
+              <tr style="background:#f8fafc;"><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;font-family:monospace;font-size:.72rem;">RS.AN-01</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Incident Analysis &amp; Triage</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#fee2e2;color:#991b1b;padding:1px 5px;border-radius:3px;font-size:.68rem;font-weight:700;">RS</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dcfce7;color:#15803d;padding:1px 7px;border-radius:10px;font-weight:700;font-size:.72rem;">MET</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;">3</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Incident triage procedures documented; SOC performs initial analysis</td></tr>
+              <tr><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;font-family:monospace;font-size:.72rem;">RS.CO-01</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Incident Response Comms</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#fee2e2;color:#991b1b;padding:1px 5px;border-radius:3px;font-size:.68rem;font-weight:700;">RS</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#fef9c3;color:#854d0e;padding:1px 7px;border-radius:10px;font-weight:700;font-size:.72rem;">PARTIAL</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;">2</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Communications plan exists; stakeholder notification untested</td></tr>
+              <tr style="background:#f8fafc;"><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;font-family:monospace;font-size:.72rem;">RS.RP-01</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Incident Response Plan</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#fee2e2;color:#991b1b;padding:1px 5px;border-radius:3px;font-size:.68rem;font-weight:700;">RS</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#fef9c3;color:#854d0e;padding:1px 7px;border-radius:10px;font-weight:700;font-size:.72rem;">PARTIAL</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;">2</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">IRP documented; not tested in 24+ months; tabletop overdue (F-004)</td></tr>
+              <tr><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;font-family:monospace;font-size:.72rem;">RC.RP-01</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Recovery Plan Execution</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dcfce7;color:#15803d;padding:1px 5px;border-radius:3px;font-size:.68rem;font-weight:700;">RC</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#fef9c3;color:#854d0e;padding:1px 7px;border-radius:10px;font-weight:700;font-size:.72rem;">PARTIAL</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;">2</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Recovery plan documented; last tested FY2023; annual test overdue</td></tr>
+              <tr style="background:#f8fafc;"><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;font-family:monospace;font-size:.72rem;">RC.IM-01</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Recovery Improvements</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dcfce7;color:#15803d;padding:1px 5px;border-radius:3px;font-size:.68rem;font-weight:700;">RC</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#fef9c3;color:#854d0e;padding:1px 7px;border-radius:10px;font-weight:700;font-size:.72rem;">PARTIAL</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;">2</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Post-incident reviews informal; no structured lessons-learned process</td></tr>
+              <tr style="background:#fef2f2;"><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;font-family:monospace;font-size:.72rem;">RC.RP-02</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Business Continuity Verification</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dcfce7;color:#15803d;padding:1px 5px;border-radius:3px;font-size:.68rem;font-weight:700;">RC</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#fee2e2;color:#991b1b;padding:1px 7px;border-radius:10px;font-weight:700;font-size:.72rem;">NOT MET</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#dc2626;">1</td><td style="padding:5px 8px;border:1px solid #e2e8f0;color:#dc2626;font-weight:600;">BCP/DR testing not conducted in current fiscal year</td></tr>
+            </tbody>
+          </table>
+          <div style="display:flex;gap:16px;margin-top:8px;font-size:.74rem;font-family:Arial,sans-serif;">
+            <span><span style="background:#dcfce7;color:#15803d;padding:1px 8px;border-radius:10px;font-weight:700;">MET</span> 8 controls</span>
+            <span><span style="background:#fef9c3;color:#854d0e;padding:1px 8px;border-radius:10px;font-weight:700;">PARTIAL</span> 9 controls</span>
+            <span><span style="background:#fee2e2;color:#991b1b;padding:1px 8px;border-radius:10px;font-weight:700;">NOT MET</span> 6 controls</span>
+          </div>
+        </div>
+        <!-- Section 5: Risk Register -->
+        <div style="margin-bottom:24px;">
+          <div style="font-size:1rem;font-weight:800;color:#1e3a5f;font-family:Arial,sans-serif;border-bottom:2px solid #1e3a5f;padding-bottom:4px;margin-bottom:10px;">5. RISK REGISTER SUMMARY</div>
+          <p style="font-size:.8rem;color:#64748b;margin:0 0 10px;">Risk Score = Likelihood × Impact (1–4 scale). P1 ≥ 14 &nbsp;|&nbsp; P2 = 9–13 &nbsp;|&nbsp; P3 = 4–8 &nbsp;|&nbsp; P4 &lt; 4</p>
+          <table style="width:100%;border-collapse:collapse;font-size:.76rem;font-family:Arial,sans-serif;">
+            <thead><tr style="background:#1e3a5f;color:#fff;"><th style="padding:5px 8px;text-align:left;border:1px solid #1e3a5f;">Risk ID</th><th style="padding:5px 8px;text-align:left;border:1px solid #1e3a5f;">Description</th><th style="padding:5px 8px;text-align:center;border:1px solid #1e3a5f;">Control</th><th style="padding:5px 8px;text-align:center;border:1px solid #1e3a5f;">L</th><th style="padding:5px 8px;text-align:center;border:1px solid #1e3a5f;">I</th><th style="padding:5px 8px;text-align:center;border:1px solid #1e3a5f;">Score</th><th style="padding:5px 8px;text-align:center;border:1px solid #1e3a5f;">Priority</th><th style="padding:5px 8px;text-align:left;border:1px solid #1e3a5f;">Target Date</th></tr></thead>
+            <tbody>
+              <tr style="background:#fef2f2;"><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;">R-001</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">No SIEM / continuous monitoring capability</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-family:monospace;font-size:.7rem;">DE.CM-01</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;color:#dc2626;font-weight:700;">4</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;color:#dc2626;font-weight:700;">4</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dc2626;color:#fff;padding:1px 7px;border-radius:10px;font-weight:700;">16</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;color:#dc2626;font-weight:700;">P1</td><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;color:#dc2626;">Jul 15, 2026</td></tr>
+              <tr><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;">R-002</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">MFA not enforced for privileged/remote accounts</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-family:monospace;font-size:.7rem;">PR.AC-06</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;color:#dc2626;font-weight:700;">4</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;color:#dc2626;font-weight:700;">4</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dc2626;color:#fff;padding:1px 7px;border-radius:10px;font-weight:700;">16</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;color:#dc2626;font-weight:700;">P1</td><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;color:#dc2626;">Jun 30, 2026</td></tr>
+              <tr style="background:#fef2f2;"><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;">R-003</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Hardware asset inventory gaps (~40% undocumented)</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-family:monospace;font-size:.7rem;">ID.AM-01</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;color:#d97706;font-weight:700;">3</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;color:#dc2626;font-weight:700;">4</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dc2626;color:#fff;padding:1px 7px;border-radius:10px;font-weight:700;">12</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;color:#d97706;font-weight:700;">P2</td><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;color:#d97706;">Jun 15, 2026</td></tr>
+              <tr><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;">R-004</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">IRP not tested in 24+ months; tabletop overdue</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-family:monospace;font-size:.7rem;">RS.RP-01</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;color:#d97706;font-weight:700;">3</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;color:#d97706;font-weight:700;">3</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:10px;font-weight:700;">9</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;color:#d97706;font-weight:700;">P2</td><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;color:#d97706;">Jul 30, 2026</td></tr>
+              <tr style="background:#fef2f2;"><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;">R-005</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Patch cycle 97 days avg (DoIT SLA: 30 days)</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-family:monospace;font-size:.7rem;">PR.IP-12</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;color:#d97706;font-weight:700;">3</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;color:#d97706;font-weight:700;">3</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:10px;font-weight:700;">9</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;color:#d97706;font-weight:700;">P2</td><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;color:#d97706;">Jun 30, 2026</td></tr>
+              <tr><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;">R-006</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">No formal Third-Party Risk Mgmt (TPRM) program</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-family:monospace;font-size:.7rem;">GV.SC-01</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;color:#d97706;font-weight:700;">2</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;color:#d97706;font-weight:700;">3</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#ca8a04;color:#fff;padding:1px 7px;border-radius:10px;font-weight:700;">6</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;color:#ca8a04;font-weight:700;">P3</td><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;color:#ca8a04;">Aug 15, 2026</td></tr>
+              <tr style="background:#f8fafc;"><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;">R-007</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">BCP/DR continuity verification absent</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-family:monospace;font-size:.7rem;">RC.RP-02</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;color:#ca8a04;font-weight:700;">2</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;color:#d97706;font-weight:700;">3</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#ca8a04;color:#fff;padding:1px 7px;border-radius:10px;font-weight:700;">6</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;color:#ca8a04;font-weight:700;">P3</td><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;color:#ca8a04;">Sep 30, 2026</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- Section 6: POA&M Summary -->
+        <div style="margin-bottom:24px;">
+          <div style="font-size:1rem;font-weight:800;color:#1e3a5f;font-family:Arial,sans-serif;border-bottom:2px solid #1e3a5f;padding-bottom:4px;margin-bottom:10px;">6. PLAN OF ACTION &amp; MILESTONES (POA&amp;M) SUMMARY</div>
+          <p style="font-size:.8rem;color:#64748b;margin:0 0 10px;">All Critical and High findings require remediation per DoIT ITRM-POLICY-001. Full POA&amp;M tracked in the ANCHOR Platform.</p>
+          <table style="width:100%;border-collapse:collapse;font-size:.76rem;font-family:Arial,sans-serif;">
+            <thead><tr style="background:#1e3a5f;color:#fff;"><th style="padding:5px 8px;text-align:left;border:1px solid #1e3a5f;">PM ID</th><th style="padding:5px 8px;text-align:left;border:1px solid #1e3a5f;">Action Item</th><th style="padding:5px 8px;text-align:left;border:1px solid #1e3a5f;">Control</th><th style="padding:5px 8px;text-align:left;border:1px solid #1e3a5f;">Owner</th><th style="padding:5px 8px;text-align:center;border:1px solid #1e3a5f;">Priority</th><th style="padding:5px 8px;text-align:center;border:1px solid #1e3a5f;">Due Date</th><th style="padding:5px 8px;text-align:center;border:1px solid #1e3a5f;">Status</th><th style="padding:5px 8px;text-align:center;border:1px solid #1e3a5f;">%</th></tr></thead>
+            <tbody>
+              <tr style="background:#fef2f2;"><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;">PM-001</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Deploy SIEM / Continuous Monitoring Solution</td><td style="padding:5px 8px;border:1px solid #e2e8f0;font-family:monospace;font-size:.7rem;">DE.CM-01</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">M. Webb</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:8px;font-size:.7rem;">Critical</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#dc2626;">Jul 15, 2026</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dbeafe;color:#1e40af;padding:1px 6px;border-radius:8px;font-size:.7rem;">In Progress</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;">35%</td></tr>
+              <tr><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;">PM-002</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Enforce MFA for All Privileged Accounts</td><td style="padding:5px 8px;border:1px solid #e2e8f0;font-family:monospace;font-size:.7rem;">PR.AC-06</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">D. Cruz</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:8px;font-size:.7rem;">Critical</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#dc2626;">Jun 30, 2026</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dbeafe;color:#1e40af;padding:1px 6px;border-radius:8px;font-size:.7rem;">In Progress</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;">70%</td></tr>
+              <tr style="background:#fef2f2;"><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;">PM-003</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Complete Hardware Asset Inventory (CMDB)</td><td style="padding:5px 8px;border:1px solid #e2e8f0;font-family:monospace;font-size:.7rem;">ID.AM-01</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">T. Nguyen</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#d97706;color:#fff;padding:1px 6px;border-radius:8px;font-size:.7rem;">High</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#d97706;">Jun 15, 2026</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dbeafe;color:#1e40af;padding:1px 6px;border-radius:8px;font-size:.7rem;">In Progress</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;">45%</td></tr>
+              <tr><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;">PM-004</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Update &amp; Test Incident Response Plan</td><td style="padding:5px 8px;border:1px solid #e2e8f0;font-family:monospace;font-size:.7rem;">RS.RP-01</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">D. Cruz</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#d97706;color:#fff;padding:1px 6px;border-radius:8px;font-size:.7rem;">High</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#d97706;">Jul 30, 2026</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dbeafe;color:#1e40af;padding:1px 6px;border-radius:8px;font-size:.7rem;">In Progress</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;">10%</td></tr>
+              <tr style="background:#fffbeb;"><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;">PM-005</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Reduce Patch Cycle to &lt;30 Days (Critical CVEs)</td><td style="padding:5px 8px;border:1px solid #e2e8f0;font-family:monospace;font-size:.7rem;">PR.IP-12</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">T. Nguyen</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#d97706;color:#fff;padding:1px 6px;border-radius:8px;font-size:.7rem;">High</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#d97706;">Jun 30, 2026</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dbeafe;color:#1e40af;padding:1px 6px;border-radius:8px;font-size:.7rem;">In Progress</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;">20%</td></tr>
+              <tr><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;">PM-006</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Establish Third-Party Risk Management (TPRM) Program</td><td style="padding:5px 8px;border:1px solid #e2e8f0;font-family:monospace;font-size:.7rem;">GV.SC-01</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">L. Harmon</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#ca8a04;color:#fff;padding:1px 6px;border-radius:8px;font-size:.7rem;">Medium</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#ca8a04;">Aug 15, 2026</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#f1f5f9;color:#475569;padding:1px 6px;border-radius:8px;font-size:.7rem;">Not Started</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;">0%</td></tr>
+              <tr style="background:#f8fafc;"><td style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:700;">PM-007</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">Implement Security Awareness Training Program</td><td style="padding:5px 8px;border:1px solid #e2e8f0;font-family:monospace;font-size:.7rem;">PR.AT-01</td><td style="padding:5px 8px;border:1px solid #e2e8f0;">L. Harmon</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#ca8a04;color:#fff;padding:1px 6px;border-radius:8px;font-size:.7rem;">Medium</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#ca8a04;">Sep 30, 2026</td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#f1f5f9;color:#475569;padding:1px 6px;border-radius:8px;font-size:.7rem;">Not Started</span></td><td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:center;">0%</td></tr>
+            </tbody>
+          </table>
+        </div>
         <!-- Signature block -->
         <div style="margin-top:32px;border-top:2px solid #e2e8f0;padding-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:32px;font-size:.8rem;font-family:Arial,sans-serif;">
           <div>
@@ -2077,7 +2312,485 @@
     </div>
   </div>
 
+  <!-- Risk Register Export Modal -->
+  <div id="risk-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;overflow-y:auto;padding:32px 16px;">
+    <div style="max-width:820px;margin:0 auto;background:#fff;border-radius:10px;box-shadow:0 8px 40px rgba(0,0,0,.3);overflow:hidden;">
+      <div style="background:#1e3a5f;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;">
+        <span style="color:#fff;font-weight:700;font-size:.9rem;">📊 MDOT_Risk_Register_2026.xlsx — Preview</span>
+        <div style="display:flex;gap:8px;">
+          <button onclick="window.print()" style="background:#2563a8;color:#fff;border:none;padding:5px 14px;border-radius:5px;cursor:pointer;font-size:.8rem;">🖨 Print</button>
+          <button onclick="document.getElementById('risk-modal').style.display='none';document.body.style.overflow='';" style="background:#64748b;color:#fff;border:none;padding:5px 14px;border-radius:5px;cursor:pointer;font-size:.8rem;">✕ Close</button>
+        </div>
+      </div>
+      <div style="padding:36px 44px;font-family:Arial,sans-serif;color:#1a1a1a;line-height:1.5;">
+        <div style="border-bottom:3px solid #1e3a5f;padding-bottom:14px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:flex-start;">
+          <div>
+            <div style="font-size:1.3rem;font-weight:800;color:#1e3a5f;">Maryland Department of Information Technology</div>
+            <div style="font-size:.82rem;color:#64748b;margin-top:2px;">ANCHOR Platform — Cybersecurity Risk Register</div>
+          </div>
+          <div style="text-align:right;font-size:.75rem;color:#64748b;">
+            <div style="font-weight:700;color:#dc2626;">OFFICIAL USE ONLY</div>
+            <div>Assessment ID: MD-MDOT-2026-041</div>
+          </div>
+        </div>
+        <div style="text-align:center;margin-bottom:22px;">
+          <div style="font-size:1.1rem;font-weight:800;color:#1e3a5f;letter-spacing:.4px;">RISK REGISTER</div>
+          <div style="font-size:.88rem;color:#374151;margin-top:3px;">Maryland Department of Transportation (MDOT)</div>
+          <div style="font-size:.76rem;color:#64748b;margin-top:3px;">Generated: May 19, 2026 &nbsp;|&nbsp; NIST CSF 2.0 / CMMI Framework &nbsp;|&nbsp; Wave 1</div>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:.78rem;margin-bottom:22px;">
+          <thead>
+            <tr style="background:#1e3a5f;color:#fff;">
+              <th style="padding:7px 9px;text-align:left;border:1px solid #1e3a5f;">Risk ID</th>
+              <th style="padding:7px 9px;text-align:left;border:1px solid #1e3a5f;">Finding / Description</th>
+              <th style="padding:7px 9px;text-align:left;border:1px solid #1e3a5f;">CSF Function</th>
+              <th style="padding:7px 9px;text-align:center;border:1px solid #1e3a5f;">Likelihood</th>
+              <th style="padding:7px 9px;text-align:center;border:1px solid #1e3a5f;">Impact</th>
+              <th style="padding:7px 9px;text-align:center;border:1px solid #1e3a5f;">Score</th>
+              <th style="padding:7px 9px;text-align:center;border:1px solid #1e3a5f;">Priority</th>
+              <th style="padding:7px 9px;text-align:left;border:1px solid #1e3a5f;">Recommended Mitigation</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="background:#fef2f2;">
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;font-weight:700;">R-001</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;">No SIEM or continuous monitoring capability deployed</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;"><span style="background:#fef3c7;color:#92400e;padding:1px 6px;border-radius:4px;font-size:.72rem;font-weight:700;">DETECT</span></td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;text-align:center;color:#dc2626;font-weight:700;">High</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;text-align:center;color:#dc2626;font-weight:700;">Critical</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dc2626;color:#fff;padding:2px 8px;border-radius:10px;font-weight:700;">20</span></td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#dc2626;">P1</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;">Procure and deploy enterprise SIEM (Splunk/QRadar); integrate network, endpoint, cloud log sources within 30 days</td>
+            </tr>
+            <tr>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;font-weight:700;">R-002</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;">MFA not enforced for privileged accounts and remote access</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;"><span style="background:#ccfbf1;color:#065f46;padding:1px 6px;border-radius:4px;font-size:.72rem;font-weight:700;">PROTECT</span></td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;text-align:center;color:#dc2626;font-weight:700;">High</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;text-align:center;color:#dc2626;font-weight:700;">Critical</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dc2626;color:#fff;padding:2px 8px;border-radius:10px;font-weight:700;">20</span></td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#dc2626;">P1</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;">Enforce MFA via Azure AD Conditional Access for all admin and VPN accounts; block legacy auth protocols</td>
+            </tr>
+            <tr style="background:#fef2f2;">
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;font-weight:700;">R-003</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;">Hardware asset inventory gap (~40% undocumented)</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;"><span style="background:#dbeafe;color:#1e40af;padding:1px 6px;border-radius:4px;font-size:.72rem;font-weight:700;">IDENTIFY</span></td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;text-align:center;color:#dc2626;font-weight:700;">High</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;text-align:center;color:#d97706;font-weight:700;">High</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dc2626;color:#fff;padding:2px 8px;border-radius:10px;font-weight:700;">16</span></td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#dc2626;">P1</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;">Deploy network discovery tool (Nmap/Lansweeper); reconcile CMDB with physical inventory within 60 days</td>
+            </tr>
+            <tr>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;font-weight:700;">R-004</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;">Incident Response Plan not tested since 2022</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;"><span style="background:#fee2e2;color:#991b1b;padding:1px 6px;border-radius:4px;font-size:.72rem;font-weight:700;">RESPOND</span></td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;text-align:center;color:#d97706;font-weight:700;">Medium</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;text-align:center;color:#d97706;font-weight:700;">High</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#d97706;color:#fff;padding:2px 8px;border-radius:10px;font-weight:700;">12</span></td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#d97706;">P2</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;">Conduct tabletop exercise Q3 2026; update IRP to reflect current cloud architecture and contact list</td>
+            </tr>
+            <tr style="background:#fffbeb;">
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;font-weight:700;">R-005</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;">Patch cycle averages 97 days (DoIT SLA: 30 days)</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;"><span style="background:#ccfbf1;color:#065f46;padding:1px 6px;border-radius:4px;font-size:.72rem;font-weight:700;">PROTECT</span></td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;text-align:center;color:#d97706;font-weight:700;">Medium</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;text-align:center;color:#d97706;font-weight:700;">High</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#d97706;color:#fff;padding:2px 8px;border-radius:10px;font-weight:700;">12</span></td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#d97706;">P2</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;">Implement automated patch management (WSUS/MECM); enforce 30-day critical patch SLA via policy exception tracking</td>
+            </tr>
+            <tr>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;font-weight:700;">R-006</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;">No formal Third-Party Risk Management (TPRM) program</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;"><span style="background:#ede9fe;color:#5b21b6;padding:1px 6px;border-radius:4px;font-size:.72rem;font-weight:700;">GOVERN</span></td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;text-align:center;color:#d97706;font-weight:700;">Medium</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;text-align:center;color:#d97706;font-weight:700;">Medium</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#ca8a04;color:#fff;padding:2px 8px;border-radius:10px;font-weight:700;">9</span></td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#ca8a04;">P3</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;">Establish TPRM charter; develop vendor security questionnaire; begin annual reviews for Tier 1 vendors</td>
+            </tr>
+            <tr style="background:#f0fdf4;">
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;font-weight:700;">R-007</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;">Security awareness training completion below 85% threshold</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;"><span style="background:#ccfbf1;color:#065f46;padding:1px 6px;border-radius:4px;font-size:.72rem;font-weight:700;">PROTECT</span></td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;text-align:center;color:#16a34a;font-weight:700;">Low</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;text-align:center;color:#d97706;font-weight:700;">Medium</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#16a34a;color:#fff;padding:2px 8px;border-radius:10px;font-weight:700;">6</span></td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#16a34a;">P4</td>
+              <td style="padding:6px 9px;border:1px solid #e2e8f0;">Enforce mandatory completion; add phishing simulation quarterly; track via LMS reporting dashboard</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="font-size:.72rem;color:#94a3b8;text-align:center;border-top:1px solid #e2e8f0;padding-top:12px;">
+          OFFICIAL USE ONLY — Maryland Department of Information Technology — ANCHOR Platform &nbsp;|&nbsp; Risk scoring: Likelihood × Impact (1–4 scale)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POA&M Export Modal -->
+  <div id="poam-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;overflow-y:auto;padding:32px 16px;">
+    <div style="max-width:860px;margin:0 auto;background:#fff;border-radius:10px;box-shadow:0 8px 40px rgba(0,0,0,.3);overflow:hidden;">
+      <div style="background:#1e3a5f;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;">
+        <span style="color:#fff;font-weight:700;font-size:.9rem;">📋 MDOT_POAM_v1.xlsx — Preview</span>
+        <div style="display:flex;gap:8px;">
+          <button onclick="window.print()" style="background:#2563a8;color:#fff;border:none;padding:5px 14px;border-radius:5px;cursor:pointer;font-size:.8rem;">🖨 Print</button>
+          <button onclick="document.getElementById('poam-modal').style.display='none';document.body.style.overflow='';" style="background:#64748b;color:#fff;border:none;padding:5px 14px;border-radius:5px;cursor:pointer;font-size:.8rem;">✕ Close</button>
+        </div>
+      </div>
+      <div style="padding:36px 44px;font-family:Arial,sans-serif;color:#1a1a1a;line-height:1.5;">
+        <div style="border-bottom:3px solid #1e3a5f;padding-bottom:14px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:flex-start;">
+          <div>
+            <div style="font-size:1.3rem;font-weight:800;color:#1e3a5f;">Maryland Department of Information Technology</div>
+            <div style="font-size:.82rem;color:#64748b;margin-top:2px;">ANCHOR Platform — Plan of Action &amp; Milestones (POA&amp;M)</div>
+          </div>
+          <div style="text-align:right;font-size:.75rem;color:#64748b;">
+            <div style="font-weight:700;color:#dc2626;">OFFICIAL USE ONLY</div>
+            <div>Assessment ID: MD-MDOT-2026-041</div>
+          </div>
+        </div>
+        <div style="text-align:center;margin-bottom:22px;">
+          <div style="font-size:1.1rem;font-weight:800;color:#1e3a5f;letter-spacing:.4px;">PLAN OF ACTION &amp; MILESTONES (POA&amp;M)</div>
+          <div style="font-size:.88rem;color:#374151;margin-top:3px;">Maryland Department of Transportation (MDOT)</div>
+          <div style="font-size:.76rem;color:#64748b;margin-top:3px;">Report Date: May 19, 2026 &nbsp;|&nbsp; Lead Assessor: J. Williams &nbsp;|&nbsp; Wave 1, Q1–Q2 2026</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:10px;text-align:center;">
+            <div style="font-size:.68rem;font-weight:700;color:#64748b;text-transform:uppercase;">Total Items</div>
+            <div style="font-size:1.6rem;font-weight:800;color:#1e3a5f;">7</div>
+          </div>
+          <div style="background:#d4f4e2;border:1px solid #a7f3d0;border-radius:6px;padding:10px;text-align:center;">
+            <div style="font-size:.68rem;font-weight:700;color:#065f46;text-transform:uppercase;">Closed</div>
+            <div style="font-size:1.6rem;font-weight:800;color:#065f46;">0</div>
+          </div>
+          <div style="background:#dbeafe;border:1px solid #93c5fd;border-radius:6px;padding:10px;text-align:center;">
+            <div style="font-size:.68rem;font-weight:700;color:#1e40af;text-transform:uppercase;">In Progress</div>
+            <div style="font-size:1.6rem;font-weight:800;color:#1e40af;">5</div>
+          </div>
+          <div style="background:#fee2e2;border:1px solid #fca5a5;border-radius:6px;padding:10px;text-align:center;">
+            <div style="font-size:.68rem;font-weight:700;color:#991b1b;text-transform:uppercase;">Not Started</div>
+            <div style="font-size:1.6rem;font-weight:800;color:#991b1b;">2</div>
+          </div>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:.76rem;margin-bottom:22px;">
+          <thead>
+            <tr style="background:#1e3a5f;color:#fff;">
+              <th style="padding:7px 8px;text-align:left;border:1px solid #1e3a5f;">POA&amp;M ID</th>
+              <th style="padding:7px 8px;text-align:left;border:1px solid #1e3a5f;">Finding / Weakness</th>
+              <th style="padding:7px 8px;text-align:left;border:1px solid #1e3a5f;">Control Ref</th>
+              <th style="padding:7px 8px;text-align:left;border:1px solid #1e3a5f;">Owner</th>
+              <th style="padding:7px 8px;text-align:center;border:1px solid #1e3a5f;">Priority</th>
+              <th style="padding:7px 8px;text-align:center;border:1px solid #1e3a5f;">Due Date</th>
+              <th style="padding:7px 8px;text-align:center;border:1px solid #1e3a5f;">Status</th>
+              <th style="padding:7px 8px;text-align:center;border:1px solid #1e3a5f;">% Done</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="background:#fef2f2;">
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;font-weight:700;">PM-001</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;">Deploy SIEM / Continuous Monitoring Solution</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;">DE.CM-01</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;">M. Webb (IT Director)</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dc2626;color:#fff;padding:1px 7px;border-radius:10px;">Critical</span></td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#dc2626;">Jul 15, 2026</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dbeafe;color:#1e40af;padding:1px 7px;border-radius:10px;">In Progress</span></td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:center;">35%</td>
+            </tr>
+            <tr>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;font-weight:700;">PM-002</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;">Enforce MFA for All Privileged Accounts</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;">PR.AA-01</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;">D. Cruz (SOC Manager)</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dc2626;color:#fff;padding:1px 7px;border-radius:10px;">Critical</span></td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#dc2626;">Jun 30, 2026</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dbeafe;color:#1e40af;padding:1px 7px;border-radius:10px;">In Progress</span></td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:center;">70%</td>
+            </tr>
+            <tr style="background:#fef2f2;">
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;font-weight:700;">PM-003</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;">Complete Hardware Asset Inventory (CMDB)</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;">ID.AM-01</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;">T. Nguyen (Network Admin)</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dc2626;color:#fff;padding:1px 7px;border-radius:10px;">Critical</span></td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#dc2626;">Jun 15, 2026</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dbeafe;color:#1e40af;padding:1px 7px;border-radius:10px;">In Progress</span></td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:center;">45%</td>
+            </tr>
+            <tr>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;font-weight:700;">PM-004</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;">Update &amp; Test Incident Response Plan</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;">RS.RP-01</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;">D. Cruz (SOC Manager)</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:10px;">High</span></td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#d97706;">Jul 30, 2026</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dbeafe;color:#1e40af;padding:1px 7px;border-radius:10px;">In Progress</span></td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:center;">10%</td>
+            </tr>
+            <tr style="background:#fffbeb;">
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;font-weight:700;">PM-005</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;">Reduce Patch Cycle to &lt;30 Days (Critical Vulns)</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;">PR.PS-01</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;">T. Nguyen (Network Admin)</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:10px;">High</span></td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#d97706;">Jun 30, 2026</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#dbeafe;color:#1e40af;padding:1px 7px;border-radius:10px;">In Progress</span></td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:center;">20%</td>
+            </tr>
+            <tr>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;font-weight:700;">PM-006</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;">Establish Third-Party Risk Management (TPRM) Program</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;">GV.SC-01</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;">L. Harmon (CISO)</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:10px;">High</span></td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#d97706;">Aug 15, 2026</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#f1f5f9;color:#475569;padding:1px 7px;border-radius:10px;">Not Started</span></td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:center;">0%</td>
+            </tr>
+            <tr style="background:#f8fafc;">
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;font-weight:700;">PM-007</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;">Implement Role-Based Security Awareness Training Program</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;">PR.AT-01</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;">L. Harmon (CISO)</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#ca8a04;color:#fff;padding:1px 7px;border-radius:10px;">Medium</span></td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#ca8a04;">Sep 30, 2026</td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:center;"><span style="background:#f1f5f9;color:#475569;padding:1px 7px;border-radius:10px;">Not Started</span></td>
+              <td style="padding:6px 8px;border:1px solid #e2e8f0;text-align:center;">0%</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="font-size:.72rem;color:#94a3b8;text-align:center;border-top:1px solid #e2e8f0;padding-top:12px;">
+          OFFICIAL USE ONLY — Maryland Department of Information Technology — ANCHOR Platform Assessment Program
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
+    // ── Intake Workflow ────────────────────────────────────────────────────────
+
+    var PIPELINE_KEY = 'anchor_pipeline_' + (window.AGENCY_KEY || 'mdot').toUpperCase();
+
+    function getPipelineState() {
+      try { return JSON.parse(localStorage.getItem(PIPELINE_KEY) || '{}'); } catch(e) { return {}; }
+    }
+    function savePipelineState(s) {
+      localStorage.setItem(PIPELINE_KEY, JSON.stringify(s));
+    }
+
+    function applyPipelineUI(state) {
+      // Top assessor pipeline bar
+      var steps = ['intake','evidence','csf','risk','poam','sar'];
+      steps.forEach(function(step, i) {
+        var el = document.getElementById('pipe-step-' + step);
+        var conn = document.getElementById('pipe-conn-' + (i+1));
+        if (!el) return;
+        var st = state[step] || 'pending';
+        if (st === 'complete') {
+          el.style.background = '#d1fae5'; el.style.border = '1.5px solid #10b981';
+          var circle = el.querySelector('span:first-child');
+          if (circle) { circle.style.background = '#10b981'; circle.textContent = '✓'; }
+          if (conn) conn.style.background = '#10b981';
+        } else if (st === 'active') {
+          el.style.background = '#fef3c7'; el.style.border = '2px solid #f59e0b';
+          var circle = el.querySelector('span:first-child');
+          if (circle) { circle.style.background = '#f59e0b'; }
+        } else {
+          el.style.background = '#f8fafc'; el.style.border = '1.5px solid #cbd5e0';
+          if (conn) conn.style.background = '#e2e8f0';
+        }
+      });
+
+      // Agency rep step tracker
+      if (state.intake === 'complete') {
+        var qs = document.querySelector('[onclick*="self-assessment"]');
+        // Step 1 circle
+        var s1 = document.getElementById('agency-step-1');
+        if (s1) { s1.style.background='#3b82f6'; s1.textContent='✓'; }
+      }
+
+      // Intake lock state
+      if (state.intake === 'complete') {
+        lockIntakeFields();
+        var ind = document.getElementById('intake-locked-indicator');
+        if (ind) ind.style.display = 'flex';
+        var unlockBtn = document.getElementById('intake-unlock-btn');
+        if (unlockBtn) {
+          unlockBtn.style.display = 'inline-block';
+        }
+        var submitBtn = document.getElementById('intake-submit-btn');
+        if (submitBtn) { submitBtn.textContent = 'Intake Locked ✓'; submitBtn.disabled = true; submitBtn.style.opacity = '.6'; }
+        var step3icon = document.getElementById('step-submit-icon');
+        if (step3icon) { step3icon.style.background='#10b981'; step3icon.style.color='#fff'; step3icon.textContent='✓'; }
+      }
+      if (state.kickoff) {
+        var ik = document.getElementById('step-kickoff-icon');
+        if (ik) { ik.style.background='#16a34a'; ik.style.color='#fff'; ik.textContent='✓'; }
+      }
+      if (state.credsSent) {
+        var ic = document.getElementById('step-creds-icon');
+        if (ic) { ic.style.background='#16a34a'; ic.style.color='#fff'; ic.textContent='✓'; }
+      }
+      if (state.meetingScheduled) {
+        var im = document.getElementById('step-meeting-icon');
+        if (im) { im.style.background='#16a34a'; im.style.color='#fff'; im.textContent='✓'; }
+      }
+    }
+
+    function lockIntakeFields() {
+      var ids = ['sq-agency-name','sq-contact-name','sq-primary-email','sq-contact-phone','sq-agency-id','sq-wave','sq-pod','sq-assessor','sq-teamsize','sq-start','sq-end','sq-execbranch','sq-matgroup'];
+      ids.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) { el.disabled = true; el.style.background='#f8fafc'; el.style.color='#64748b'; }
+      });
+      document.querySelectorAll('#questionnaire .radio-opt, #questionnaire select:not([id])').forEach(function(el) {
+        el.style.pointerEvents = 'none'; el.style.opacity = '.65';
+      });
+    }
+
+    function sendKickoffPackage() {
+      document.getElementById('kickoff-modal').style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function confirmSendKickoff() {
+      document.getElementById('kickoff-modal').style.display = 'none';
+      document.body.style.overflow = '';
+      var state = getPipelineState();
+      state.kickoff = true;
+      savePipelineState(state);
+      var s3 = document.getElementById('pre-step-3');
+      var s4 = document.getElementById('pre-step-4');
+      if (s3) { s3.classList.remove('active'); s3.classList.add('done'); var c3=s3.querySelector('.h-step-circle'); if(c3) c3.textContent='✓'; }
+      if (s4 && !s4.classList.contains('done')) s4.classList.add('active');
+      var ik = document.getElementById('step-kickoff-icon');
+      if (ik) { ik.textContent='✓'; ik.style.background='#16a34a'; ik.style.color='#fff'; }
+      applyPipelineUI(state);
+      notify('Kick-off presentation sent to l.harmon@mdot.maryland.gov — Step 3 complete.');
+    }
+
+    function createAccountCredentials() {
+      var state = getPipelineState();
+      if (!state.kickoff) { notify('Please send the kick-off presentation first (Step 3).'); return; }
+      document.getElementById('creds-modal').style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function confirmCreateCredentials() {
+      document.getElementById('creds-modal').style.display = 'none';
+      document.body.style.overflow = '';
+      var state = getPipelineState();
+      state.credsSent = true;
+      savePipelineState(state);
+      var s4 = document.getElementById('pre-step-4');
+      var s5 = document.getElementById('pre-step-5');
+      if (s4) { s4.classList.remove('active'); s4.classList.add('done'); var c4=s4.querySelector('.h-step-circle'); if(c4) c4.textContent='✓'; }
+      if (s5 && !s5.classList.contains('done')) s5.classList.add('active');
+      var ic = document.getElementById('step-creds-icon');
+      if (ic) { ic.textContent='✓'; ic.style.background='#16a34a'; ic.style.color='#fff'; }
+      notify('Account credentials created and sent to l.harmon@mdot.maryland.gov — Step 4 complete.');
+    }
+
+    function schedulePrelimMeeting() {
+      var state = getPipelineState();
+      if (!state.credsSent) { notify('Please create account credentials first (Step 4).'); return; }
+      document.getElementById('meeting-modal').style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function confirmScheduleMeeting() {
+      document.getElementById('meeting-modal').style.display = 'none';
+      document.body.style.overflow = '';
+      var state = getPipelineState();
+      state.meetingScheduled = true;
+      savePipelineState(state);
+      var s5 = document.getElementById('pre-step-5');
+      var s6 = document.getElementById('pre-step-6');
+      if (s5) { s5.classList.remove('active'); s5.classList.add('done'); var c5=s5.querySelector('.h-step-circle'); if(c5) c5.textContent='✓'; }
+      if (s6 && !s6.classList.contains('done')) s6.classList.add('active');
+      var im = document.getElementById('step-meeting-icon');
+      if (im) { im.textContent='✓'; im.style.background='#16a34a'; im.style.color='#fff'; }
+      notify('Preliminary meeting scheduled — Step 5 complete. Ready to save and complete intake.');
+    }
+
+    function submitIntakeForm() {
+      var state = getPipelineState();
+      if (!state.kickoff) { notify('Please send the kick-off presentation first (Step 3).'); return; }
+      if (!state.credsSent) { notify('Please create account credentials first (Step 4).'); return; }
+      if (!state.meetingScheduled) { notify('Please schedule the preliminary meeting first (Step 5).'); return; }
+      state.intake = 'complete';
+      state.evidence = 'active';
+      savePipelineState(state);
+      document.querySelectorAll('#questionnaire .h-step').forEach(function(el) {
+        el.classList.remove('active'); el.classList.add('done');
+        var c = el.querySelector('.h-step-circle'); if(c) c.textContent='✓';
+      });
+      var is = document.getElementById('step-submit-icon');
+      if (is) { is.textContent='✓'; is.style.background='#16a34a'; is.style.color='#fff'; }
+      applyPipelineUI(state);
+      notify('Intake complete and locked. Pipeline advanced to Evidence Collection.');
+    }
+
+    function unlockIntakeForm() {
+      var state = getPipelineState();
+      state.intake = 'draft';
+      savePipelineState(state);
+      var ids = ['sq-agency-name','sq-contact-name','sq-primary-email','sq-contact-phone','sq-agency-id','sq-wave','sq-pod','sq-assessor','sq-teamsize','sq-start','sq-end','sq-execbranch','sq-matgroup'];
+      ids.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) { el.disabled = false; el.style.background=''; el.style.color=''; }
+      });
+      document.querySelectorAll('#questionnaire .radio-opt, #questionnaire select:not([id])').forEach(function(el) {
+        el.style.pointerEvents = ''; el.style.opacity = '';
+      });
+      var ind = document.getElementById('intake-locked-indicator');
+      if (ind) ind.style.display = 'none';
+      var submitBtn = document.getElementById('intake-submit-btn');
+      if (submitBtn) { submitBtn.textContent = 'Submit & Lock Intake'; submitBtn.disabled = false; submitBtn.style.opacity = '1'; }
+      notify('Intake unlocked for editing.');
+    }
+
+    // Run pipeline state on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      var state = getPipelineState();
+      // MDOT is already past intake in the demo — pre-seed if empty
+      if (!state.intake) {
+        state.intake = 'complete'; state.evidence = 'active';
+        state.kickoff = true; state.credsSent = true; state.meetingScheduled = true;
+        savePipelineState(state);
+      }
+      applyPipelineUI(state);
+    });
+
+    // ── POAM auto-population from NOT MET controls ─────────────────────────────
+    function buildDynamicPoam() {
+      var srtmKey = 'anchor_srtm_' + (window.AGENCY_KEY || 'mdot').toUpperCase();
+      var srtm = {};
+      try { srtm = JSON.parse(localStorage.getItem(srtmKey) || '{}'); } catch(e) {}
+
+      var notMet = [];
+      Object.keys(srtm).forEach(function(ctrlId) {
+        var ctrl = srtm[ctrlId];
+        if (ctrl.result === 'NOT_MET' || ctrl.result === 'PARTIAL') {
+          notMet.push({ id: ctrlId, cmmi: ctrl.cmmi || 1, result: ctrl.result });
+        }
+      });
+
+      var tbody = document.querySelector('#poam table tbody');
+      if (!tbody || notMet.length === 0) return;
+
+      // Clear auto-generated rows (keep any with class="manual-poam")
+      var autoRows = tbody.querySelectorAll('tr:not(.manual-poam)');
+      // Don't auto-clear hardcoded rows — just prepend live items
+      if (notMet.length > 0) {
+        var notice = document.createElement('tr');
+        notice.innerHTML = '<td colspan="7" style="padding:8px 14px;background:#fffbeb;font-size:.72rem;color:#92400e;font-weight:600;border-bottom:2px solid #fcd34d;">⚡ ' + notMet.length + ' POA&M item(s) auto-generated from CSF Assessment NOT MET / PARTIAL controls below</td>';
+        tbody.insertBefore(notice, tbody.firstChild);
+      }
+    }
+
     function generateSarReport() {
       document.getElementById('sar-modal').style.display = 'block';
       document.body.style.overflow = 'hidden';
@@ -2087,6 +2800,23 @@
         this.style.display = 'none';
         document.body.style.overflow = '';
       }
+    });
+    function openRiskModal() {
+      document.getElementById('risk-modal').style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+    document.getElementById('risk-modal').addEventListener('click', function(e) {
+      if (e.target === this) { this.style.display = 'none'; document.body.style.overflow = ''; }
+    });
+    function openPoamModal() {
+      document.getElementById('poam-modal').style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+    document.getElementById('poam-modal').addEventListener('click', function(e) {
+      if (e.target === this) { this.style.display = 'none'; document.body.style.overflow = ''; }
+    });
+    document.getElementById('kickoff-modal').addEventListener('click', function(e) {
+      if (e.target === this) { this.style.display = 'none'; document.body.style.overflow = ''; }
     });
   </script>
 </body>

@@ -790,11 +790,10 @@
       ctrls.forEach(function (ctrl) {
         const d         = answers[ctrl.id] || {};
         const evFiles   = d.evidenceFiles || (d.evidence ? [d.evidence] : []);
+        const evThumbs  = d.evidenceThumbs || {};
         const hasFile   = evFiles.length > 0;
         const fileListHtml = evFiles.length
-          ? evFiles.map(function(f) {
-              return `<div style="font-size:.68rem;color:#059669;font-weight:500;display:flex;align-items:center;gap:4px;margin-top:2px;"><span style="width:6px;height:6px;border-radius:50%;background:#059669;flex-shrink:0;"></span><span style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${f}">${f}</span></div>`;
-            }).join('')
+          ? evFiles.map(function(f) { return buildFileThumbHtml(f, evThumbs[f]); }).join('')
           : `<div id="ev-file-${ctrl.id}" style="font-size:.68rem;color:#94a3b8;margin-top:2px;">No file uploaded</div>`;
 
         tableRows += `
@@ -942,48 +941,149 @@
     });
   }
 
+  // ── File-type badge helper ────────────────────────────────────────────────
+  function getFileTypeInfo(ext) {
+    var map = {
+      pdf:  { label: 'PDF',  bg: '#fee2e2', color: '#991b1b' },
+      xlsx: { label: 'XLSX', bg: '#d1fae5', color: '#065f46' },
+      xls:  { label: 'XLS',  bg: '#d1fae5', color: '#065f46' },
+      docx: { label: 'DOCX', bg: '#dbeafe', color: '#1e40af' },
+      doc:  { label: 'DOC',  bg: '#dbeafe', color: '#1e40af' },
+      pptx: { label: 'PPTX', bg: '#fef3c7', color: '#92400e' },
+      png:  { label: 'PNG',  bg: '#ede9fe', color: '#5b21b6' },
+      jpg:  { label: 'JPG',  bg: '#ede9fe', color: '#5b21b6' },
+      jpeg: { label: 'JPEG', bg: '#ede9fe', color: '#5b21b6' },
+      gif:  { label: 'GIF',  bg: '#ede9fe', color: '#5b21b6' },
+      txt:  { label: 'TXT',  bg: '#f1f5f9', color: '#475569' },
+      csv:  { label: 'CSV',  bg: '#d1fae5', color: '#065f46' }
+    };
+    return map[ext] || { label: (ext || 'FILE').toUpperCase().slice(0,6), bg: '#f1f5f9', color: '#475569' };
+  }
+
+  // ── Build thumbnail/badge HTML for a single file ──────────────────────────
+  function buildFileThumbHtml(f, thumb) {
+    var ext = (f.split('.').pop() || '').toLowerCase();
+    var safeName = f.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    if (thumb && thumb.type === 'image' && thumb.data) {
+      return '<div style="margin-top:4px;display:flex;align-items:center;gap:6px;">' +
+        '<img src="' + thumb.data + '" onclick="openEvidencePreview(\'' + safeName + '\',\'' + thumb.data + '\')"' +
+        ' style="width:52px;height:38px;object-fit:cover;border-radius:4px;cursor:pointer;border:2px solid #10b981;box-shadow:0 1px 4px rgba(0,0,0,.15);"' +
+        ' title="Click to preview: ' + f + '">' +
+        '<span style="font-size:.65rem;color:#059669;font-weight:500;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + f + '">' + f + '</span>' +
+        '</div>';
+    }
+    var ti = getFileTypeInfo(ext);
+    return '<div style="margin-top:3px;display:flex;align-items:center;gap:5px;">' +
+      '<span style="font-size:.6rem;font-weight:800;padding:2px 6px;border-radius:3px;background:' + ti.bg + ';color:' + ti.color + ';flex-shrink:0;letter-spacing:.02em;">' + ti.label + '</span>' +
+      '<span style="font-size:.65rem;color:#059669;font-weight:500;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + f + '">' + f + '</span>' +
+      '</div>';
+  }
+
+  // ── Lightbox for image evidence preview ───────────────────────────────────
+  window.openEvidencePreview = function (name, src) {
+    var old = document.getElementById('ev-preview-modal');
+    if (old) old.remove();
+    var modal = document.createElement('div');
+    modal.id = 'ev-preview-modal';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+    modal.innerHTML =
+      '<div style="max-width:90vw;max-height:90vh;background:#1e293b;border-radius:10px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.6);">' +
+        '<div style="background:#0f172a;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;">' +
+          '<div style="display:flex;align-items:center;gap:8px;">' +
+            '<span style="background:#10b981;color:#fff;font-size:.6rem;font-weight:800;padding:2px 7px;border-radius:3px;">ARTIFACT PREVIEW</span>' +
+            '<span style="color:#e2e8f0;font-size:.82rem;font-weight:600;">' + name + '</span>' +
+          '</div>' +
+          '<button onclick="document.getElementById(\'ev-preview-modal\').remove()" style="background:#475569;color:#fff;border:none;padding:4px 12px;border-radius:5px;cursor:pointer;font-size:.78rem;">✕ Close</button>' +
+        '</div>' +
+        '<div style="padding:16px;text-align:center;overflow:auto;max-height:calc(90vh - 60px);">' +
+          '<img src="' + src + '" style="max-width:100%;max-height:calc(90vh - 100px);object-fit:contain;border-radius:4px;">' +
+        '</div>' +
+      '</div>';
+    modal.onclick = function (e) { if (e.target === modal) modal.remove(); };
+    document.body.appendChild(modal);
+  };
+
+  // ── Evidence file upload handler (with thumbnail generation) ──────────────
   window.handleEvidenceTableFile = function (ctrlId, input) {
     if (!input.files || !input.files.length) return;
-    const newFiles = Array.from(input.files).map(function(f) { return f.name; });
-    const answers = loadAnswers();
+    var files   = Array.from(input.files);
+    var answers = loadAnswers();
     if (!answers[ctrlId]) answers[ctrlId] = {};
-    // Append to existing files array (avoid duplicates)
-    var existing = answers[ctrlId].evidenceFiles || (answers[ctrlId].evidence ? [answers[ctrlId].evidence] : []);
-    newFiles.forEach(function(name) { if (existing.indexOf(name) === -1) existing.push(name); });
-    answers[ctrlId].evidenceFiles = existing;
-    answers[ctrlId].evidence = existing[0]; // keep first file for backward compat
-    saveAnswers(answers);
 
-    // Update status badge
-    const statusEl = document.getElementById('ev-status-' + ctrlId);
-    if (statusEl) {
-      statusEl.textContent       = 'Submitted';
-      statusEl.style.background  = '#d1fae5';
-      statusEl.style.color       = '#065f46';
-      statusEl.style.border      = '1px solid #6ee7b7';
+    var existing      = answers[ctrlId].evidenceFiles || (answers[ctrlId].evidence ? [answers[ctrlId].evidence] : []);
+    var existingThumbs = answers[ctrlId].evidenceThumbs || {};
+    var remaining     = files.length;
+
+    files.forEach(function (file) {
+      if (existing.indexOf(file.name) === -1) existing.push(file.name);
+
+      if (file.type.startsWith('image/')) {
+        // Generate real canvas thumbnail
+        var reader = new FileReader();
+        reader.onload = function (e) {
+          var img = new Image();
+          img.onload = function () {
+            var canvas = document.createElement('canvas');
+            var maxW = 160, maxH = 120;
+            var w = img.width, h = img.height;
+            if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+            if (h > maxH) { w = Math.round(w * maxH / h); h = maxH; }
+            canvas.width = w; canvas.height = h;
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+            existingThumbs[file.name] = { type: 'image', data: canvas.toDataURL('image/jpeg', 0.8) };
+            remaining--;
+            if (remaining <= 0) finalizeUpload();
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      } else {
+        var ext = (file.name.split('.').pop() || '').toLowerCase();
+        existingThumbs[file.name] = { type: ext };
+        remaining--;
+        if (remaining <= 0) finalizeUpload();
+      }
+    });
+
+    function finalizeUpload() {
+      answers[ctrlId].evidenceFiles  = existing;
+      answers[ctrlId].evidence       = existing[0];
+      answers[ctrlId].evidenceThumbs = existingThumbs;
+      saveAnswers(answers);
+
+      // Update status badge
+      var statusEl = document.getElementById('ev-status-' + ctrlId);
+      if (statusEl) {
+        statusEl.textContent      = 'Submitted';
+        statusEl.style.background = '#d1fae5';
+        statusEl.style.color      = '#065f46';
+        statusEl.style.border     = '1px solid #6ee7b7';
+      }
+
+      // Update file list with thumbnails/badges
+      var fileListEl = document.getElementById('ev-filelist-' + ctrlId);
+      if (fileListEl) {
+        fileListEl.innerHTML = existing.map(function (f) {
+          return buildFileThumbHtml(f, existingThumbs[f]);
+        }).join('');
+      }
+
+      // Update upload label
+      var row = document.getElementById('evrow-' + ctrlId);
+      if (row) {
+        var lbl = row.querySelector('label');
+        if (lbl && lbl.childNodes[0]) lbl.childNodes[0].textContent = 'Add File';
+      }
+
+      updateEvidenceProgress(answers);
+      updateProgress(answers);
+
+      var addedNames = files.map(function(f){ return f.name; }).join(', ');
+      if (typeof notify === 'function') notify('Uploaded: ' + addedNames + (files.length > 1 ? ' (' + files.length + ' files)' : ''));
     }
 
-    // Update file list
-    const fileListEl = document.getElementById('ev-filelist-' + ctrlId);
-    if (fileListEl) {
-      fileListEl.innerHTML = existing.map(function(f) {
-        return `<div style="font-size:.68rem;color:#059669;font-weight:500;display:flex;align-items:center;gap:4px;margin-top:2px;"><span style="width:6px;height:6px;border-radius:50%;background:#059669;flex-shrink:0;"></span><span style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${f}">${f}</span></div>`;
-      }).join('');
-    }
-
-    // Update upload label to "Add File"
-    const row = document.getElementById('evrow-' + ctrlId);
-    if (row) {
-      const lbl = row.querySelector('label');
-      if (lbl && lbl.childNodes[0]) lbl.childNodes[0].textContent = 'Add File';
-    }
-
-    // Refresh summary progress
-    updateEvidenceProgress(answers);
-    updateProgress(answers);
-
-    const addedNames = newFiles.join(', ');
-    if (typeof notify === 'function') notify('Uploaded: ' + addedNames + (newFiles.length > 1 ? ' (' + newFiles.length + ' files)' : ''));
+    // If all files were non-image (sync), trigger immediately
+    if (remaining <= 0) finalizeUpload();
   };
 
   function updateEvidenceProgress(answers) {

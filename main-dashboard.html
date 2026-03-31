@@ -98,6 +98,22 @@
     .lsp-fn-bar { height:100%; border-radius:10px; transition:width .5s ease; }
     .lsp-fn-val { font-size:.72rem; font-weight:700; width:28px; text-align:right; flex-shrink:0; }
 
+    /* COLLAPSIBLE SIDEBAR — width-collapse keeps content anchored */
+    #sidebar { transition: width .25s ease; overflow: hidden; min-width: 0; }
+    #main-content { transition: margin-left .25s ease; }
+    body.sidebar-collapsed #sidebar { width: 0; }
+    body.sidebar-collapsed #main-content { margin-left: 0; }
+    .sidebar-toggle {
+      background: none; border: none; cursor: pointer;
+      padding: 7px 10px; border-radius: 6px; margin-right: 4px;
+      color: var(--text-muted); display: flex; align-items: center;
+      transition: background .15s; flex-shrink: 0;
+    }
+    .sidebar-toggle:hover { background: #e8edf5; color: var(--primary); }
+    /* Topbar layout: toggle | title (flex:1) | right */
+    .topbar { justify-content: flex-start !important; }
+    .topbar-title { flex: 1; }
+
     /* USER MENU & DROPDOWN */
     .user-menu { position: relative; display: inline-block; }
     .avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #2563a8, #1a3a5c); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .85rem; cursor: pointer; transition: all .2s; }
@@ -151,29 +167,17 @@
 
   <main id="main-content" role="main">
     <header class="topbar">
-      <div class="topbar-title">
-        Agency Dashboard
-        <span>Main Entry Point</span>
+      <button class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle sidebar" aria-label="Toggle navigation sidebar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="topbar-title" id="topbar-title">
+        Maryland State Cybersecurity Assessment Dashboard
       </div>
       <div class="topbar-right">
-        <span class="badge badge-blue">3 Agencies</span>
-        <span class="badge badge-orange">2 In Progress</span>
-        <span class="badge badge-green">1 Complete</span>
-        <button class="btn btn-outline btn-sm" onclick="logout()" style="margin-left: 10px;">🚪 Logout</button>
-        <div class="user-menu">
-          <div class="avatar" id="user-avatar" title="Click for options">JW</div>
-          <div class="user-dropdown" id="user-dropdown">
-            <div class="user-info">
-              <div class="user-name" id="user-name">Loading...</div>
-              <div class="user-email" id="user-email">...</div>
-              <div class="user-role" id="user-role">...</div>
-            </div>
-            <div class="dropdown-divider"></div>
-            <a href="#" class="dropdown-item" onclick="logout(); return false;">
-              <span>🚪</span> Logout
-            </a>
-          </div>
-        </div>
+        <button class="btn btn-outline btn-sm" onclick="doLogout()" style="display:flex;align-items:center;gap:6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sign Out
+        </button>
       </div>
     </header>
 
@@ -181,7 +185,7 @@
       <section class="section active" id="portfolio" aria-hidden="false">
         <div class="page-header">
           <h1>Maryland State Cybersecurity Assessment Dashboard</h1>
-          <p>Real-time statewide view of cybersecurity maturity across Maryland Executive Branch agencies — NIST CSF 2.0 / CMMI scored. Drill into any agency, review findings, track remediation, and export to ServiceNow GRC.</p>
+          <p>Real-time statewide view of cybersecurity maturity across Maryland Executive Branch agencies — NIST CSF 2.0 / CMMI scored. Drill into any agency, review findings, and track remediation.</p>
         </div>
 
         <!-- PROGRAM OVERVIEW -->
@@ -413,7 +417,7 @@
         <div id="pf-compliance">
         <div class="anchor-banner">
           <div></div>
-          <div><strong>ANCHOR — REPORT Phase:</strong> The compliance dashboard aggregates maturity scores, constraints, and findings across all completed assessments. Metrics are structured for export to ServiceNow GRC.</div>
+          <div><strong>ANCHOR — REPORT Phase:</strong> The compliance dashboard aggregates maturity scores, constraints, and findings across all completed assessments. GRC integration is managed in Settings → Integrations.</div>
         </div>
 
 
@@ -427,7 +431,6 @@
             <option value="dpscs">DPSCS — In Progress</option>
             <option value="msde">MSDE — Complete</option>
           </select>
-          <button class="btn btn-outline btn-sm" onclick="exportSCDashboard()">📤 Export to ServiceNow GRC</button>
           <button class="btn btn-outline btn-sm" onclick="notify('📄 PDF generated: MD_Statewide_Compliance_Dashboard_2026.pdf')">Download PDF</button>
         </div>
 
@@ -564,7 +567,6 @@
             </table>
           </div>
           <div class="btn-row">
-            <button class="btn btn-outline btn-sm" onclick="notify('🔗 Findings pushed to ServiceNow GRC Risk Register — 7 records synced')">Push to ServiceNow Risk Register</button>
             <button class="btn btn-outline btn-sm" onclick="notify('📧 Executive findings summary emailed to DoIT OSM leadership')">Email to DoIT OSM</button>
           </div>
         </div>
@@ -645,10 +647,14 @@
         <div class="page-header">
           <h1>90-Agency Assessment Pipeline — 24-Month Schedule</h1>
           <p>Wave-based delivery across all Maryland state agencies. Each wave is sized to pod capacity and agency complexity.</p>
+          <div class="btn-row" style="margin-top:10px;">
+            <button class="btn btn-primary btn-sm" onclick="openPipelineConfig()">⚙️ Configure Pipeline</button>
+            <button class="btn btn-outline btn-sm" onclick="notify('📥 Full pipeline exported to Excel')">Export Full Schedule</button>
+          </div>
         </div>
         <div class="anchor-banner">
           <div></div>
-          <div><strong>ANCHOR — Optimize Phase:</strong> The pipeline view gives DoIT and Assurit's PMO real-time visibility into all 90 assessments across the 24-month program. Waves are sequenced by agency risk tier and pod availability.</div>
+          <div><strong>ANCHOR — Optimize Phase:</strong> Waves are sequenced by agency scoping score (FTE tier + IT complexity + data sensitivity). Large/high-risk agencies enter Wave 1–2; medium agencies Waves 3–4; small agencies Waves 5–6. Waves overlap by ~3 months to maintain continuous pod utilization. Use <strong>Configure Pipeline</strong> to edit wave dates, pod assignments, and agency placement.</div>
         </div>
         <div class="grid-4" style="margin-bottom:20px;">
           <div class="stat-card green"><div class="stat-label">Total Agencies</div><div class="stat-value">90</div><div class="stat-sub">24-month program</div></div>
@@ -658,9 +664,10 @@
         </div>
         <div class="tab-bar">
           <div class="tab active" onclick="switchTab(this,'tp-gantt')">Pipeline Gantt</div>
-          <div class="tab" onclick="switchTab(this,'tp-waves')">Wave Details</div>
+          <div class="tab" onclick="switchTab(this,'tp-waves');renderWaveTable()">Wave Details</div>
           <div class="tab" onclick="switchTab(this,'tp-pods')">Pod Allocation</div>
           <div class="tab" onclick="switchTab(this,'tp-kpi')">PMO KPIs</div>
+          <div class="tab" onclick="switchTab(this,'tp-logic')">Scheduling Logic</div>
         </div>
         <div class="tab-content active" id="tp-gantt">
           <div class="card">
@@ -681,58 +688,245 @@
           </div>
         </div>
         <div class="tab-content" id="tp-waves">
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Wave</th><th>Period</th><th>Agencies</th><th>Agency Types</th><th>Pods Deployed</th><th>Status</th><th>Avg Maturity</th><th>Critical Findings</th></tr></thead>
-              <tbody>
-                <tr><td><strong>Wave 1</strong></td><td>Jan–Jun 2026</td><td>15 agencies</td><td>Large + High-Risk</td><td>3 Large, 2 Medium</td><td><span class="badge badge-blue">In Progress</span></td><td>2.5</td><td>38</td></tr>
-                <tr><td><strong>Wave 2</strong></td><td>Apr–Sep 2026</td><td>15 agencies</td><td>Medium + Enterprise</td><td>2 Large, 3 Medium</td><td><span class="badge badge-blue">In Progress</span></td><td>—</td><td>—</td></tr>
-                <tr><td><strong>Wave 3</strong></td><td>Jul–Dec 2026</td><td>15 agencies</td><td>Medium + Small (high-risk)</td><td>1 Large, 4 Medium</td><td><span class="badge badge-orange">Scheduled</span></td><td>—</td><td>—</td></tr>
-                <tr><td><strong>Wave 4</strong></td><td>Oct 2026–Mar 2027</td><td>15 agencies</td><td>Small + OT/ICS-heavy</td><td>2 Large, 2 Medium, 2 Small</td><td><span class="badge badge-gray">Planned</span></td><td>—</td><td>—</td></tr>
-                <tr><td><strong>Wave 5</strong></td><td>Jan–Jun 2027</td><td>15 agencies</td><td>Small agencies + reassessments</td><td>1 Large, 2 Medium, 4 Small</td><td><span class="badge badge-gray">Planned</span></td><td>—</td><td>—</td></tr>
-                <tr><td><strong>Wave 6</strong></td><td>Apr–Dec 2027</td><td>15 agencies</td><td>Remaining + Year-2 reassessments</td><td>TBD based on capacity</td><td><span class="badge badge-gray">Planned</span></td><td>—</td><td>—</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="btn-row">
+          <div id="wave-table-container"></div>
+          <div class="btn-row" style="margin-top:12px;">
+            <button class="btn btn-primary btn-sm" onclick="openPipelineConfig()">⚙️ Edit All Waves</button>
             <button class="btn btn-outline btn-sm" onclick="notify('📥 Wave schedule exported')">Export Wave Plan</button>
-            <button class="btn btn-outline btn-sm" onclick="notify('🔗 Schedule synced to ServiceNow')">Sync to ServiceNow</button>
+          </div>
+        </div>
+
+        <div class="tab-content" id="tp-logic">
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-title">How the 2-Year Pipeline Is Designed</div>
+            <p style="font-size:.84rem;color:#475569;margin-bottom:16px;">The 90-agency assessment program runs <strong>January 2026 – December 2027</strong>. Agencies are grouped into 6 overlapping waves of ~15 agencies each. Waves overlap by approximately 3 months so pods move continuously from one agency to the next without idle time between engagements.</p>
+            <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:0;border:1px solid var(--border);border-radius:8px;overflow:hidden;font-size:.72rem;margin-bottom:16px;">
+              <div style="background:#2563eb;color:#fff;padding:10px;text-align:center;font-weight:700;">Wave 1<div style="font-weight:400;opacity:.85;margin-top:3px;">Jan–Jun '26</div></div>
+              <div style="background:#3b82f6;color:#fff;padding:10px;text-align:center;font-weight:700;">Wave 2<div style="font-weight:400;opacity:.85;margin-top:3px;">Apr–Sep '26</div></div>
+              <div style="background:#6366f1;color:#fff;padding:10px;text-align:center;font-weight:700;">Wave 3<div style="font-weight:400;opacity:.85;margin-top:3px;">Jul–Dec '26</div></div>
+              <div style="background:#7c3aed;color:#fff;padding:10px;text-align:center;font-weight:700;">Wave 4<div style="font-weight:400;opacity:.85;margin-top:3px;">Oct '26–Mar '27</div></div>
+              <div style="background:#9333ea;color:#fff;padding:10px;text-align:center;font-weight:700;">Wave 5<div style="font-weight:400;opacity:.85;margin-top:3px;">Jan–Jun '27</div></div>
+              <div style="background:#a855f7;color:#fff;padding:10px;text-align:center;font-weight:700;">Wave 6<div style="font-weight:400;opacity:.85;margin-top:3px;">Apr–Dec '27</div></div>
+            </div>
+            <p style="font-size:.78rem;color:#64748b;"><strong>Overlap design:</strong> Wave 2 starts in April while Wave 1 is still in its reporting phase (months 4–6). This keeps all pods active simultaneously and smooths the SAR delivery cadence for DoIT reviewers.</p>
+          </div>
+
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-title">Step 1 — Intake Scoping Score → Pod Size</div>
+            <p style="font-size:.83rem;color:#475569;margin-bottom:14px;">Every agency completes an intake form during the Pre-Assessment phase. Three dimensions are scored to determine pod size and wave priority:</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
+              <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:14px;">
+                <div style="font-size:.68rem;font-weight:800;color:#1d4ed8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">FTE Count</div>
+                <div style="font-size:.78rem;line-height:1.7;">1–250 FTEs = <strong>1 pt</strong><br>251–1,000 = <strong>2 pts</strong><br>1,001–5,000 = <strong>3 pts</strong><br>5,000+ = <strong>4 pts</strong></div>
+              </div>
+              <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:14px;">
+                <div style="font-size:.68rem;font-weight:800;color:#166534;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">IT Complexity</div>
+                <div style="font-size:.78rem;line-height:1.7;">DoIT Managed = <strong>0 pts</strong><br>Low = <strong>1 pt</strong><br>Moderate = <strong>2 pts</strong><br>High (OT/Cloud) = <strong>3 pts</strong></div>
+              </div>
+              <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:14px;">
+                <div style="font-size:.68rem;font-weight:800;color:#991b1b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">Data Sensitivity</div>
+                <div style="font-size:.78rem;line-height:1.7;">Standard = <strong>1 pt</strong><br>PII/PHI = <strong>2 pts</strong><br>FTI/CJIS/HIPAA = <strong>3 pts</strong></div>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Total Score</th><th>Pod Size</th><th>Team</th><th>Duration</th><th>Wave Priority</th><th>Example Agencies</th></tr></thead>
+                <tbody>
+                  <tr style="background:#fee2e230;"><td><strong>7–10 pts</strong></td><td><span class="badge badge-red">Large POD</span></td><td>6–8 staff</td><td>~63 days</td><td><span class="badge badge-blue">Waves 1–2</span> (first in)</td><td>MDOT, MDH, State Police, DPSCS</td></tr>
+                  <tr style="background:#fef3c730;"><td><strong>4–6 pts</strong></td><td><span class="badge badge-orange">Medium POD</span></td><td>4–5 staff</td><td>~42 days</td><td><span class="badge badge-orange">Waves 3–4</span></td><td>MD Labor, Agriculture, Commerce, Housing</td></tr>
+                  <tr><td><strong>0–3 pts</strong></td><td><span class="badge badge-gray">Small POD</span></td><td>2–3 staff</td><td>~21 days</td><td><span class="badge badge-gray">Waves 5–6</span> (last in)</td><td>MD Archives, Insurance Admin, smaller boards</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-title">Step 2 — Special Prioritization Flags</div>
+            <p style="font-size:.83rem;color:#475569;margin-bottom:12px;">Within each pod tier, agencies are further sorted by risk priority. Regardless of size, the following flags move an agency into an earlier wave:</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <div style="display:flex;gap:10px;align-items:flex-start;padding:12px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;">
+                <div style="font-size:1.2rem;flex-shrink:0;">🔴</div>
+                <div><div style="font-size:.78rem;font-weight:700;color:#991b1b;margin-bottom:3px;">FTI / CJIS / HIPAA</div><div style="font-size:.75rem;color:#7f1d1d;">Agencies handling federal tax information, criminal justice data, or protected health information are front-loaded due to federal compliance timelines.</div></div>
+              </div>
+              <div style="display:flex;gap:10px;align-items:flex-start;padding:12px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;">
+                <div style="font-size:1.2rem;flex-shrink:0;">🟡</div>
+                <div><div style="font-size:.78rem;font-weight:700;color:#92400e;margin-bottom:3px;">Prior Breach / Known Vulnerability</div><div style="font-size:.75rem;color:#78350f;">Agencies with a documented prior incident or known security gap are elevated to the earliest available slot in their wave tier.</div></div>
+              </div>
+              <div style="display:flex;gap:10px;align-items:flex-start;padding:12px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;">
+                <div style="font-size:1.2rem;flex-shrink:0;">🔵</div>
+                <div><div style="font-size:.78rem;font-weight:700;color:#1e40af;margin-bottom:3px;">Executive Branch Priority</div><div style="font-size:.75569;color:#1e3a8a;">Governor's Office, DoIT, and Secretary-level agencies receive scheduling priority as directed by the client (OAG/DoIT OSM).</div></div>
+              </div>
+              <div style="display:flex;gap:10px;align-items:flex-start;padding:12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;">
+                <div style="font-size:1.2rem;flex-shrink:0;">🟢</div>
+                <div><div style="font-size:.78rem;font-weight:700;color:#166534;margin-bottom:3px;">Operational Clustering</div><div style="font-size:.75rem;color:#14532d;">Agencies that share infrastructure or IT staff (e.g., DoIT-managed agencies) are clustered in the same wave for pod efficiency and shared evidence collection.</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Step 3 — Wave Execution Flow (per Agency)</div>
+            <div style="display:flex;align-items:center;gap:0;overflow-x:auto;padding-bottom:4px;">
+              <div style="text-align:center;padding:12px 10px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;min-width:110px;flex-shrink:0;">
+                <div style="font-size:.68rem;font-weight:800;color:#1d4ed8;text-transform:uppercase;margin-bottom:4px;">Pre-Assess</div>
+                <div style="font-size:.72rem;color:#1e40af;">Intake &amp; Scoping<br>Kick-off Package<br>Credentials</div>
+              </div>
+              <div style="font-size:1.2rem;color:#94a3b8;padding:0 6px;flex-shrink:0;">→</div>
+              <div style="text-align:center;padding:12px 10px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;min-width:110px;flex-shrink:0;">
+                <div style="font-size:.68rem;font-weight:800;color:#166534;text-transform:uppercase;margin-bottom:4px;">Evidence</div>
+                <div style="font-size:.72rem;color:#166534;">Artifact Collection<br>Interview Scheduling<br>Portal Upload</div>
+              </div>
+              <div style="font-size:1.2rem;color:#94a3b8;padding:0 6px;flex-shrink:0;">→</div>
+              <div style="text-align:center;padding:12px 10px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;min-width:110px;flex-shrink:0;">
+                <div style="font-size:.68rem;font-weight:800;color:#92400e;text-transform:uppercase;margin-bottom:4px;">CSF Assessment</div>
+                <div style="font-size:.72rem;color:#92400e;">23 Controls<br>CMMI Scoring<br>QA Review</div>
+              </div>
+              <div style="font-size:1.2rem;color:#94a3b8;padding:0 6px;flex-shrink:0;">→</div>
+              <div style="text-align:center;padding:12px 10px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;min-width:110px;flex-shrink:0;">
+                <div style="font-size:.68rem;font-weight:800;color:#991b1b;text-transform:uppercase;margin-bottom:4px;">Risk / POA&amp;M</div>
+                <div style="font-size:.72rem;color:#991b1b;">Risk Register<br>Remediation Plan<br>POA&amp;M Entries</div>
+              </div>
+              <div style="font-size:1.2rem;color:#94a3b8;padding:0 6px;flex-shrink:0;">→</div>
+              <div style="text-align:center;padding:12px 10px;background:#f5f3ff;border:1px solid #ddd6fe;border-radius:8px;min-width:110px;flex-shrink:0;">
+                <div style="font-size:.68rem;font-weight:800;color:#5b21b6;text-transform:uppercase;margin-bottom:4px;">SAR Delivery</div>
+                <div style="font-size:.72rem;color:#5b21b6;">Final Report<br>DoIT Review<br>Agency Signoff</div>
+              </div>
+              <div style="font-size:1.2rem;color:#94a3b8;padding:0 6px;flex-shrink:0;">→</div>
+              <div style="text-align:center;padding:12px 10px;background:#e0f2fe;border:1px solid #bae6fd;border-radius:8px;min-width:110px;flex-shrink:0;">
+                <div style="font-size:.68rem;font-weight:800;color:#0c4a6e;text-transform:uppercase;margin-bottom:4px;">Year 2 Queue</div>
+                <div style="font-size:.72rem;color:#0369a1;">Reassessment<br>Scheduled in<br>Wave 5–6</div>
+              </div>
+            </div>
           </div>
         </div>
         <div class="tab-content" id="tp-pods">
-          <div class="grid-2">
-            <div class="card">
-              <div class="card-title">Pod Roster — Current Active Pods</div>
-              <div class="table-wrap">
-                <table>
-                  <thead><tr><th>Pod</th><th>Type</th><th>Lead</th><th>Staff</th><th>Current Agency</th><th>Utilization</th></tr></thead>
-                  <tbody>
-                    <tr><td><strong>Pod Alpha</strong></td><td><span class="badge badge-red">Large</span></td><td>J. Williams</td><td>7</td><td>MDOT</td><td>100%</td></tr>
-                    <tr><td><strong>Pod Beta</strong></td><td><span class="badge badge-red">Large</span></td><td>R. Okafor</td><td>6</td><td>DPSCS + MDH</td><td>100%</td></tr>
-                    <tr><td><strong>Pod Gamma</strong></td><td><span class="badge badge-orange">Medium</span></td><td>S. Patel</td><td>4</td><td>MD Labor + MDE</td><td>100%</td></tr>
-                    <tr><td><strong>Pod Delta</strong></td><td><span class="badge badge-orange">Medium</span></td><td>T. Adams</td><td>5</td><td>Agriculture + Commerce</td><td>80%</td></tr>
-                    <tr><td><strong>Pod Epsilon</strong></td><td><span class="badge badge-gray">Small</span></td><td>K. Moore</td><td>3</td><td>MD Insurance Admin</td><td>100%</td></tr>
-                    <tr><td><strong>Pod Zeta</strong></td><td><span class="badge badge-gray">Small</span></td><td>L. Torres</td><td>2</td><td>MD Archives</td><td>100%</td></tr>
-                  </tbody>
-                </table>
-              </div>
+          <!-- Pod Roster -->
+          <div class="card" style="margin-bottom:16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+              <div class="card-title" style="margin:0;">Assessment Pod Roster — Active Pods</div>
+              <button class="btn btn-outline btn-sm" onclick="notify('📋 Pod roster exported: Anchor_Pod_Roster_Wave1.xlsx')">Export Roster</button>
             </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Pod</th><th>Size</th><th>Lead Assessor</th><th>Assessors Assigned</th><th>Current Agency</th><th>Wave</th><th>Utilization</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Pod Alpha</strong></td>
+                    <td><span class="badge badge-red">Large</span></td>
+                    <td><strong>J. Williams</strong></td>
+                    <td style="font-size:.78rem;">A. Chen · B. Davis · K. Liu · M. Torres · R. Patel · S. Young <span style="color:var(--text-muted);">(7 total)</span></td>
+                    <td><span class="badge badge-blue">MDOT</span></td>
+                    <td>Wave 1</td>
+                    <td><span style="color:#16a34a;font-weight:700;">100%</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Pod Beta</strong></td>
+                    <td><span class="badge badge-red">Large</span></td>
+                    <td><strong>R. Okafor</strong></td>
+                    <td style="font-size:.78rem;">C. Reed · D. Marsh · F. Osei · H. Grant · W. Park <span style="color:var(--text-muted);">(6 total)</span></td>
+                    <td><span class="badge badge-orange">DPSCS · MDH</span></td>
+                    <td>Wave 1</td>
+                    <td><span style="color:#16a34a;font-weight:700;">100%</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Pod Gamma</strong></td>
+                    <td><span class="badge badge-orange">Medium</span></td>
+                    <td><strong>S. Patel</strong></td>
+                    <td style="font-size:.78rem;">L. Nguyen · P. Burke · T. Owens <span style="color:var(--text-muted);">(4 total)</span></td>
+                    <td><span class="badge badge-green">MD Labor · MSDE</span></td>
+                    <td>Wave 1</td>
+                    <td><span style="color:#16a34a;font-weight:700;">100%</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Pod Delta</strong></td>
+                    <td><span class="badge badge-orange">Medium</span></td>
+                    <td><strong>T. Adams</strong></td>
+                    <td style="font-size:.78rem;">G. Yuen · J. Flores · N. Sharma · V. Ellis <span style="color:var(--text-muted);">(5 total)</span></td>
+                    <td><span class="badge badge-gray">Agriculture · Commerce</span></td>
+                    <td>Wave 2</td>
+                    <td><span style="color:#d97706;font-weight:700;">80%</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Pod Epsilon</strong></td>
+                    <td><span class="badge badge-gray">Small</span></td>
+                    <td><strong>K. Moore</strong></td>
+                    <td style="font-size:.78rem;">I. Cross · Q. Adeyemi <span style="color:var(--text-muted);">(3 total)</span></td>
+                    <td><span class="badge badge-gray">MD Insurance Admin</span></td>
+                    <td>Wave 2</td>
+                    <td><span style="color:#16a34a;font-weight:700;">100%</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Pod Zeta</strong></td>
+                    <td><span class="badge badge-gray">Small</span></td>
+                    <td><strong>L. Torres</strong></td>
+                    <td style="font-size:.78rem;">O. Baines <span style="color:var(--text-muted);">(2 total)</span></td>
+                    <td><span class="badge badge-gray">MD Archives</span></td>
+                    <td>Wave 3</td>
+                    <td><span style="color:#16a34a;font-weight:700;">100%</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="grid-2" style="margin-bottom:16px;">
             <div class="card">
               <div class="card-title">Pod Capacity vs. Demand</div>
               <div class="chart-wrap-sm"><canvas id="podCapacityChart"></canvas></div>
             </div>
-          </div>
-          <div class="card">
-            <div class="card-title">Pod Sizing Logic — Driven by Questionnaire Score</div>
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Complexity Score</th><th>Pod Type</th><th>Team Size</th><th>Typical Duration</th><th>Evidence Items</th><th>CMMI Controls</th></tr></thead>
-                <tbody>
-                  <tr><td>0 – 20</td><td><span class="badge badge-gray">Small</span></td><td>2–3 staff</td><td>~21 days</td><td>32</td><td>CSF Subset (52)</td></tr>
-                  <tr><td>21 – 35</td><td><span class="badge badge-orange">Medium</span></td><td>4–5 staff</td><td>~42 days</td><td>58</td><td>Full CSF (106)</td></tr>
-                  <tr style="background:#fee2e220;"><td>36 – 60</td><td><span class="badge badge-red">Large</span></td><td>6–8 staff</td><td>~63 days</td><td>92</td><td>CSF + 800-53 (180+)</td></tr>
-                </tbody>
-              </table>
+            <div class="card">
+              <div class="card-title" style="margin-bottom:12px;">Pod Sizing Logic
+                <button id="pod-sizing-edit-btn" class="btn btn-outline btn-sm" style="margin-left:10px;font-size:.72rem;" onclick="togglePodSizingEdit()">✏️ Edit Thresholds</button>
+              </div>
+              <div id="pod-sizing-view">
+                <div style="font-size:.78rem;color:#475569;margin-bottom:10px;">Complexity score from intake determines pod size. Score = FTE tier + IT Complexity + Data Sensitivity.</div>
+                <table style="width:100%;font-size:.82rem;border-collapse:collapse;">
+                  <thead><tr style="background:#f1f5f9;"><th style="padding:6px 8px;text-align:left;border:1px solid var(--border);">Score Range</th><th style="padding:6px 8px;border:1px solid var(--border);">Pod Size</th><th style="padding:6px 8px;border:1px solid var(--border);">Team</th><th style="padding:6px 8px;border:1px solid var(--border);">Duration</th></tr></thead>
+                  <tbody id="pod-sizing-tbody">
+                    <tr><td style="padding:6px 8px;border:1px solid var(--border);" id="ps-r-small">0 – 3 pts</td><td style="padding:6px 8px;border:1px solid var(--border);"><span class="badge badge-gray">Small</span></td><td style="padding:6px 8px;border:1px solid var(--border);" id="ps-t-small">2–3 assessors</td><td style="padding:6px 8px;border:1px solid var(--border);" id="ps-d-small">~21 days</td></tr>
+                    <tr style="background:#fffbeb;"><td style="padding:6px 8px;border:1px solid var(--border);" id="ps-r-medium">4 – 6 pts</td><td style="padding:6px 8px;border:1px solid var(--border);"><span class="badge badge-orange">Medium</span></td><td style="padding:6px 8px;border:1px solid var(--border);" id="ps-t-medium">4–5 assessors</td><td style="padding:6px 8px;border:1px solid var(--border);" id="ps-d-medium">~42 days</td></tr>
+                    <tr style="background:#fff0f0;"><td style="padding:6px 8px;border:1px solid var(--border);" id="ps-r-large">7 – 10 pts</td><td style="padding:6px 8px;border:1px solid var(--border);"><span class="badge badge-red">Large</span></td><td style="padding:6px 8px;border:1px solid var(--border);" id="ps-t-large">6–8 assessors</td><td style="padding:6px 8px;border:1px solid var(--border);" id="ps-d-large">~63 days</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div id="pod-sizing-edit" style="display:none;margin-top:10px;">
+                <div class="info-box" style="margin-bottom:10px;font-size:.75rem;">Edit the score thresholds and team sizes below. Changes apply to all new intake assessments.</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;">
+                  <div style="border:1px solid var(--border);border-radius:8px;padding:12px;">
+                    <div style="font-size:.7rem;font-weight:800;color:#64748b;margin-bottom:8px;">SMALL POD</div>
+                    <label style="font-size:.72rem;font-weight:600;display:block;margin-bottom:3px;">Score Range</label>
+                    <input id="pse-small-range" type="text" value="0 – 3 pts" style="width:100%;border:1px solid var(--border);border-radius:5px;padding:5px 8px;font-size:.78rem;margin-bottom:6px;">
+                    <label style="font-size:.72rem;font-weight:600;display:block;margin-bottom:3px;">Assessors</label>
+                    <input id="pse-small-team" type="text" value="2–3 assessors" style="width:100%;border:1px solid var(--border);border-radius:5px;padding:5px 8px;font-size:.78rem;margin-bottom:6px;">
+                    <label style="font-size:.72rem;font-weight:600;display:block;margin-bottom:3px;">Duration</label>
+                    <input id="pse-small-dur" type="text" value="~21 days" style="width:100%;border:1px solid var(--border);border-radius:5px;padding:5px 8px;font-size:.78rem;">
+                  </div>
+                  <div style="border:1px solid #fcd34d;border-radius:8px;padding:12px;background:#fffbeb;">
+                    <div style="font-size:.7rem;font-weight:800;color:#92400e;margin-bottom:8px;">MEDIUM POD</div>
+                    <label style="font-size:.72rem;font-weight:600;display:block;margin-bottom:3px;">Score Range</label>
+                    <input id="pse-med-range" type="text" value="4 – 6 pts" style="width:100%;border:1px solid var(--border);border-radius:5px;padding:5px 8px;font-size:.78rem;margin-bottom:6px;">
+                    <label style="font-size:.72rem;font-weight:600;display:block;margin-bottom:3px;">Assessors</label>
+                    <input id="pse-med-team" type="text" value="4–5 assessors" style="width:100%;border:1px solid var(--border);border-radius:5px;padding:5px 8px;font-size:.78rem;margin-bottom:6px;">
+                    <label style="font-size:.72rem;font-weight:600;display:block;margin-bottom:3px;">Duration</label>
+                    <input id="pse-med-dur" type="text" value="~42 days" style="width:100%;border:1px solid var(--border);border-radius:5px;padding:5px 8px;font-size:.78rem;">
+                  </div>
+                  <div style="border:1px solid #fca5a5;border-radius:8px;padding:12px;background:#fff0f0;">
+                    <div style="font-size:.7rem;font-weight:800;color:#991b1b;margin-bottom:8px;">LARGE POD</div>
+                    <label style="font-size:.72rem;font-weight:600;display:block;margin-bottom:3px;">Score Range</label>
+                    <input id="pse-large-range" type="text" value="7 – 10 pts" style="width:100%;border:1px solid var(--border);border-radius:5px;padding:5px 8px;font-size:.78rem;margin-bottom:6px;">
+                    <label style="font-size:.72rem;font-weight:600;display:block;margin-bottom:3px;">Assessors</label>
+                    <input id="pse-large-team" type="text" value="6–8 assessors" style="width:100%;border:1px solid var(--border);border-radius:5px;padding:5px 8px;font-size:.78rem;margin-bottom:6px;">
+                    <label style="font-size:.72rem;font-weight:600;display:block;margin-bottom:3px;">Duration</label>
+                    <input id="pse-large-dur" type="text" value="~63 days" style="width:100%;border:1px solid var(--border);border-radius:5px;padding:5px 8px;font-size:.78rem;">
+                  </div>
+                </div>
+                <div style="display:flex;gap:8px;">
+                  <button class="btn btn-primary btn-sm" onclick="savePodSizing()">Save Thresholds</button>
+                  <button class="btn btn-outline btn-sm" onclick="togglePodSizingEdit()">Cancel</button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1029,14 +1223,44 @@
                         <option>DoIT Reviewer</option>
                       </select>
                     </div>
-                    <div class="form-group"><label>Agency</label>
-                      <select id="inv-agency" onchange="updateEmailPreview()">
-                        <option value="">— Select Agency —</option>
-                        <option>MDOT</option>
-                        <option>DPSCS</option>
-                        <option>MSDE</option>
-                        <option>All Agencies</option>
-                      </select>
+                    <div class="form-group"><label>Agency <span style="font-weight:400;color:var(--text-muted);font-size:.75rem;">(type to search or enter any agency)</span></label>
+                      <input id="inv-agency" list="agency-list" placeholder="e.g., MDOT, MDH, MSDE, DBM…" oninput="updateEmailPreview()" autocomplete="off" style="width:100%;">
+                      <datalist id="agency-list">
+                        <option value="All Agencies">
+                        <option value="MDOT – Maryland Dept. of Transportation">
+                        <option value="MDH – Maryland Dept. of Health">
+                        <option value="DPSCS – Dept. of Public Safety &amp; Correctional Services">
+                        <option value="MSDE – Maryland State Dept. of Education">
+                        <option value="DBM – Dept. of Budget &amp; Management">
+                        <option value="DGS – Dept. of General Services">
+                        <option value="MDP – Maryland Dept. of Planning">
+                        <option value="MDE – Maryland Dept. of the Environment">
+                        <option value="DHCD – Dept. of Housing &amp; Community Development">
+                        <option value="DDA – Developmental Disabilities Administration">
+                        <option value="DLLR – Dept. of Labor, Licensing &amp; Regulation">
+                        <option value="DoIT – Dept. of Information Technology">
+                        <option value="SDE – State Dept. of Education (Central)">
+                        <option value="DSP – Maryland State Police">
+                        <option value="MVA – Motor Vehicle Administration">
+                        <option value="SHA – State Highway Administration">
+                        <option value="MTA – Maryland Transit Administration">
+                        <option value="MDAA – Maryland Aviation Administration">
+                        <option value="MPA – Maryland Port Administration">
+                        <option value="MHEC – Maryland Higher Education Commission">
+                        <option value="MDOD – Dept. of Disabilities">
+                        <option value="MDA – Maryland Dept. of Agriculture">
+                        <option value="DNR – Dept. of Natural Resources">
+                        <option value="MBC – Maryland Business Climate Dept.">
+                        <option value="MCC – Maryland Commerce (Economic Dev.)">
+                        <option value="MVA – Motor Vehicle Administration">
+                        <option value="DHMH – Dept. of Human Services">
+                        <option value="OAG – Office of the Attorney General">
+                        <option value="Comptroller – Office of the Comptroller">
+                        <option value="Treasurer – State Treasurer's Office">
+                        <option value="MSAC – Maryland State Arts Council">
+                        <option value="GOCCP – Governor's Office of Crime Control">
+                        <option value="MEMA – Maryland Emergency Management Agency">
+                      </datalist>
                     </div>
                     <div class="form-group" style="grid-column:1/-1;"><label>Personal Message (optional)</label><textarea id="inv-msg" rows="2" placeholder="Add a personal note to the invitation email..." oninput="updateEmailPreview()"></textarea></div>
                   </div>
@@ -1254,6 +1478,33 @@
     </div>
   </main>
 
+  <!-- ══ PIPELINE CONFIG MODAL ══════════════════════════════════════════════ -->
+  <div id="pipeline-config-modal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:9300;overflow-y:auto;padding:32px 16px;">
+    <div style="max-width:900px;margin:0 auto;background:#fff;border-radius:14px;box-shadow:0 24px 60px rgba(0,0,0,.28);overflow:hidden;">
+      <!-- Header -->
+      <div style="background:linear-gradient(135deg,#1e3a5f,#2563eb);color:#fff;padding:22px 28px;display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;opacity:.8;margin-bottom:4px;">Program Manager — Pipeline Configuration</div>
+          <div style="font-size:1.25rem;font-weight:800;">Edit 2-Year Assessment Pipeline</div>
+          <div style="font-size:.78rem;opacity:.75;margin-top:4px;">Changes save automatically to this session. Use Export to share with DoIT.</div>
+        </div>
+        <button onclick="closePipelineConfig()" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;padding:8px 16px;cursor:pointer;font-size:.84rem;font-weight:600;">✕ Close</button>
+      </div>
+      <!-- Wave Cards -->
+      <div style="padding:24px 28px;" id="pipeline-config-body">
+        <!-- Populated by JS -->
+      </div>
+      <!-- Footer -->
+      <div style="padding:16px 28px;border-top:1px solid #e2e8f0;display:flex;gap:10px;justify-content:space-between;align-items:center;background:#f8fafc;">
+        <button class="btn btn-outline btn-sm" onclick="resetPipelineToDefaults()">↺ Reset to Defaults</button>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-outline btn-sm" onclick="notify('📥 Pipeline configuration exported')">Export Schedule</button>
+          <button class="btn btn-primary btn-sm" onclick="closePipelineConfig()">✓ Done — Save &amp; Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="create-assessment-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1300; padding:24px; overflow:auto;">
     <div style="max-width:720px; margin:30px auto; background:#fff; border:1px solid var(--border); border-radius:12px; box-shadow:0 12px 28px rgba(0,0,0,.2);">
       <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 18px; border-bottom:1px solid var(--border);">
@@ -1358,7 +1609,18 @@
           </div>
           <div>
             <label style="font-size:.78rem;font-weight:600;display:block;margin-bottom:4px;">Agency</label>
-            <select id="edit-user-agency" style="width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:.85rem;font-family:inherit;">
+            <input id="edit-user-agency" list="agency-list-edit" placeholder="Type agency name or 'All Agencies'…" autocomplete="off" style="width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:.85rem;font-family:inherit;">
+            <datalist id="agency-list-edit">
+              <option value="All Agencies">
+              <option value="MDOT"><option value="MDH"><option value="DPSCS"><option value="MSDE">
+              <option value="DBM"><option value="DGS"><option value="MDP"><option value="MDE">
+              <option value="DHCD"><option value="DLLR"><option value="DoIT"><option value="DSP">
+              <option value="MVA"><option value="SHA"><option value="MTA"><option value="MDA">
+              <option value="DNR"><option value="MCC"><option value="MEMA"><option value="OAG">
+              <option value="Comptroller"><option value="Treasurer"><option value="GOCCP">
+            </datalist>
+            <!-- legacy options retained for JS compatibility -->
+            <select id="edit-user-agency-hidden" style="display:none;">
               <option>All</option>
               <option>MDOT</option>
               <option>DPSCS</option>
@@ -1392,6 +1654,69 @@
     const ACTIVITY_LOG_KEY = 'demo_activity_log';
 
     // ---- SECTION NAV ----
+    // ---- POD SIZING EDIT ----
+    function togglePodSizingEdit() {
+      const view = document.getElementById('pod-sizing-view');
+      const edit = document.getElementById('pod-sizing-edit');
+      if (!view || !edit) return;
+      const isEditing = edit.style.display !== 'none';
+      view.style.display = isEditing ? '' : 'none';
+      edit.style.display = isEditing ? 'none' : '';
+    }
+    function savePodSizing() {
+      // Update display values from inputs
+      const get = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+      const set = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+      set('ps-r-small', get('pse-small-range'));
+      set('ps-t-small', get('pse-small-team'));
+      set('ps-d-small', get('pse-small-dur'));
+      set('ps-r-medium', get('pse-med-range'));
+      set('ps-t-medium', get('pse-med-team'));
+      set('ps-d-medium', get('pse-med-dur'));
+      set('ps-r-large', get('pse-large-range'));
+      set('ps-t-large', get('pse-large-team'));
+      set('ps-d-large', get('pse-large-dur'));
+      // Persist to localStorage
+      const sizing = {
+        small: { range: get('pse-small-range'), team: get('pse-small-team'), dur: get('pse-small-dur') },
+        medium: { range: get('pse-med-range'), team: get('pse-med-team'), dur: get('pse-med-dur') },
+        large: { range: get('pse-large-range'), team: get('pse-large-team'), dur: get('pse-large-dur') }
+      };
+      localStorage.setItem('anchor_pod_sizing', JSON.stringify(sizing));
+      togglePodSizingEdit();
+      notify('✅ Pod sizing thresholds saved');
+    }
+    function loadPodSizing() {
+      try {
+        const saved = JSON.parse(localStorage.getItem('anchor_pod_sizing') || 'null');
+        if (!saved) return;
+        const set = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+        const setInput = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
+        set('ps-r-small', saved.small.range); setInput('pse-small-range', saved.small.range);
+        set('ps-t-small', saved.small.team); setInput('pse-small-team', saved.small.team);
+        set('ps-d-small', saved.small.dur); setInput('pse-small-dur', saved.small.dur);
+        set('ps-r-medium', saved.medium.range); setInput('pse-med-range', saved.medium.range);
+        set('ps-t-medium', saved.medium.team); setInput('pse-med-team', saved.medium.team);
+        set('ps-d-medium', saved.medium.dur); setInput('pse-med-dur', saved.medium.dur);
+        set('ps-r-large', saved.large.range); setInput('pse-large-range', saved.large.range);
+        set('ps-t-large', saved.large.team); setInput('pse-large-team', saved.large.team);
+        set('ps-d-large', saved.large.dur); setInput('pse-large-dur', saved.large.dur);
+      } catch(e) {}
+    }
+    document.addEventListener('DOMContentLoaded', loadPodSizing);
+
+    // ---- SIDEBAR TOGGLE ----
+    function toggleSidebar() {
+      document.body.classList.toggle('sidebar-collapsed');
+      localStorage.setItem('anchor_sidebar_collapsed', document.body.classList.contains('sidebar-collapsed') ? '1' : '0');
+    }
+    // Restore sidebar collapsed state on load
+    (function() {
+      if (localStorage.getItem('anchor_sidebar_collapsed') === '1') {
+        document.body.classList.add('sidebar-collapsed');
+      }
+    })();
+
     function showSection(id, el) {
       document.querySelectorAll('.section').forEach(s => { s.classList.remove('active'); s.setAttribute('aria-hidden','true'); });
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -1399,13 +1724,13 @@
       if(sec) { sec.classList.add('active'); sec.setAttribute('aria-hidden','false'); }
       if(el) el.classList.add('active');
       const titles = {
-        portfolio:'Maryland State Cybersecurity Assessment Dashboard', settings:'Settings',
-        sai:'Agency CSF Intake & Evidence Upload', sp:'2-Year Assessment Pipeline',
-        sa:'Agency Selection & Assessment Management', sw:'Workflow Templates & Configuration',
+        portfolio:'State Cybersecurity Dashboard', settings:'Settings',
+        sai:'CSF Intake & Evidence Upload', sp:'2-Year Assessment Pipeline',
+        sa:'Agency Assessment Management', sw:'Workflow Templates',
       };
       const topbar = document.querySelector('.topbar-title');
-      if(topbar) topbar.innerHTML = `${titles[id]||'Dashboard'}<span>DoIT OSM · 3-Agency Demo Cohort</span>`;
-      if(id==='sp') setTimeout(initPipelineCharts,100);
+      if(topbar) topbar.textContent = titles[id] || 'Dashboard';
+      if(id==='sp') { setTimeout(initPipelineCharts,100); setTimeout(renderWaveTable,50); }
       if(id==='sai') setTimeout(initSaiPortal,100);
       if(id==='sa') { renderPortfolio(); renderPMNotifications(); }
     }
@@ -1883,6 +2208,196 @@
         </div>`;
       }).join('');
     }
+
+    // ══ PIPELINE WAVE CONFIGURATION ═══════════════════════════════════════════
+    const WAVE_STORE_KEY = 'anchor_waves';
+    const WAVE_DEFAULTS = [
+      { id:1, name:'Wave 1', period:'Jan–Jun 2026', startDate:'2026-01-05', endDate:'2026-06-30', agencies:15, types:'Large + High-Risk', pods:'3 Large, 2 Medium', status:'In Progress',  maturity:'2.5', findings:'38',  notes:'MDOT, MDH, State Police, DPSCS, MDE, DNR, DHS — priority large/high-risk agencies' },
+      { id:2, name:'Wave 2', period:'Apr–Sep 2026', startDate:'2026-04-07', endDate:'2026-09-30', agencies:15, types:'Medium + Enterprise',     pods:'2 Large, 3 Medium', status:'In Progress',  maturity:'—',   findings:'—',   notes:'MD Labor, Agriculture, Commerce, Housing, Planning, MD Lottery, MSDE' },
+      { id:3, name:'Wave 3', period:'Jul–Dec 2026', startDate:'2026-07-06', endDate:'2026-12-31', agencies:15, types:'Medium + Small (high-risk)',pods:'1 Large, 4 Medium', status:'Scheduled',   maturity:'—',   findings:'—',   notes:'Boards and commissions, smaller cabinets, OT/ICS secondary tier' },
+      { id:4, name:'Wave 4', period:'Oct 2026–Mar 2027', startDate:'2026-10-05', endDate:'2027-03-31', agencies:15, types:'Small + OT/ICS-heavy',pods:'2 Large, 2 Medium, 2 Small', status:'Planned', maturity:'—', findings:'—', notes:'OT/ICS-intensive agencies, rural districts, specialized bodies' },
+      { id:5, name:'Wave 5', period:'Jan–Jun 2027', startDate:'2027-01-04', endDate:'2027-06-30', agencies:15, types:'Small + Year-1 reassessments', pods:'1 Large, 2 Medium, 4 Small', status:'Planned', maturity:'—', findings:'—', notes:'Smallest agencies + Wave 1 reassessment follow-ups for high-finding agencies' },
+      { id:6, name:'Wave 6', period:'Apr–Dec 2027', startDate:'2027-04-06', endDate:'2027-12-31', agencies:15, types:'Remaining + Year-2 reassessments', pods:'TBD — based on Year-1 capacity', status:'Planned', maturity:'—', findings:'—', notes:'Remaining agencies + full Year 2 reassessment cycle begins for all Wave 1–3 agencies' }
+    ];
+
+    function getWaveConfig() {
+      try {
+        var raw = localStorage.getItem(WAVE_STORE_KEY);
+        return raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(WAVE_DEFAULTS));
+      } catch(e) { return JSON.parse(JSON.stringify(WAVE_DEFAULTS)); }
+    }
+
+    function saveWaveConfig(waves) {
+      localStorage.setItem(WAVE_STORE_KEY, JSON.stringify(waves));
+    }
+
+    function waveStatusBadge(status) {
+      var map = { 'In Progress':'badge-blue', 'Scheduled':'badge-orange', 'Planned':'badge-gray', 'Complete':'badge-green', 'On Hold':'badge-red' };
+      return '<span class="badge ' + (map[status]||'badge-gray') + '">' + status + '</span>';
+    }
+
+    function renderWaveTable() {
+      var waves = getWaveConfig();
+      var html = '<div class="table-wrap"><table><thead><tr><th>Wave</th><th>Period</th><th>Agencies</th><th>Agency Focus</th><th>Pods Deployed</th><th>Status</th><th>Avg Maturity</th><th>Findings</th><th></th></tr></thead><tbody>';
+      waves.forEach(function(w) {
+        html += '<tr>';
+        html += '<td><strong>' + w.name + '</strong></td>';
+        html += '<td style="white-space:nowrap">' + w.period + '</td>';
+        html += '<td>' + w.agencies + ' agencies</td>';
+        html += '<td style="max-width:180px;font-size:.78rem">' + w.types + '</td>';
+        html += '<td style="font-size:.78rem">' + w.pods + '</td>';
+        html += '<td>' + waveStatusBadge(w.status) + '</td>';
+        html += '<td>' + w.maturity + '</td>';
+        html += '<td>' + w.findings + '</td>';
+        html += '<td><button class="btn btn-outline btn-sm" style="white-space:nowrap" onclick="openWaveEditor(' + w.id + ')">✏️ Edit</button></td>';
+        html += '</tr>';
+      });
+      html += '</tbody></table></div>';
+      var el = document.getElementById('wave-table-container');
+      if (el) el.innerHTML = html;
+    }
+
+    // Inline wave editor (within Wave Details tab)
+    function openWaveEditor(waveId) {
+      var waves = getWaveConfig();
+      var w = waves.find(function(x){ return x.id === waveId; });
+      if (!w) return;
+      // Build inline edit row
+      var html = '<div style="background:#f0f9ff;border:2px solid #2563eb;border-radius:10px;padding:18px 20px;margin-bottom:16px;">';
+      html += '<div style="font-size:.72rem;font-weight:800;color:#1d4ed8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;">Editing: ' + w.name + ' — ' + w.period + '</div>';
+      html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px;">';
+      html += '<div><label style="font-size:.72rem;font-weight:600;display:block;margin-bottom:3px;">Wave Name</label><input id="we-name" type="text" value="' + w.name + '" style="width:100%;border:1px solid #bfdbfe;border-radius:5px;padding:5px 8px;font-size:.8rem;"></div>';
+      html += '<div><label style="font-size:.72rem;font-weight:600;display:block;margin-bottom:3px;">Start Date</label><input id="we-start" type="date" value="' + w.startDate + '" style="width:100%;border:1px solid #bfdbfe;border-radius:5px;padding:5px 8px;font-size:.8rem;"></div>';
+      html += '<div><label style="font-size:.72rem;font-weight:600;display:block;margin-bottom:3px;">End Date</label><input id="we-end" type="date" value="' + w.endDate + '" style="width:100%;border:1px solid #bfdbfe;border-radius:5px;padding:5px 8px;font-size:.8rem;"></div>';
+      html += '<div><label style="font-size:.72rem;font-weight:600;display:block;margin-bottom:3px;">Agency Count</label><input id="we-agencies" type="number" min="1" max="30" value="' + w.agencies + '" style="width:100%;border:1px solid #bfdbfe;border-radius:5px;padding:5px 8px;font-size:.8rem;"></div>';
+      html += '<div><label style="font-size:.72rem;font-weight:600;display:block;margin-bottom:3px;">Status</label><select id="we-status" style="width:100%;border:1px solid #bfdbfe;border-radius:5px;padding:5px 8px;font-size:.8rem;">';
+      ['In Progress','Scheduled','Planned','Complete','On Hold'].forEach(function(s){ html += '<option' + (w.status===s?' selected':'') + '>' + s + '</option>'; });
+      html += '</select></div>';
+      html += '<div><label style="font-size:.72rem;font-weight:600;display:block;margin-bottom:3px;">Pods Deployed</label><input id="we-pods" type="text" value="' + w.pods + '" style="width:100%;border:1px solid #bfdbfe;border-radius:5px;padding:5px 8px;font-size:.8rem;"></div>';
+      html += '<div style="grid-column:1/-1;"><label style="font-size:.72rem;font-weight:600;display:block;margin-bottom:3px;">Agency Focus / Types</label><input id="we-types" type="text" value="' + w.types + '" style="width:100%;border:1px solid #bfdbfe;border-radius:5px;padding:5px 8px;font-size:.8rem;"></div>';
+      html += '<div style="grid-column:1/-1;"><label style="font-size:.72rem;font-weight:600;display:block;margin-bottom:3px;">Planning Notes / Agency Examples</label><textarea id="we-notes" rows="2" style="width:100%;border:1px solid #bfdbfe;border-radius:5px;padding:5px 8px;font-size:.8rem;resize:vertical;">' + w.notes + '</textarea></div>';
+      html += '</div>';
+      html += '<div style="display:flex;gap:8px;justify-content:flex-end;">';
+      html += '<button class="btn btn-outline btn-sm" onclick="renderWaveTable()">Cancel</button>';
+      html += '<button class="btn btn-primary btn-sm" onclick="saveInlineWaveEdit(' + waveId + ')">✓ Save Wave ' + waveId + '</button>';
+      html += '</div></div>';
+      // Prepend to container
+      var el = document.getElementById('wave-table-container');
+      if (el) el.insertAdjacentHTML('afterbegin', html);
+      el.querySelector('#we-name').focus();
+    }
+
+    function saveInlineWaveEdit(waveId) {
+      var waves = getWaveConfig();
+      var idx = waves.findIndex(function(x){ return x.id === waveId; });
+      if (idx < 0) return;
+      waves[idx].name      = document.getElementById('we-name').value.trim();
+      waves[idx].startDate = document.getElementById('we-start').value;
+      waves[idx].endDate   = document.getElementById('we-end').value;
+      waves[idx].agencies  = parseInt(document.getElementById('we-agencies').value) || waves[idx].agencies;
+      waves[idx].status    = document.getElementById('we-status').value;
+      waves[idx].pods      = document.getElementById('we-pods').value.trim();
+      waves[idx].types     = document.getElementById('we-types').value.trim();
+      waves[idx].notes     = document.getElementById('we-notes').value.trim();
+      // Recompute period label from dates
+      if (waves[idx].startDate && waves[idx].endDate) {
+        var sd = new Date(waves[idx].startDate), ed = new Date(waves[idx].endDate);
+        var ms = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        var sy = sd.getUTCFullYear(), ey = ed.getUTCFullYear();
+        var period = ms[sd.getUTCMonth()] + (sy !== ey ? ' '+sy : '') + '–' + ms[ed.getUTCMonth()] + ' '+ey;
+        waves[idx].period = period;
+      }
+      saveWaveConfig(waves);
+      renderWaveTable();
+      notify('Wave ' + waveId + ' updated.');
+    }
+
+    // Full pipeline config modal
+    function openPipelineConfig() {
+      var waves = getWaveConfig();
+      var body = document.getElementById('pipeline-config-body');
+      if (!body) return;
+      var html = '<div style="margin-bottom:14px;font-size:.82rem;color:#475569;">Edit any wave below — changes are saved to this session. Use <em>✏️ Edit</em> per row, or click a field directly. To reorganize wave order or add a new wave, use <strong>+ Add Wave</strong>.</div>';
+      html += '<div style="display:flex;flex-direction:column;gap:10px;" id="pc-wave-list">';
+      waves.forEach(function(w) {
+        var statusColor = {'In Progress':'#2563eb','Scheduled':'#d97706','Planned':'#64748b','Complete':'#16a34a','On Hold':'#dc2626'}[w.status]||'#64748b';
+        html += '<div style="border:1px solid #e2e8f0;border-left:4px solid '+statusColor+';border-radius:8px;padding:14px 16px;background:#fff;" id="pc-wave-'+w.id+'">';
+        html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">';
+        html += '<div style="font-size:.88rem;font-weight:800;color:#1e293b;">' + w.name + ' <span style="font-weight:400;color:#64748b;font-size:.78rem;">— ' + w.period + ' · ' + w.agencies + ' agencies</span></div>';
+        html += '<div style="display:flex;align-items:center;gap:8px;">' + waveStatusBadge(w.status) + '<button class="btn btn-outline btn-sm" style="padding:3px 10px;font-size:.72rem;" onclick="togglePCWaveEdit('+w.id+')">✏️ Edit</button></div>';
+        html += '</div>';
+        html += '<div style="font-size:.78rem;color:#475569;margin-bottom:6px;"><strong>Focus:</strong> ' + w.types + '</div>';
+        html += '<div style="font-size:.78rem;color:#475569;margin-bottom:6px;"><strong>Pods:</strong> ' + w.pods + '</div>';
+        if (w.notes) html += '<div style="font-size:.75rem;color:#94a3b8;font-style:italic;">' + w.notes + '</div>';
+        // Hidden edit form
+        html += '<div id="pc-edit-'+w.id+'" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid #e2e8f0;">';
+        html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;">';
+        html += '<div><label style="font-size:.7rem;font-weight:600;display:block;margin-bottom:2px;">Wave Name</label><input id="pce-name-'+w.id+'" type="text" value="'+w.name+'" style="width:100%;border:1px solid #e2e8f0;border-radius:5px;padding:5px 8px;font-size:.78rem;"></div>';
+        html += '<div><label style="font-size:.7rem;font-weight:600;display:block;margin-bottom:2px;">Start Date</label><input id="pce-start-'+w.id+'" type="date" value="'+w.startDate+'" style="width:100%;border:1px solid #e2e8f0;border-radius:5px;padding:5px 8px;font-size:.78rem;"></div>';
+        html += '<div><label style="font-size:.7rem;font-weight:600;display:block;margin-bottom:2px;">End Date</label><input id="pce-end-'+w.id+'" type="date" value="'+w.endDate+'" style="width:100%;border:1px solid #e2e8f0;border-radius:5px;padding:5px 8px;font-size:.78rem;"></div>';
+        html += '<div><label style="font-size:.7rem;font-weight:600;display:block;margin-bottom:2px;">Agencies</label><input id="pce-agencies-'+w.id+'" type="number" min="1" max="30" value="'+w.agencies+'" style="width:100%;border:1px solid #e2e8f0;border-radius:5px;padding:5px 8px;font-size:.78rem;"></div>';
+        html += '<div><label style="font-size:.7rem;font-weight:600;display:block;margin-bottom:2px;">Status</label><select id="pce-status-'+w.id+'" style="width:100%;border:1px solid #e2e8f0;border-radius:5px;padding:5px 8px;font-size:.78rem;">';
+        ['In Progress','Scheduled','Planned','Complete','On Hold'].forEach(function(s){ html += '<option'+(w.status===s?' selected':'')+'>'+s+'</option>'; });
+        html += '</select></div>';
+        html += '<div><label style="font-size:.7rem;font-weight:600;display:block;margin-bottom:2px;">Pods Deployed</label><input id="pce-pods-'+w.id+'" type="text" value="'+w.pods+'" style="width:100%;border:1px solid #e2e8f0;border-radius:5px;padding:5px 8px;font-size:.78rem;"></div>';
+        html += '<div style="grid-column:1/-1;"><label style="font-size:.7rem;font-weight:600;display:block;margin-bottom:2px;">Agency Focus / Types</label><input id="pce-types-'+w.id+'" type="text" value="'+w.types+'" style="width:100%;border:1px solid #e2e8f0;border-radius:5px;padding:5px 8px;font-size:.78rem;"></div>';
+        html += '<div style="grid-column:1/-1;"><label style="font-size:.7rem;font-weight:600;display:block;margin-bottom:2px;">Planning Notes</label><textarea id="pce-notes-'+w.id+'" rows="2" style="width:100%;border:1px solid #e2e8f0;border-radius:5px;padding:5px 8px;font-size:.78rem;resize:vertical;">'+w.notes+'</textarea></div>';
+        html += '</div>';
+        html += '<div style="display:flex;justify-content:flex-end;gap:8px;">';
+        html += '<button class="btn btn-outline btn-sm" style="padding:3px 10px;font-size:.72rem;" onclick="togglePCWaveEdit('+w.id+')">Cancel</button>';
+        html += '<button class="btn btn-primary btn-sm" style="padding:3px 10px;font-size:.72rem;" onclick="savePCWave('+w.id+')">✓ Save</button>';
+        html += '</div></div></div>';
+      });
+      html += '</div>';
+      body.innerHTML = html;
+      document.getElementById('pipeline-config-modal').style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function togglePCWaveEdit(waveId) {
+      var el = document.getElementById('pc-edit-'+waveId);
+      if (el) el.style.display = (el.style.display === 'none') ? 'block' : 'none';
+    }
+
+    function savePCWave(waveId) {
+      var waves = getWaveConfig();
+      var idx = waves.findIndex(function(x){ return x.id === waveId; });
+      if (idx < 0) return;
+      waves[idx].name      = document.getElementById('pce-name-'+waveId).value.trim();
+      waves[idx].startDate = document.getElementById('pce-start-'+waveId).value;
+      waves[idx].endDate   = document.getElementById('pce-end-'+waveId).value;
+      waves[idx].agencies  = parseInt(document.getElementById('pce-agencies-'+waveId).value) || waves[idx].agencies;
+      waves[idx].status    = document.getElementById('pce-status-'+waveId).value;
+      waves[idx].pods      = document.getElementById('pce-pods-'+waveId).value.trim();
+      waves[idx].types     = document.getElementById('pce-types-'+waveId).value.trim();
+      waves[idx].notes     = document.getElementById('pce-notes-'+waveId).value.trim();
+      if (waves[idx].startDate && waves[idx].endDate) {
+        var sd = new Date(waves[idx].startDate), ed = new Date(waves[idx].endDate);
+        var ms = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        var sy = sd.getUTCFullYear(), ey = ed.getUTCFullYear();
+        waves[idx].period = ms[sd.getUTCMonth()] + (sy!==ey?' '+sy:'') + '–' + ms[ed.getUTCMonth()] + ' '+ey;
+      }
+      saveWaveConfig(waves);
+      notify('Wave ' + waveId + ' saved.');
+      // Close the edit form and refresh
+      document.getElementById('pc-edit-'+waveId).style.display = 'none';
+      openPipelineConfig(); // re-render modal with updated data
+    }
+
+    function closePipelineConfig() {
+      document.getElementById('pipeline-config-modal').style.display = 'none';
+      document.body.style.overflow = '';
+      renderWaveTable(); // refresh wave table if visible
+    }
+
+    function resetPipelineToDefaults() {
+      if (!confirm('Reset all wave configuration to program defaults? This cannot be undone.')) return;
+      localStorage.removeItem(WAVE_STORE_KEY);
+      notify('Pipeline reset to defaults.');
+      openPipelineConfig();
+    }
+
+    // ══ END PIPELINE WAVE CONFIGURATION ════════════════════════════════════════
 
     let pipelineChartsInit = false;
     function initPipelineCharts() {
@@ -2545,6 +3060,14 @@
       }
     }
 
+    function doLogout() {
+      if (window.anchorAuth && typeof window.anchorAuth.logout === 'function') {
+        window.anchorAuth.logout();
+      } else {
+        localStorage.removeItem('anchor_session');
+        window.location.href = 'index.html';
+      }
+    }
     function logout() {
       // Clear session data
       localStorage.removeItem('anchor_session');
@@ -2560,17 +3083,6 @@
       }, 500);
     }
 
-    // Add click handler for avatar
-    document.getElementById('user-avatar').addEventListener('click', function(e) {
-      e.stopPropagation();
-      toggleUserDropdown();
-    });
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', function() {
-      const dropdown = document.getElementById('user-dropdown');
-      if (dropdown) dropdown.classList.remove('active');
-    });
 
     // Load user info on page load
     loadUserInfo();
