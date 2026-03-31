@@ -6,13 +6,18 @@
 (function () {
   const auth = window.anchorAuth;
 
+  // Hide body immediately to prevent flash of unstyled/unauthorized content
+  const _hideStyle = document.createElement('style');
+  _hideStyle.textContent = 'body { visibility: hidden !important; }';
+  document.head.appendChild(_hideStyle);
+
+  function _revealBody() {
+    _hideStyle.remove();
+    if (document.body) document.body.style.visibility = '';
+  }
+
   // Fast unauthenticated check — no DOM needed, runs immediately
   if (!auth.isAuthenticated()) {
-    // Use a tiny inline style injection to hide body before DOMContentLoaded
-    const style = document.createElement('style');
-    style.textContent = 'body { visibility: hidden !important; }';
-    document.head.appendChild(style);
-
     document.addEventListener('DOMContentLoaded', () => {
       window.location.replace('index.html?session=expired');
     });
@@ -51,10 +56,11 @@
       return;
     }
 
-    // All checks passed — populate UI
+    // All checks passed — populate UI, then reveal body
     auth.hydrateUI();
     wireLogoutButtons();
     applyRoleVisibility();
+    _revealBody();
   });
 
   function wireLogoutButtons() {

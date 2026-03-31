@@ -10,7 +10,7 @@
   <!-- External dependencies -->
   <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6.3.0/dist/amazon-cognito-identity.min.js"></script>
   <script src="src/js/aws-auth.js?v=3"></script>
-  <script src="src/js/auth-guard.js?v=3"></script>
+  <script src="src/js/auth-guard.js?v=4"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
   <!-- CSS files -->
@@ -89,8 +89,12 @@
     </div>
   </nav>
 
+
+
+
   <!-- MAIN CONTENT AREA -->
   <main id="main-content" role="main">
+    
     <div class="content">
 
       <!-- QUESTIONNAIRE + INTAKE & SCOPING SECTION -->
@@ -704,7 +708,7 @@
         </div>
 
         <!-- Agency Rep Quick Upload -->
-        <div class="card" style="border-left:4px solid var(--primary);">
+        <div class="card" data-visible-to="agency_rep" style="border-left:4px solid var(--primary);">
           <div class="card-title">Submit Documents to Assessor</div>
           <p style="font-size:.82rem; color:var(--text-muted); margin-bottom:16px;">Upload evidence artifacts directly to your assessment package. Each submission is tagged to the applicable NIST CSF control and routed to your lead assessor for review.</p>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
@@ -1849,7 +1853,7 @@
       }
     }
   </script>
-  <script src="src/js/intake-workflow.js?v=2"></script>
+  <script src="src/js/intake-workflow.js?v=3"></script>
   <script>
     // ── POA&M Detail Modal ──────────────────────────────────────────────────
     const POAM_DATA_MSDE = {
@@ -2039,6 +2043,56 @@
       if (e.target === this) { closePoamDetail(); }
     });
     // \u2500\u2500 End POA&M Detail Modal \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500────────────────────────
+
+    // ── Pipeline Tracker: Auto-detect and Restore Stage ──────────────────────
+    (function() {
+      var key = window.AGENCY_KEY || 'msde';
+      // Determine current stage from stored data
+      function detectStage() {
+        var intake = JSON.parse(localStorage.getItem('anchor_intake_' + key) || '{}');
+        var srtm   = JSON.parse(localStorage.getItem('anchor_srtm_'   + key) || '{}');
+        var pipeStage = localStorage.getItem('anchor_pipe_stage_' + key);
+        if (pipeStage) return pipeStage; // use saved value if exists
+
+        // Auto-detect from data completeness
+        var intakeDone = intake.status === 'submitted';
+        var srtmDone   = Object.keys(srtm).length >= 10;
+        var srtmAll    = Object.keys(srtm).length >= 18;
+
+        if (srtmAll) return 'sar';       // all controls scored → SAR stage
+        if (srtmDone) return 'risk';     // many controls → Risk stage
+        if (intakeDone) return 'evidence'; // intake submitted → Evidence stage
+        return 'intake';
+      }
+
+      // Patch updatePipelineTracker to also persist stage
+      var _origUpdate = window.updatePipelineTracker;
+      window.updatePipelineTracker = function(stageId) {
+        if (_origUpdate) _origUpdate(stageId);
+        localStorage.setItem('anchor_pipe_stage_' + key, stageId);
+      };
+
+      // Also patch generateSarReport to advance to SAR stage
+      var _origSar = window.generateSarReport;
+      window.generateSarReport = function() {
+        if (_origSar) _origSar();
+        window.updatePipelineTracker('sar');
+      };
+
+      // Restore on load
+      setTimeout(function() {
+        var stage = detectStage();
+        if (typeof window.updatePipelineTracker === 'function') {
+          window.updatePipelineTracker(stage);
+        }
+        // Hide pipeline tracker from agency_rep role
+        var session = JSON.parse(localStorage.getItem('anchor_session') || '{}');
+        if (session.role === 'agency_rep') {
+          var pipeEl = document.getElementById('assessment-pipeline');
+          if (pipeEl) pipeEl.style.display = 'none';
+        }
+      }, 150);
+    })();
 
     // ── Live SRTM → Risk Section Update ────────────────────────────────────────
     function updateRiskFromSRTM() {

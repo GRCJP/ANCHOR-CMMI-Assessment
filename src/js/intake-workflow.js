@@ -422,6 +422,9 @@
     } catch(e) {}
   };
 
+  /* ── Expose pipeline tracker globally ───────────────────────────── */
+  window.updatePipelineTracker = updatePipelineTracker;
+
   /* ── Auto-init on DOMContentLoaded ──────────────────────────────── */
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', window.loadIntakeState);
