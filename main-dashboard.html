@@ -190,18 +190,6 @@
           <p>Real-time statewide view of cybersecurity maturity across Maryland Executive Branch agencies — NIST CSF 2.0 / CMMI scored. Drill into any agency, review findings, and track remediation.</p>
         </div>
 
-        <!-- DEMO MODE LAUNCHER -->
-        <div id="demo-mode-bar" style="background:linear-gradient(135deg,#1e3a5f,#2563a8);border-radius:10px;padding:14px 20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-          <div style="color:#fff;">
-            <div style="font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;opacity:.7;margin-bottom:3px;">Evaluation Mode</div>
-            <div style="font-size:.95rem;font-weight:700;">ANCHOR Platform — Live Demo Walkthrough</div>
-            <div style="font-size:.76rem;opacity:.8;margin-top:2px;">RFP BPM052516 · Maryland DoIT Cybersecurity Assessment Program · April 1, 2026</div>
-          </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button onclick="startDemoMode()" style="background:#f59e0b;color:#1a1a1a;border:none;padding:8px 18px;border-radius:7px;font-weight:800;font-size:.82rem;cursor:pointer;">🎬 Launch End-to-End Demo</button>
-            <button onclick="resetDemoState()" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);padding:8px 14px;border-radius:7px;font-weight:600;font-size:.78rem;cursor:pointer;">↺ Reset Demo State</button>
-          </div>
-        </div>
 
         <!-- PROGRAM OVERVIEW -->
         <div id="pf-overview">
@@ -1725,42 +1713,6 @@
       } catch(e) {}
     }
     document.addEventListener('DOMContentLoaded', loadPodSizing);
-
-    // ---- DEMO MODE ----
-    function startDemoMode() {
-      // Seed a fresh "MD Dept. of Commerce" assessment in localStorage for the demo walkthrough
-      const demoKey = 'anchor_assessment_COMMERCE';
-      const demoData = {
-        agency: 'MD Department of Commerce',
-        abbr: 'COMMERCE',
-        pod: 'MEDIUM',
-        wave: 'Wave 2',
-        status: 'In Progress',
-        stage: 'Evidence Collection',
-        leadAssessor: 'S. Patel',
-        teamSize: 'Standard (4–5 assessors)',
-        startDate: '2026-04-07',
-        endDate: '2026-05-19',
-        execBranch: 'Yes',
-        doitEnterprise: 'No',
-        maturityGroup: 'Group B (1.5–2.4)',
-        systemName: 'Commerce Enterprise IT Environment',
-        contactTitle: 'CISO',
-        recipient: 'James Carter',
-        recipientEmail: 'j.carter@commerce.maryland.gov'
-      };
-      localStorage.setItem(demoKey, JSON.stringify(demoData));
-      // Show demo guide modal
-      document.getElementById('demo-guide-modal').style.display = 'flex';
-      logActivity('Demo Mode', 'COMMERCE', 'End-to-end demo walkthrough initiated');
-    }
-    function resetDemoState() {
-      // Clear only demo-seeded data, keep real assessments
-      ['anchor_assessment_COMMERCE','anchor_pipeline_COMMERCE','anchor_srtm_COMMERCE'].forEach(k => localStorage.removeItem(k));
-      notify('↺ Demo state reset — all seeded data cleared');
-      logActivity('Demo Reset', 'System', 'Demo state cleared');
-      renderPortfolio();
-    }
 
     // ---- SIDEBAR TOGGLE ----
     function toggleSidebar() {
@@ -3374,46 +3326,5 @@
     // ── End IAM ─────────────────────────────────────────────────────────
   </script>
 
-  <!-- DEMO GUIDE MODAL -->
-  <div id="demo-guide-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9998;align-items:center;justify-content:center;padding:20px;">
-    <div style="background:#fff;border-radius:12px;max-width:640px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden;">
-      <div style="background:linear-gradient(135deg,#1e3a5f,#2563a8);padding:20px 24px;color:#fff;">
-        <div style="font-size:1.1rem;font-weight:800;">🎬 Demo Walkthrough — Live Evaluation Guide</div>
-        <div style="font-size:.8rem;opacity:.8;margin-top:4px;">RFP BPM052516 · MD DoIT Cybersecurity Assessment Program</div>
-      </div>
-      <div style="padding:24px;">
-        <div style="font-size:.85rem;color:#374151;margin-bottom:16px;">A fresh agency <strong>MD Department of Commerce</strong> has been seeded. Follow this sequence for the end-to-end demonstration:</div>
-        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;">
-          <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 14px;background:#eff6ff;border-radius:8px;border-left:4px solid #2563a8;">
-            <span style="background:#2563a8;color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;flex-shrink:0;">1</span>
-            <div><div style="font-weight:700;font-size:.85rem;color:#1e3a5f;">Agency Intake &amp; Scoping</div><div style="font-size:.78rem;color:#475569;">Agency Assessment Management → Open MDOT → Intake tab. Show pod assignment, wave scheduling, kick-off package.</div></div>
-          </div>
-          <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 14px;background:#f0fdf4;border-radius:8px;border-left:4px solid #16a34a;">
-            <span style="background:#16a34a;color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;flex-shrink:0;">2</span>
-            <div><div style="font-weight:700;font-size:.85rem;color:#166534;">Assessment Execution</div><div style="font-size:.78rem;color:#475569;">CSF Assessment tab → Score 2–3 controls → Show CMMI scoring, evidence upload, live maturity score.</div></div>
-          </div>
-          <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 14px;background:#fef3c7;border-radius:8px;border-left:4px solid #d97706;">
-            <span style="background:#d97706;color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;flex-shrink:0;">3</span>
-            <div><div style="font-weight:700;font-size:.85rem;color:#92400e;">Risk Identification &amp; Findings</div><div style="font-size:.78rem;color:#475569;">Risk Register tab → Show auto-generated risks from NOT MET controls, L×I scoring, priority tiers.</div></div>
-          </div>
-          <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 14px;background:#fff0f0;border-radius:8px;border-left:4px solid #dc2626;">
-            <span style="background:#dc2626;color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;flex-shrink:0;">4</span>
-            <div><div style="font-weight:700;font-size:.85rem;color:#991b1b;">POA&amp;M &amp; Remediation</div><div style="font-size:.78rem;color:#475569;">POA&amp;M tab → Show auto-populated action items, assign owners, set milestones, track progress.</div></div>
-          </div>
-          <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 14px;background:#f5f3ff;border-radius:8px;border-left:4px solid #7c3aed;">
-            <span style="background:#7c3aed;color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;flex-shrink:0;">5</span>
-            <div><div style="font-weight:700;font-size:.85rem;color:#5b21b6;">SAR Generation &amp; Reporting</div><div style="font-size:.78rem;color:#475569;">SAR tab → Generate report → Show MD letterhead, all 6 sections, print/export capability.</div></div>
-          </div>
-        </div>
-        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px;margin-bottom:16px;font-size:.78rem;color:#475569;">
-          <strong style="color:#1e3a5f;">Return to Dashboard</strong> after each agency to show the portfolio view, 2-year pipeline, and statewide metrics — demonstrating the full program management capability.
-        </div>
-        <div style="display:flex;gap:8px;justify-content:flex-end;">
-          <button onclick="document.getElementById('demo-guide-modal').style.display='none'; const nav=document.querySelector('[onclick*=\'showSection(\\\'sa\\\'\']'); showSection('sa',nav);" style="background:#2563a8;color:#fff;border:none;padding:9px 20px;border-radius:7px;font-weight:700;font-size:.84rem;cursor:pointer;">Open Agency Management →</button>
-          <button onclick="document.getElementById('demo-guide-modal').style.display='none'" style="background:#f1f5f9;color:#374151;border:none;padding:9px 16px;border-radius:7px;font-weight:600;font-size:.82rem;cursor:pointer;">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
 </body>
 </html>
