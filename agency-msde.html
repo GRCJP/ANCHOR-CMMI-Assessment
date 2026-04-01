@@ -691,36 +691,19 @@
         <!-- CROSSWALK TAB -->
         <div class="tab-content" id="t2-xwalk">
           <div class="card">
-            <div class="card-title">Framework Crosswalk &#8212; NIST CSF 2.0 to NIST SP 800-53 Rev 5</div>
+            <div class="card-title">Framework Crosswalk &#8212; NIST CSF 2.0</div>
             <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;">
               <span style="font-size:.72rem;font-weight:700;color:#475569;">Show frameworks:</span>
               <label style="font-size:.72rem;display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="checkbox" checked onchange="toggleXwalkCol('col-n53',this.checked)"> NIST 800-53</label>
-              <label style="font-size:.72rem;display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="checkbox" checked onchange="toggleXwalkCol('col-cis',this.checked)"> CIS v8</label>
+              <label style="font-size:.72rem;display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="checkbox" checked onchange="toggleXwalkCol('col-pci',this.checked)"> PCI-DSS</label>
               <label style="font-size:.72rem;display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="checkbox" checked onchange="toggleXwalkCol('col-hipaa',this.checked)"> HIPAA</label>
               <label style="font-size:.72rem;display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="checkbox" checked onchange="toggleXwalkCol('col-irs',this.checked)"> IRS 1075</label>
+              <label style="font-size:.72rem;display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="checkbox" checked onchange="toggleXwalkCol('col-cms',this.checked)"> CMS ARC-AMPE</label>
             </div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>CSF Control</th><th>Function</th><th class="col-n53">NIST SP 800-53 Rev 5</th><th class="col-cis">CIS v8</th><th class="col-hipaa">HIPAA Security Rule</th><th class="col-irs">IRS Pub 1075</th><th>Applicability</th></tr></thead>
+                <thead><tr><th>CSF Control</th><th>Function</th><th class="col-n53">NIST SP 800-53 Rev 5</th><th class="col-pci">PCI-DSS v4.0</th><th class="col-hipaa">HIPAA</th><th class="col-irs">IRS Pub 1075</th><th class="col-cms">CMS ARC-AMPE</th></tr></thead>
                 <tbody id="s2-xwalk-table"></tbody>
-              </table>
-            </div>
-          </div>
-          <!-- CMS ARC-AMPE Crosswalk Card -->
-          <div class="card" style="margin-top:16px;">
-            <div class="card-title">CMS ARC-AMPE Controls Crosswalk</div>
-            <div style="font-size:.78rem;color:#64748b;margin-bottom:12px;">Maps NIST CSF 2.0 subcategories to CMS Acceptable Risk Safeguards (ARC) and AMPE control families — applicable to agencies handling Medicaid/Medicare data under CMS oversight.</div>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>CSF Control</th>
-                    <th>Function</th>
-                    <th>CMS ARC-AMPE Control Family</th>
-                    <th>CMS Control References</th>
-                  </tr>
-                </thead>
-                <tbody id="s2-cms-xwalk"></tbody>
               </table>
             </div>
           </div>
@@ -781,6 +764,17 @@
           <div class="btn-row">
             <button class="btn btn-primary btn-sm" onclick="notify('Evidence requests sent to p.hall@msde.maryland.gov')">Send Requests</button>
             <button class="btn btn-outline btn-sm" onclick="notify('Evidence tracker exported: MSDE_Evidence_Log.xlsx')">Export</button>
+          </div>
+        </div>
+
+        <!-- Interview Schedule Quick Access -->
+        <div class="card" style="border-left:4px solid #2563a8;margin-bottom:0;">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+            <div>
+              <div class="card-title" style="margin-bottom:4px;">&#128172; Interview Schedule</div>
+              <div style="font-size:.78rem;color:#64748b;">Schedule and track stakeholder interviews — CISO, IT leadership, system owners. Interviews are managed in the CSF Assessment module.</div>
+            </div>
+            <button onclick="(function(){ showSection('csf', document.querySelector('.nav-item[onclick*=\'csf\']')); setTimeout(function(){ var t=document.querySelector('.tab[onclick*=\'t2-interview\']'); if(t) switchTab(t,'t2-interview'); },80); })()" style="flex-shrink:0;padding:8px 18px;background:#2563a8;color:#fff;border:none;border-radius:7px;cursor:pointer;font-size:.82rem;font-weight:700;white-space:nowrap;">Go to Interview Schedule &rarr;</button>
           </div>
         </div>
 
@@ -1881,29 +1875,55 @@
       };
 
       const IRS_MAP = {
-        'GV.OC-01':'§4.1 — Agency Safeguard Requirements',
-        'GV.RM-01':'§4.2 — Risk Assessment',
-        'GV.PO-01':'§4.3 — Security Plan',
-        'GV.SC-01':'§5.4 — Third Party Disclosure',
-        'GV.RR-01':'§4.1 — Roles & Responsibilities',
-        'ID.AM-01':'§9.3 — Media Protection',
-        'ID.AM-02':'§9.3 — Configuration Management',
-        'ID.RA-01':'§4.2 — Vulnerability Scanning',
-        'ID.RA-05':'§4.2 — Risk Assessment',
-        'PR.AA-01':'§10.2 — Access Controls',
-        'PR.AA-05':'§10.3 — Least Privilege',
-        'PR.DS-01':'§6.1 — Data Encryption at Rest',
-        'PR.AT-01':'§4.5 — Security Awareness',
-        'PR.PS-01':'§9.1 — Configuration Baselines',
-        'DE.AE-02':'§9.5 — Audit & Accountability',
-        'DE.CM-01':'§9.5 — System Monitoring',
-        'DE.CM-03':'§9.5 — Audit Logging',
-        'RS.MA-01':'§7.1 — Incident Response',
-        'RS.AN-01':'§7.2 — Incident Analysis',
-        'RS.MI-01':'§7.3 — Containment & Eradication',
-        'RC.RP-01':'§8.1 — Contingency Planning',
-        'RC.RP-03':'§8.2 — Backup & Recovery',
-        'RC.CO-03':'§7.1 — Incident Reporting'
+        'GV.OC-01':'4.1 — Agency Safeguard Requirements',
+        'GV.RM-01':'4.2 — Risk Assessment',
+        'GV.PO-01':'4.3 — Security Plan',
+        'GV.SC-01':'5.4 — Third Party Disclosure',
+        'GV.RR-01':'4.1 — Roles & Responsibilities',
+        'ID.AM-01':'9.3 — Media Protection',
+        'ID.AM-02':'9.3 — Configuration Management',
+        'ID.RA-01':'4.2 — Vulnerability Scanning',
+        'ID.RA-05':'4.2 — Risk Assessment',
+        'PR.AA-01':'10.2 — Access Controls',
+        'PR.AA-05':'10.3 — Least Privilege',
+        'PR.DS-01':'6.1 — Data Encryption at Rest',
+        'PR.AT-01':'4.5 — Security Awareness',
+        'PR.PS-01':'9.1 — Configuration Baselines',
+        'DE.AE-02':'9.5 — Audit & Accountability',
+        'DE.CM-01':'9.5 — System Monitoring',
+        'DE.CM-03':'9.5 — Audit Logging',
+        'RS.MA-01':'7.1 — Incident Response',
+        'RS.AN-01':'7.2 — Incident Analysis',
+        'RS.MI-01':'7.3 — Containment & Eradication',
+        'RC.RP-01':'8.1 — Contingency Planning',
+        'RC.RP-03':'8.2 — Backup & Recovery',
+        'RC.CO-03':'7.1 — Incident Reporting'
+      };
+
+      const PCI_MAP = {
+        'GV.OC-01':'Req 12.1',
+        'GV.RM-01':'Req 12.3.1',
+        'GV.PO-01':'Req 12.1.1',
+        'GV.SC-01':'Req 12.8',
+        'GV.RR-01':'Req 12.1.2',
+        'ID.AM-01':'Req 12.3.4',
+        'ID.AM-02':'Req 12.3.4',
+        'ID.RA-01':'Req 6.3.3',
+        'ID.RA-05':'Req 12.3.1',
+        'PR.AA-01':'Req 8.2, 8.3',
+        'PR.AA-05':'Req 7.2',
+        'PR.DS-01':'Req 3.5',
+        'PR.AT-01':'Req 12.6',
+        'PR.PS-01':'Req 2.2',
+        'DE.AE-02':'Req 10.4',
+        'DE.CM-01':'Req 10.6, 11.4',
+        'DE.CM-03':'Req 10.2',
+        'RS.MA-01':'Req 12.10',
+        'RS.AN-01':'Req 12.10.3',
+        'RS.MI-01':'Req 12.10.1',
+        'RC.RP-01':'Req 12.10.4',
+        'RC.RP-03':'Req 9.4.5',
+        'RC.CO-03':'Req 12.10.6'
       };
 
       const CMS_MAP = [
@@ -1937,32 +1957,21 @@
         domain.controls.forEach(ctrl => {
           const hipaa = HIPAA_MAP[ctrl.id] || '—';
           const irs   = IRS_MAP[ctrl.id]   || '—';
+          const pci   = PCI_MAP[ctrl.id]   || '—';
+          const cmsEntry = CMS_MAP.find(r => r.id === ctrl.id);
+          const cms   = cmsEntry ? cmsEntry.cms : '—';
           rows.push(`<tr>
-        <td><code style="font-size:.72rem;">${ctrl.id}</code><div style="font-size:.68rem;color:#64748b;margin-top:2px;">${ctrl.name||''}</div></td>
+        <td><code style="font-size:.72rem;background:#f1f5f9;padding:1px 5px;border-radius:3px;border:none;">${ctrl.id}</code><div style="font-size:.68rem;color:#64748b;margin-top:2px;">${ctrl.name||''}</div></td>
         <td><span class="fn-tag ${fnMap[domain.fn]}">${domain.fn}</span></td>
         <td class="col-n53" style="font-size:.72rem;">${ctrl.n53||'—'}</td>
-        <td class="col-cis" style="font-size:.72rem;">${ctrl.cis||'—'}</td>
+        <td class="col-pci" style="font-size:.72rem;color:#7c3aed;">${pci}</td>
         <td class="col-hipaa" style="font-size:.7rem;color:#1d4ed8;">${hipaa}</td>
         <td class="col-irs" style="font-size:.7rem;color:#92400e;">${irs}</td>
-        <td><span class="badge badge-green">Applicable</span></td>
+        <td class="col-cms" style="font-size:.72rem;color:#0369a1;">${cms}</td>
       </tr>`);
         });
       });
       tb.innerHTML = rows.join('');
-
-      // Build CMS ARC-AMPE card
-      const cmsContainer = document.getElementById('s2-cms-xwalk');
-      if (cmsContainer) {
-        const fnColors = { GOVERN:'fn-govern', IDENTIFY:'fn-identify', PROTECT:'fn-protect', DETECT:'fn-detect', RESPOND:'fn-respond', RECOVER:'fn-recover' };
-        cmsContainer.innerHTML = CMS_MAP.map(r =>
-          `<tr>
-        <td><code style="font-size:.72rem;">${r.id}</code></td>
-        <td><span class="fn-tag ${fnColors[r.fn]||''}">${r.fn}</span></td>
-        <td style="font-size:.75rem;">${r.family}</td>
-        <td style="font-size:.75rem;font-weight:600;color:#7c3aed;">${r.cms}</td>
-      </tr>`
-        ).join('');
-      }
     }
 
     function updateSummaryCharts() {
