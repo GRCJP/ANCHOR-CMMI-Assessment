@@ -236,21 +236,17 @@ class MasterTracker {
   }
 
   generateTimelineData() {
-    const weeks = [];
-    const starts = [];
-    const ends = [];
-    
-    // Generate 12 weeks of data
-    for (let i = 0; i < 12; i++) {
-      const weekDate = new Date();
-      weekDate.setDate(weekDate.getDate() + (i * 7));
-      weeks.push(`Week ${i + 1}`);
-      
-      // Simulate assessment starts and ends
-      starts.push(Math.random() > 0.7 ? 1 : 0);
-      ends.push(Math.random() > 0.8 ? 1 : 0);
-    }
-    
+    // Deterministic demo data representing a realistic 12-week assessment cycle
+    const weeks = [
+      'Week 1', 'Week 2', 'Week 3', 'Week 4',
+      'Week 5', 'Week 6', 'Week 7', 'Week 8',
+      'Week 9', 'Week 10', 'Week 11', 'Week 12'
+    ];
+    // Assessment starts: heavier in early weeks, tapering off
+    const starts = [3, 2, 1, 2, 1, 0, 1, 0, 0, 1, 0, 0];
+    // Assessment completions: ramp up after initial weeks
+    const ends   = [0, 0, 1, 0, 1, 2, 1, 2, 1, 1, 2, 1];
+
     return { labels: weeks, starts, ends };
   }
 

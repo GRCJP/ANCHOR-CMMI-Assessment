@@ -161,12 +161,14 @@ class AnchorAuth {
     if (!s) return;
 
     const initials = s.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2);
+    const roleLabel = s.display_role || (s.role || '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 
     const set = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
-    set('user-name',   s.name);
-    set('user-email',  s.email);
-    set('user-role',   s.display_role || s.role);
-    set('user-avatar', initials);
+    set('user-name',    s.name);
+    set('user-email',   s.email);
+    set('user-role',    roleLabel);
+    set('user-avatar',  initials);
+    set('udd-initials', initials);
 
     const av = document.getElementById('user-avatar') || document.querySelector('.avatar');
     if (av) {
