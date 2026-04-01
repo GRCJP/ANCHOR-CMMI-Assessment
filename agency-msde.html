@@ -887,6 +887,7 @@
 
         <div class="card">
           <div class="card-title">Risk Register</div>
+          <div style="font-size:.76rem;color:#64748b;margin-bottom:10px;">Score = Likelihood × Impact weight &nbsp;|&nbsp; <span style="color:#dc2626;font-weight:700;">P1 Critical ≥15</span> &nbsp; <span style="color:#ea580c;font-weight:700;">P2 High 9–14</span> &nbsp; <span style="color:#d97706;font-weight:700;">P3 Medium 1–8</span></div>
           <div class="table-wrap">
             <table>
               <thead><tr><th>Risk ID</th><th>Finding</th><th>NIST Function</th><th>Likelihood</th><th>Impact</th><th>Score</th><th>Priority</th></tr></thead>
@@ -2079,11 +2080,11 @@
       });
       const radarEl = document.getElementById('radarChart');
       if (radarEl) {
-        new Chart(radarEl, { type:'radar', data:{ labels:['Govern','Identify','Protect','Detect','Respond','Recover'], datasets:[{label:'Current (CMMI)',data:[3.0,3.2,3.4,2.8,3.2,3.0],backgroundColor:'rgba(37,99,168,.15)',borderColor:'#2563a8',pointBackgroundColor:'#2563a8',borderWidth:2},{label:'Target',data:[3.5,3.5,3.5,3.5,3.5,3.5],backgroundColor:'rgba(39,174,96,.1)',borderColor:'#27ae60',borderDash:[5,4],pointBackgroundColor:'#27ae60',borderWidth:2}] }, options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:5,ticks:{stepSize:1}}},plugins:{legend:{position:'bottom'}}} });
+        new Chart(radarEl, { type:'radar', data:{ labels:['Govern','Identify','Protect','Detect','Respond','Recover'], datasets:[{label:'Current (CMMI)',data:[2.1,2.5,2.8,1.9,2.4,2.1],backgroundColor:'rgba(37,99,168,.15)',borderColor:'#2563a8',pointBackgroundColor:'#2563a8',borderWidth:2},{label:'Target (3.0)',data:[3,3,3,3,3,3],backgroundColor:'rgba(39,174,96,.1)',borderColor:'#27ae60',borderDash:[5,4],pointBackgroundColor:'#27ae60',borderWidth:2}] }, options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:5,ticks:{stepSize:1}}},plugins:{legend:{position:'bottom'}}} });
       }
       const riskEl = document.getElementById('riskChart');
       if (riskEl) {
-        new Chart(riskEl, { type:'doughnut', data:{labels:['Critical','High','Medium','Low'],datasets:[{data:[0,2,5,3],backgroundColor:['#dc2626','#ea580c','#d97706','#16a34a'],borderWidth:0}]}, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right'}}} });
+        new Chart(riskEl, { type:'doughnut', data:{labels:['Critical (P1)','High (P2)','Medium (P3)','Low'],datasets:[{data:[3,3,0,0],backgroundColor:['#dc2626','#ea580c','#d97706','#16a34a'],borderWidth:0}]}, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right'}}} });
       }
       const findingsEl = document.getElementById('findingsChart');
       if (findingsEl) {
@@ -2091,7 +2092,7 @@
       }
       const sarRadarEl = document.getElementById('sarRadarChart');
       if (sarRadarEl) {
-        new Chart(sarRadarEl, { type:'radar', data:{ labels:['Govern','Identify','Protect','Detect','Respond','Recover'], datasets:[{label:'Current',data:[3.0,3.2,3.4,2.8,3.2,3.0],backgroundColor:'rgba(37,99,168,.15)',borderColor:'#2563a8',borderWidth:2},{label:'Target',data:[3.5,3.5,3.5,3.5,3.5,3.5],backgroundColor:'rgba(39,174,96,.1)',borderColor:'#27ae60',borderDash:[5,4],borderWidth:2}] }, options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:5,ticks:{stepSize:1}}},plugins:{legend:{position:'bottom'}}} });
+        new Chart(sarRadarEl, { type:'radar', data:{ labels:['Govern','Identify','Protect','Detect','Respond','Recover'], datasets:[{label:'Current',data:[2.1,2.5,2.8,1.9,2.4,2.1],backgroundColor:'rgba(37,99,168,.15)',borderColor:'#2563a8',borderWidth:2},{label:'Target (3.0)',data:[3,3,3,3,3,3],backgroundColor:'rgba(39,174,96,.1)',borderColor:'#27ae60',borderDash:[5,4],borderWidth:2}] }, options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:5,ticks:{stepSize:1}}},plugins:{legend:{position:'bottom'}}} });
       }
     }
   </script>
@@ -2673,6 +2674,6 @@
     if (drop && menu && !menu.contains(e.target)) drop.classList.remove('active');
   });
   </script>
-  <script src="src/js/interview-scheduler.js"></script>
+  <script src="src/js/interview-scheduler.js?v=2"></script>
 </body>
 </html>

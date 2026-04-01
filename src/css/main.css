@@ -210,13 +210,9 @@ body.has-agency-bar #main-content { margin-top: 142px; min-height: calc(100vh - 
 }
 
 /* LAYOUT LOCK — DO NOT MODIFY — permanent spacing for all agency sections */
-#questionnaire.active,
-#self-assessment.active {
-  padding: 24px 28px 40px;
-}
-
-/* LAYOUT LOCK — DO NOT MODIFY — permanent spacing for all agency sections */
-#main-content > section.active {
+/* Sections are grandchildren of #main-content (inside .content), so > direct child selector cannot be used */
+/* .has-agency-bar zeros out .content padding; sections must carry their own. Dashboard .content keeps 28px. */
+.has-agency-bar .content section.active {
   padding: 24px 28px 40px;
 }
 
@@ -438,18 +434,12 @@ html, body {
   padding: 0;
 }
 
+/* overflow/sizing additions for .content (de-duped — base padding defined above) */
 .content {
-  padding: 28px;
-  flex: 1;
   overflow-x: hidden;
   overflow-y: auto;
   max-width: 100%;
   box-sizing: border-box;
-}
-
-/* Agency pages override — sections control their own padding */
-.has-agency-bar .content {
-  padding: 0;
 }
 
 /* TABLE RESPONSIVENESS */
