@@ -74,26 +74,25 @@
     var tbody = document.getElementById('is-tbody');
     if (!tbody) return;
     if (!data.length) {
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:28px;">No interviews scheduled yet. Click <strong>+ Schedule Interview</strong> to add one.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:28px;">No interviews scheduled yet. Click <strong style="color:#1a3a5c;">+ Schedule Interview</strong> above to add one.</td></tr>';
       return;
     }
     tbody.innerHTML = data.map(function (i) {
       var doneBtn = i.status !== 'Completed'
-        ? '<button onclick="AnchorInterviewScheduler.markComplete(\'' + i.id + '\')" title="Mark complete" style="font-size:.68rem;padding:3px 8px;border:1px solid #6ee7b7;background:#d1fae5;color:#065f46;border-radius:5px;cursor:pointer;font-weight:600;white-space:nowrap;">✓ Done</button>'
-        : '';
+        ? '<button onclick="AnchorInterviewScheduler.markComplete(\'' + i.id + '\')" title="Mark complete" style="font-size:.75rem;padding:5px 10px;border:1.5px solid #6ee7b7;background:#d1fae5;color:#065f46;border-radius:6px;cursor:pointer;font-weight:700;white-space:nowrap;">✓ Done</button>'
+        : '<span style="font-size:.72rem;color:#065f46;font-weight:700;padding:5px 8px;">✓ Complete</span>';
       return '<tr>' +
-        '<td><strong>' + i.id + '</strong></td>' +
+        '<td style="white-space:nowrap;"><div style="display:flex;gap:5px;align-items:center;">' +
+          '<button onclick="AnchorInterviewScheduler.openModal(\'' + i.id + '\')" style="font-size:.78rem;padding:5px 12px;border:1.5px solid #2563a8;background:#eff6ff;color:#1d4ed8;border-radius:6px;cursor:pointer;font-weight:700;">✏ Edit</button>' +
+          '<button onclick="AnchorInterviewScheduler.deleteInterview(\'' + i.id + '\')" title="Remove" style="font-size:.78rem;padding:5px 8px;border:1.5px solid #fca5a5;background:#fff;color:#dc2626;border-radius:6px;cursor:pointer;font-weight:700;">✕</button>' +
+          '</div></td>' +
+        '<td><strong style="font-size:.82rem;">' + i.id + '</strong></td>' +
         '<td><div style="font-weight:600;font-size:.84rem;">' + (i.name || '—') + '</div>' +
           (i.email ? '<div style="font-size:.7rem;color:#64748b;">' + i.email + '</div>' : '') + '</td>' +
         '<td style="font-size:.82rem;">' + (i.role || '—') + '</td>' +
         '<td style="font-size:.82rem;white-space:nowrap;">' + fmtDate(i.date) +
           (i.time ? '<div style="font-size:.72rem;color:#64748b;">' + fmtTime(i.time) + '</div>' : '') + '</td>' +
-        '<td style="font-size:.75rem;max-width:180px;white-space:normal;line-height:1.5;">' + (i.controls || '—') + '</td>' +
-        '<td>' + statusBadge(i.status) + '</td>' +
-        '<td><div style="display:flex;gap:4px;flex-wrap:nowrap;">' + doneBtn +
-          '<button onclick="AnchorInterviewScheduler.openModal(\'' + i.id + '\')" style="font-size:.68rem;padding:3px 8px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:5px;cursor:pointer;">Edit</button>' +
-          '<button onclick="AnchorInterviewScheduler.deleteInterview(\'' + i.id + '\')" style="font-size:.68rem;padding:3px 8px;border:1px solid #fca5a5;background:#fff;color:#dc2626;border-radius:5px;cursor:pointer;">✕</button>' +
-          '</div></td>' +
+        '<td>' + statusBadge(i.status) + '&nbsp;' + doneBtn + '</td>' +
         '</tr>';
     }).join('');
   }
