@@ -376,7 +376,6 @@
                   <option value="dpscs">a.torres@dpscs.maryland.gov (Agency Rep — DPSCS)</option>
                   <option value="msde">p.hall@msde.maryland.gov (Agency Rep — MSDE)</option>
                   <option value="reviewer">reviewer@doit.maryland.gov (DoIT Executive Reviewer)</option>
-                  <option value="testdept">rep@testdept.maryland.gov (Agency Rep — Test Dept. ★ Demo)</option>
                 </select>
             </div>
 
@@ -497,15 +496,6 @@
             agency: '',
             groups: ['DoITReviewers'],
             landing: 'main-dashboard.html'
-          },
-          testdept: {
-            email: 'rep@testdept.maryland.gov',
-            name: 'Alex Rivera',
-            role: 'agency_rep',
-            display_role: 'Agency Representative',
-            agency: 'testdept',
-            groups: ['AgencyPOCs'],
-            landing: 'agency-generic.html?agency=testdept'
           }
         };
 
@@ -524,47 +514,6 @@
             demoMode:     true
           };
           localStorage.setItem('anchor_session', JSON.stringify(session));
-          // Seed testdept demo data so questionnaire is pre-populated for demo purposes
-          if (personaKey === 'testdept' && !localStorage.getItem('assessment_testdept')) {
-            localStorage.setItem('assessment_testdept', JSON.stringify({
-              agency: 'testdept', abbr: 'TESTDEPT',
-              agencyName: 'Maryland Test Department',
-              systemName: 'Maryland Test Department Enterprise IT',
-              pod: 'MEDIUM', wave: 'Wave 2 — Q3 2026',
-              assessor: 'J. Williams', teamSize: 'Small (2 assessors)',
-              recipient: 'Alex Rivera', contactTitle: 'Information Security Officer',
-              email: 'rep@testdept.maryland.gov', phone: '(410) 555-0200',
-              startDate: '2026-07-14', endDate: '2026-08-25',
-              template: 'Cloud & SaaS-First',
-              fteTier: 'Medium (100–499)', itComplexity: 'Moderate', dataSensitivity: 'Internal',
-              scopeCat: 'MEDIUM', scopeTotal: '5',
-              status: 'Kick-off Sent', stage: 'Evidence Collection',
-              createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
-            }));
-            localStorage.setItem('sa_answers_testdept', JSON.stringify({
-              'GV.OC-01_q0': 'Yes — NIST SP 800-53 Rev 5 aligned. Version 3.2, reviewed March 2026.',
-              'GV.OC-01_q1': 'The CISO maintains and enforces the policy. Annual review cycle.',
-              'GV.OC-01_q2': 'Section 4 (Incident Response) is under active revision following a tabletop exercise.',
-              'GV.RM-01_q0': 'Yes — organized by system and threat category. Updated quarterly.',
-              'GV.RM-01_q1': 'Quarterly with CISO and IT leadership.',
-              'GV.RM-01_q2': 'Top risks: (1) Phishing/credential compromise, (2) Unpatched legacy systems, (3) Third-party vendor access.',
-              'GV.RR-01_q0': 'CISO, IT Security Officer, and System Owners are formally assigned.',
-              'GV.RR-01_q1': 'Roles documented in org chart and RACI matrix. Updated annually.',
-              'GV.RR-01_q2': 'IT Security Officer and each System Owner receive annual security training.',
-              'ID.AM-01_q0': 'Yes — maintained in ServiceNow CMDB. Updated monthly.',
-              'ID.AM-01_q1': 'CMDB covers all hardware. Software tracked via endpoint management tool.',
-              'ID.AM-01_q2': 'Some IoT devices not yet in CMDB. Remediation planned for Q3 2026.',
-            }));
-            localStorage.setItem('sa_submitted_testdept', 'false');
-            // Add to dynamic agencies list
-            try {
-              var dynAgencies = JSON.parse(localStorage.getItem('dynamic_agencies') || '[]');
-              if (!dynAgencies.includes('testdept')) {
-                dynAgencies.push('testdept');
-                localStorage.setItem('dynamic_agencies', JSON.stringify(dynAgencies));
-              }
-            } catch(e) {}
-          }
           window.location.replace(p.landing);
         }
 
