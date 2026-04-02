@@ -951,15 +951,6 @@
               <div class="wf-stages"><span class="wf-stage">Extended Intake</span><span class="wf-stage">Full CSF</span><span class="wf-stage">FTI/CJIS Review</span><span class="wf-stage">Risk</span><span class="wf-stage">POA&amp;M</span><span class="wf-stage">SAR</span></div>
               <div style="margin-top:10px; font-size:.75rem; color:var(--text-muted);">~63 days | 92 evidence items · Large POD</div>
             </div>
-            <div class="wf-card" onclick="selectTemplate(this,'OT/ICS + Critical Infrastructure')">
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;">
-                <div class="wf-title" style="margin-bottom:0;">OT/ICS + Critical Infrastructure</div>
-                <span style="font-size:.63rem;font-weight:700;background:#fef3c7;color:#b45309;padding:2px 7px;border-radius:4px;border:1px solid #fde68a;">MDOT Sample</span>
-              </div>
-              <div class="wf-desc">For agencies operating Operational Technology or Industrial Control Systems. Questions address IT/OT segmentation, safety system integrity, NIST SP 800-82 alignment, and cyber-physical infrastructure risks.</div>
-              <div class="wf-stages"><span class="wf-stage">OT Scoping</span><span class="wf-stage">CSF+800-82</span><span class="wf-stage">Evidence</span><span class="wf-stage">Risk</span><span class="wf-stage">POA&amp;M</span><span class="wf-stage">SAR</span></div>
-              <div style="margin-top:10px; font-size:.75rem; color:var(--text-muted);">~63 days | 92 evidence items · XL POD</div>
-            </div>
             <div class="wf-card" onclick="selectTemplate(this,'Standard Enterprise IT')">
               <div class="wf-title">Standard Enterprise IT</div>
               <div class="wf-desc">Full NIST CSF 2.0 assessment for agencies with mixed on-prem/cloud infrastructure. Covers all 6 functions, 106 subcategories.</div>
@@ -1809,13 +1800,6 @@
         frameworks: 'NIST CSF 2.0 + IRS Pub 1075 + CJIS SP',
         stages: 'Extended Intake → Full CSF → FTI/CJIS Review → Risk → POA&M → SAR',
         evidence: '92 items', pod: 'Large POD'
-      },
-      'OT/ICS + Critical Infrastructure': {
-        who: 'Agencies with Operational Technology or Industrial Control Systems — e.g., MDOT',
-        focus: 'IT/OT segmentation, safety system integrity, cyber-physical infrastructure risks',
-        frameworks: 'NIST CSF 2.0 + NIST SP 800-82',
-        stages: 'OT Scoping → CSF + 800-82 → Evidence → Risk → POA&M → SAR',
-        evidence: '92 items', pod: 'XL POD'
       },
       'Standard Enterprise IT': {
         who: 'Agencies with mixed on-prem/cloud infrastructure and no specialized regulatory overlay',

@@ -335,37 +335,6 @@
           ]
         }
       }
-    },
-    OT_ICS: {
-      label: 'OT/ICS + Critical Infrastructure',
-      color: '#b45309', bg: '#fef3c7',
-      description: 'Specialized for agencies operating Operational Technology (OT) or Industrial Control Systems (ICS). Questions address IT/OT network segmentation, safety system integrity, NIST SP 800-82 alignment, and the unique risks of cyber-physical infrastructure.',
-      overrides: {
-        'ID.AM-01': {
-          label: 'OT/ICS Asset Inventory & Network Architecture',
-          questions: [
-            'Does your agency maintain a separate OT/ICS asset inventory distinct from the IT inventory? Describe what OT systems, field devices, PLCs, RTUs, and HMIs are tracked, and how the inventory is kept current as field equipment changes.',
-            'Does your agency have a current OT/ICS network architecture diagram showing how operational technology networks connect to IT networks? What security controls exist at the IT/OT boundary, and when was the diagram last validated?',
-            'How does your agency address OT assets that cannot be patched due to vendor restrictions, safety certification requirements, or operational constraints? Are compensating controls documented for these systems?'
-          ]
-        },
-        'GV.SC-01': {
-          label: 'Supply Chain Risk — OT/ICS Vendors & Integrators',
-          questions: [
-            'How does your agency evaluate the cybersecurity posture of OT/ICS vendors, system integrators, and maintenance contractors before granting them access to operational technology systems? Are vendor remote access sessions monitored and time-limited?',
-            'Do contracts with OT vendors and integrators include cybersecurity requirements — for example, prohibition on default credentials, vulnerability disclosure obligations, and notification requirements for security-relevant software updates?',
-            'How does your agency manage firmware and software updates for OT/ICS systems, particularly where vendor-required update windows conflict with operational uptime requirements or safety certification constraints?'
-          ]
-        },
-        'DE.CM-01': {
-          label: 'Continuous Monitoring — OT/ICS Environment',
-          questions: [
-            'Does your agency have monitoring capabilities specific to the OT/ICS environment — for example, passive network monitoring that detects anomalous commands or unexpected device communication? Describe the tools used and the scope of coverage.',
-            'How are security events from OT/ICS systems correlated with IT security events? Is OT telemetry integrated into the SIEM, or managed through a separate process? Who is responsible for OT alert triage?',
-            'What is the defined process for responding to a cybersecurity event affecting a safety-critical OT/ICS system? How is the decision made to isolate a compromised system when doing so has operational or safety consequences?'
-          ]
-        }
-      }
     }
   };
 

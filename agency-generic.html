@@ -413,7 +413,8 @@
           var assessmentId = 'MD-' + (window.AGENCY_KEY||'GEN').toUpperCase() + '-' + new Date().getFullYear() + '-001';
           var wave         = _d.wave || 'Wave 1 \u2014 Q1 2026';
           var template     = _d.template || 'Standard Enterprise IT';
-          var _tplDesc = {'Cloud & SaaS-First':'Cloud security, vendor management, and SaaS-hosted data protection','Hybrid + FTI Safeguards':'IRS Pub 1075 and CJIS requirements for FTI and criminal justice data','OT/ICS + Critical Infrastructure':'IT/OT segmentation and NIST SP 800-82 for operational technology','Standard Enterprise IT':'Full NIST CSF 2.0 across all 6 functions and 106 subcategories','Small Agency Streamlined':'Abbreviated assessment for low-risk agencies under 100 employees','Reassessment / Follow-up':'Targeted review against prior findings and POA\u0026M remediation'}[template] || 'Questionnaire, evidence requests, and CSF controls scoped to this profile.';
+          if (template === 'OT/ICS + Critical Infrastructure') { template = 'Standard Enterprise IT'; }
+          var _tplDesc = {'Cloud & SaaS-First':'Cloud security, vendor management, and SaaS-hosted data protection','Hybrid + FTI Safeguards':'IRS Pub 1075 and CJIS requirements for FTI and criminal justice data','Standard Enterprise IT':'Full NIST CSF 2.0 across all 6 functions and 106 subcategories','Small Agency Streamlined':'Abbreviated assessment for low-risk agencies under 100 employees','Reassessment / Follow-up':'Targeted view against prior findings and POA\u0026M remediation'}[template] || 'Questionnaire, evidence requests, and CSF controls scoped to this profile.';
           var pod          = _d.pod ? ('POD ' + _d.pod) : 'POD MEDIUM';
           var assessor     = _d.leadAssessor || 'S. Patel';
           var teamSize     = _d.teamSize || 'Standard';

@@ -419,7 +419,8 @@
           }
           var _storedA = {}; try { _storedA = JSON.parse(localStorage.getItem('assessment_dpscs') || '{}'); } catch(e){}
           var template = _storedA.template || 'Hybrid + FTI Safeguards';
-          var _tplDesc = {'Cloud & SaaS-First':'Cloud security, vendor management, and SaaS-hosted data protection','Hybrid + FTI Safeguards':'IRS Pub 1075 and CJIS requirements for FTI and criminal justice data','OT/ICS + Critical Infrastructure':'IT/OT segmentation and NIST SP 800-82 for operational technology','Standard Enterprise IT':'Full NIST CSF 2.0 across all 6 functions and 106 subcategories','Small Agency Streamlined':'Abbreviated assessment for low-risk agencies under 100 employees','Reassessment / Follow-up':'Targeted review against prior findings and POA\u0026M remediation'}[template] || 'Questionnaire, evidence requests, and CSF controls scoped to this profile.';
+          if (template === 'OT/ICS + Critical Infrastructure') { template = 'Hybrid + FTI Safeguards'; }
+          var _tplDesc = {'Cloud & SaaS-First':'Cloud security, vendor management, and SaaS-hosted data protection','Hybrid + FTI Safeguards':'IRS Pub 1075 and CJIS requirements for FTI and criminal justice data','Standard Enterprise IT':'Full NIST CSF 2.0 across all 6 functions and 106 subcategories','Small Agency Streamlined':'Abbreviated assessment for low-risk agencies under 100 employees','Reassessment / Follow-up':'Targeted review against prior findings and POA\u0026M remediation'}[template] || 'Questionnaire, evidence requests, and CSF controls scoped to this profile.';
           var body = document.getElementById('kickoff-summary-body');
           if (body) body.innerHTML = '<div style="border:1px solid #dde5f0;border-radius:10px;overflow:hidden;">' +
             '<div style="background:linear-gradient(135deg,#7c2d12,#c2410c);padding:20px 22px;">' +
