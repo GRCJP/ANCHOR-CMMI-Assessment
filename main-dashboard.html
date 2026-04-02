@@ -176,7 +176,7 @@
   <nav class="topnav" role="navigation" aria-label="Main navigation">
     <div class="topnav-inner">
       <button class="nav-item active" onclick="showSection('portfolio', this)" data-visible-to="admin lead_assessor doit_reviewer assessor">State Cybersecurity Dashboard</button>
-      <button class="nav-item" onclick="showSection('sa', this)" data-visible-to="admin lead_assessor assessor">Agency Assessment Management</button>
+      <button class="nav-item" onclick="showSection('sa', this)" data-visible-to="admin lead_assessor assessor doit_reviewer">Agency Assessment Management</button>
       <button class="nav-item" onclick="showSection('sp', this)" data-visible-to="admin lead_assessor doit_reviewer">2-Year Pipeline</button>
       <button class="nav-item" onclick="showSection('settings', this)" data-visible-to="admin">Settings</button>
     </div>
@@ -3176,12 +3176,13 @@
       logActivity('Full GRC Export', 'All Agencies', 'Complete payload push to ServiceNow GRC Risk Register & Issue Management');
     }
 
-    // ---- Auto-navigate from URL param (e.g. ?view=sa from agency ← Dashboard link) ----
+    // ---- Auto-navigate from sessionStorage signal (set by agency ← Dashboard link) ----
     (function() {
-      var p = new URLSearchParams(window.location.search).get('view');
+      var p = sessionStorage.getItem('dashSection');
       if (p) {
+        sessionStorage.removeItem('dashSection');
         var btn = document.querySelector('.nav-item[onclick*="\'' + p + '\'"]');
-        setTimeout(function() { showSection(p, btn); }, 200);
+        if (btn) showSection(p, btn);
       }
     })();
 

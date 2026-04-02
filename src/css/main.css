@@ -601,12 +601,12 @@ html, body {
   display: inline-block; font-size: .68rem; font-weight: 800;
   padding: 2px 8px; border-radius: 4px; letter-spacing: .3px;
 }
-.fn-govern  { background: #f3e8ff; color: #7c3aed; }
-.fn-identify { background: #dbeafe; color: #1e40af; }
-.fn-protect { background: #d4f4e2; color: #065f46; }
-.fn-detect  { background: #fef3cd; color: #92600a; }
-.fn-respond { background: #fee2e2; color: #991b1b; }
-.fn-recover { background: #e0f2fe; color: #0369a1; }
+.fn-govern  { background: #e8edf5; color: #4c1d95; }
+.fn-identify { background: #e8edf5; color: #1e3a8a; }
+.fn-protect { background: #e8edf5; color: #065f46; }
+.fn-detect  { background: #e8edf5; color: #78350f; }
+.fn-respond { background: #e8edf5; color: #7f1d1d; }
+.fn-recover { background: #e8edf5; color: #0c4a6e; }
 .finding-id-btn { background: none; border: none; color: #1e40af; font-weight: 700; cursor: pointer; text-decoration: underline; font-size: .9rem; padding: 0; }
 .finding-id-btn:hover { color: #1d4ed8; }
 

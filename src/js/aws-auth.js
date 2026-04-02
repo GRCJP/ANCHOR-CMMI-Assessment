@@ -127,7 +127,9 @@ class AnchorAuth {
     if (role === 'agency_rep') {
       if (!agency) return 'index.html?error=no_agency';
       const agencySlug = agency.toLowerCase().replace(/[^a-z]/g, '');
-      return `agency-${agencySlug}.html`;
+      const BUILT_IN_AGENCIES = ['mdot', 'dpscs', 'msde'];
+      if (BUILT_IN_AGENCIES.includes(agencySlug)) return `agency-${agencySlug}.html`;
+      return `agency-generic.html?agency=${agencySlug}`;
     }
     return ROLE_LANDING[role] || 'main-dashboard.html';
   }

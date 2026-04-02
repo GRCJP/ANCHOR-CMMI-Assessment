@@ -100,11 +100,11 @@
   <!-- TOP NAVIGATION -->
   <nav class="topnav" role="navigation" aria-label="Main navigation">
     <div class="topnav-inner">
-      <a class="nav-item" href="main-dashboard.html?view=sa" data-visible-to="admin lead_assessor assessor doit_reviewer" style="color:#64748b;border-right:1px solid #e2e8f0;margin-right:8px;padding-right:20px;">← Dashboard</a>
+      <a class="nav-item" href="main-dashboard.html" onclick="sessionStorage.setItem('dashSection','sa')" data-visible-to="admin lead_assessor assessor doit_reviewer" style="color:#64748b;border-right:1px solid #e2e8f0;margin-right:8px;padding-right:20px;">← Dashboard</a>
       <button class="nav-item active" onclick="showSection('questionnaire', this)" data-visible-to="admin lead_assessor assessor">Intake &amp; Scoping</button>
       <button class="nav-item" onclick="showSection('self-assessment', this)" data-visible-to="agency_rep">Agency Questionnaire</button>
-      <button class="nav-item" onclick="showSection('evidence', this)" data-visible-to="admin lead_assessor assessor doit_reviewer agency_rep">Evidence Collection</button>
-      <button class="nav-item" onclick="showSection('csf', this)" data-visible-to="admin lead_assessor assessor doit_reviewer">CSF Assessment</button>
+      <button class="nav-item" onclick="showSection('evidence', this)" data-visible-to="admin lead_assessor assessor agency_rep">Evidence Collection</button>
+      <button class="nav-item" onclick="showSection('csf', this)" data-visible-to="admin lead_assessor assessor">CSF Assessment</button>
       <button class="nav-item" onclick="showSection('risk', this)" data-visible-to="admin lead_assessor assessor doit_reviewer">Findings &amp; Remediation</button>
       <button class="nav-item" onclick="showSection('poam', this)" data-visible-to="admin lead_assessor assessor doit_reviewer" style="display:none;">POA&amp;M</button>
       <button class="nav-item" onclick="showSection('sar', this)" data-visible-to="admin lead_assessor assessor doit_reviewer">SAR</button>
@@ -256,22 +256,24 @@
           <!-- RIGHT COLUMN -->
           <div style="display:flex; flex-direction:column; gap:10px;">
 
-            <div class="pod-tile" id="ss-scope-header">
-              <div class="pod-label">Assessment Scope</div>
-              <div class="pod-size" id="ss-scope-cat-card">LARGE</div>
-              <div class="pod-sub">42 Days</div>
-              <div class="pod-rows">
-                <div class="pod-row"><span class="pk">Wave</span><span class="pv">Wave 1 &#8212; Q1&#8211;Q2 2026</span></div>
-                <div class="pod-row"><span class="pk">Pod</span><span class="pv">POD LARGE</span></div>
-                <div class="pod-row"><span class="pk">Lead Assessor</span><span class="pv">R. Okafor</span></div>
-                <div class="pod-row"><span class="pk">Window</span><span class="pv">Apr 14 &#8211; May 26, 2026</span></div>
-                <div class="pod-row"><span class="pk">Maturity Group</span><span class="pv">Group B (1.5&#8211;2.5)</span></div>
+            <div class="pod-tile">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;">
+                <div>
+                  <div style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;opacity:.65;margin-bottom:6px;">POD Assignment</div>
+                  <div class="pod-size">LARGE</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:.6rem;opacity:.65;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Wave</div>
+                  <div style="font-size:.8rem;font-weight:700;">Wave 1 — Q1–Q2 2026</div>
+                </div>
               </div>
-              <button class="acc-edit-btn" style="color:rgba(255,255,255,.6); margin-top:10px; font-size:.65rem;" onclick="openEditModal('timeline')">Edit Assignment</button>
-              <span id="ss-scope-cat" style="display:none;">LARGE</span>
-              <span id="ss-scope-cat-card2" style="display:none;"></span>
-              <span id="scope-total" style="display:none;"></span>
-              <span id="ss-scope-pts" style="display:none;">9</span>
+              <div style="border-top:1px solid rgba(255,255,255,.2);margin-bottom:12px;"></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <div><div style="font-size:.58rem;opacity:.65;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;">Cloud</div><div style="font-size:.75rem;font-weight:600;" id="ep-cloud">Azure Government</div></div>
+                <div><div style="font-size:.58rem;opacity:.65;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;">Data Sensitivity</div><div style="font-size:.75rem;font-weight:600;" id="ep-sensitivity">High — FTI/CJIS/HIPAA</div></div>
+                <div><div style="font-size:.58rem;opacity:.65;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;">IT Complexity</div><div style="font-size:.75rem;font-weight:600;" id="ep-complexity">High</div></div>
+                <div><div style="font-size:.58rem;opacity:.65;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;">OT/ICS</div><div style="font-size:.75rem;font-weight:600;" id="ep-ot">None</div></div>
+              </div>
             </div>
 
             <div style="background:#fff; border:1px solid #dde3ec; border-radius:8px; overflow:hidden;">
@@ -301,10 +303,12 @@
         <!-- KICK-OFF CONFIRMATION MODAL -->
         <div id="kickoff-modal" style="display:none; position:fixed; inset:0; background:rgba(15,30,60,.6); z-index:9999; align-items:center; justify-content:center; padding:20px;">
           <div style="background:#fff; border-radius:14px; max-width:580px; width:100%; max-height:88vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,.3);">
-            <div style="background:linear-gradient(135deg,#1e3a5f,#2563eb); color:#fff; padding:20px 24px; border-radius:14px 14px 0 0;">
-              <div style="font-size:.6rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; opacity:.7; margin-bottom:4px;">ANCHOR Platform — Pre-Assessment</div>
-              <div style="font-size:1.1rem; font-weight:800;">Kick-Off Package — Review &amp; Confirm</div>
-              <div style="font-size:.76rem; opacity:.8; margin-top:4px;">Verify the information below. Confirming saves all intake data and advances the pipeline.</div>
+            <div style="background:#0f172a; color:#fff; padding:18px 24px; border-radius:14px 14px 0 0; display:flex; align-items:center; justify-content:space-between; gap:16px;">
+              <div>
+                <div style="font-size:.58rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#94a3b8; margin-bottom:3px;">ANCHOR Platform · Pre-Assessment</div>
+                <div style="font-size:1.05rem; font-weight:800; line-height:1.2;">Kick-Off Package — Review &amp; Confirm</div>
+              </div>
+              <div style="font-size:.71rem; color:#94a3b8; max-width:200px; text-align:right; line-height:1.4;">Verify the information below before sending to the agency contact.</div>
             </div>
             <div id="kickoff-summary-body" style="padding:20px 24px;"></div>
             <div style="padding:14px 24px; border-top:1px solid #e2e8f0; display:flex; gap:10px; justify-content:flex-end; background:#f8fafc; border-radius:0 0 14px 14px;">
@@ -370,40 +374,51 @@
           var _storedA = {}; try { _storedA = JSON.parse(localStorage.getItem('assessment_dpscs') || '{}'); } catch(e){}
           var template = _storedA.template || 'Hybrid + FTI Safeguards';
           var body = document.getElementById('kickoff-summary-body');
-          if (body) body.innerHTML = '<div style="display:grid;gap:14px;">' +
-            '<div><div style="font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;margin-bottom:7px;">Agency Contact</div>' +
-            '<div style="background:#f8fafc;border-radius:8px;padding:12px 14px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">' +
-            '<div><div style="font-size:.66rem;color:#94a3b8;">Agency</div><div style="font-weight:600;font-size:.84rem;">' + agencyName + '</div></div>' +
-            '<div><div style="font-size:.66rem;color:#94a3b8;">Assessment ID</div><div style="font-weight:600;font-size:.84rem;">' + assessmentId + '</div></div>' +
-            '<div><div style="font-size:.66rem;color:#94a3b8;">Primary Contact</div><div style="font-weight:600;font-size:.84rem;">' + contactName + '</div></div>' +
-            '<div><div style="font-size:.66rem;color:#94a3b8;">Send Package To</div><div style="font-weight:700;font-size:.84rem;color:#2563eb;">' + contactEmail + '</div></div>' +
+          if (body) body.innerHTML = '<div style="border:1px solid #dde5f0;border-radius:10px;overflow:hidden;">' +
+            '<div style="background:linear-gradient(135deg,#7c2d12,#c2410c);padding:20px 22px;">' +
+            '<div style="text-align:center;margin-bottom:16px;">' +
+            '<div style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.55);margin-bottom:7px;">POD Assignment</div>' +
+            '<div style="font-size:2.2rem;font-weight:900;color:#fff;line-height:1;">' + pod.replace(/^POD\s*/i,'') + '</div>' +
+            '</div>' +
+            '<div style="display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid rgba(255,255,255,.18);padding-top:14px;">' +
+            '<div style="text-align:center;padding:0 10px;border-right:1px solid rgba(255,255,255,.18);">' +
+            '<div style="font-size:.58rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.55);margin-bottom:5px;">Wave</div>' +
+            '<div style="font-size:.83rem;font-weight:700;color:#fff;">' + wave + '</div></div>' +
+            '<div style="text-align:center;padding:0 10px;border-right:1px solid rgba(255,255,255,.18);">' +
+            '<div style="font-size:.58rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.55);margin-bottom:5px;">Lead Assessor</div>' +
+            '<div style="font-size:.83rem;font-weight:700;color:#fff;">' + assessor + '</div></div>' +
+            '<div style="text-align:center;padding:0 10px;">' +
+            '<div style="font-size:.58rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.55);margin-bottom:5px;">Team Size</div>' +
+            '<div style="font-size:.83rem;font-weight:700;color:#fff;">' + teamSize + '</div></div>' +
             '</div></div>' +
-            '<div><div style="font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;margin-bottom:7px;">Assessment Timeline</div>' +
-            '<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px 14px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center;border-top:3px solid #0f2d5e;">' +
-            '<div><div style="font-size:.64rem;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">Kick-Off Date</div><div style="font-weight:700;font-size:.88rem;color:#0f2d5e;">' + fmtD(startDate) + '</div></div>' +
-            '<div><div style="font-size:.64rem;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">Evidence Due</div><div style="font-weight:700;font-size:.88rem;color:#0f2d5e;">' + evDue(startDate) + '</div></div>' +
-            '<div><div style="font-size:.64rem;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">Completion</div><div style="font-weight:700;font-size:.88rem;color:#0f2d5e;">' + fmtD(endDate) + '</div></div>' +
+            '<div style="padding:14px 18px;border-bottom:1px solid #dde5f0;">' +
+            '<div style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:#64748b;margin-bottom:9px;">Assessment Template</div>' +
+            '<div style="padding-left:12px;border-left:3px solid #0f2d5e;">' +
+            '<select onchange="(function(v,k){try{var d=JSON.parse(localStorage.getItem(k)||\'{}}\');d.template=v;localStorage.setItem(k,JSON.stringify(d));}catch(e){}})(this.value,\'assessment_dpscs\')" style="font-size:.85rem;font-weight:700;color:#0f2d5e;border:1px solid #c7d4e8;border-radius:5px;padding:3px 8px;background:#fff;cursor:pointer;margin-bottom:4px;">' +
+            '<option value="Cloud &amp; SaaS-First"' + (template==="Cloud &amp; SaaS-First"?" selected":"") + '>Cloud &amp; SaaS-First</option>' +
+            '<option value="Hybrid + FTI Safeguards"' + (template==="Hybrid + FTI Safeguards"?" selected":"") + '>Hybrid + FTI Safeguards</option>' +
+            '<option value="OT/ICS + Critical Infrastructure"' + (template==="OT/ICS + Critical Infrastructure"?" selected":"") + '>OT/ICS + Critical Infrastructure</option>' +
+            '<option value="Standard Enterprise IT"' + (template==="Standard Enterprise IT"?" selected":"") + '>Standard Enterprise IT</option></select>' +
+            '<div style="font-size:.71rem;color:#64748b;margin-top:2px;">Questionnaire, evidence requests, and CSF controls are scoped to this template.</div>' +
             '</div></div>' +
-            '<div><div style="font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;margin-bottom:7px;">Assessment Team</div>' +
-            '<div style="background:#f8fafc;border-radius:8px;padding:12px 14px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">' +
-            '<div><div style="font-size:.66rem;color:#94a3b8;">Wave</div><div style="font-weight:600;font-size:.84rem;">' + wave + '</div></div>' +
-            '<div><div style="font-size:.66rem;color:#94a3b8;">Pod</div><div style="font-weight:600;font-size:.84rem;">' + pod + '</div></div>' +
-            '<div><div style="font-size:.66rem;color:#94a3b8;">Lead Assessor</div><div style="font-weight:600;font-size:.84rem;">' + assessor + '</div></div>' +
-            '<div><div style="font-size:.66rem;color:#94a3b8;">Team Size</div><div style="font-weight:600;font-size:.84rem;">' + teamSize + '</div></div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid #dde5f0;">' +
+            '<div style="padding:14px 18px;border-right:1px solid #dde5f0;">' +
+            '<div style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:#64748b;margin-bottom:10px;">Agency Contact</div>' +
+            '<div style="display:flex;flex-direction:column;gap:8px;">' +
+            '<div><div style="font-size:.6rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;">Agency</div><div style="font-weight:600;font-size:.82rem;color:#1e293b;">' + agencyName + '</div></div>' +
+            '<div><div style="font-size:.6rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;">Assessment ID</div><div style="font-weight:600;font-size:.82rem;color:#1e293b;">' + assessmentId + '</div></div>' +
+            '<div><div style="font-size:.6rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;">Primary Contact</div><div style="font-weight:600;font-size:.82rem;color:#1e293b;">' + contactName + '</div></div>' +
+            '<div><div style="font-size:.6rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;">Send To</div><div style="font-weight:700;font-size:.82rem;color:#2563eb;">' + contactEmail + '</div></div>' +
             '</div></div>' +
-            '<div><div style="font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;margin-bottom:7px;">Assessment Template</div>' +
-            '<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:12px;border-left:3px solid #0f2d5e;">' +
-            '<div style="background:#0f2d5e;color:#fff;font-size:.68rem;font-weight:800;padding:3px 9px;border-radius:5px;white-space:nowrap;letter-spacing:.04em;">TEMPLATE</div>' +
-            '<div><div style="font-weight:700;font-size:.88rem;color:#0f2d5e;">' + template + '</div>' +
-            '<div style="font-size:.71rem;color:#64748b;margin-top:2px;">Questionnaire, evidence requests, and CSF controls are scoped to this template.</div></div>' +
+            '<div style="padding:14px 18px;">' +
+            '<div style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:#64748b;margin-bottom:10px;">Assessment Timeline</div>' +
+            '<div style="display:flex;flex-direction:column;gap:10px;">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:.72rem;color:#64748b;">Kick-Off Date</span><span style="font-weight:700;font-size:.82rem;color:#0f2d5e;">' + fmtD(startDate) + '</span></div>' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:.72rem;color:#64748b;">Evidence Due</span><span style="font-weight:700;font-size:.82rem;color:#0f2d5e;">' + evDue(startDate) + '</span></div>' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:.72rem;color:#64748b;">Completion</span><span style="font-weight:700;font-size:.82rem;color:#0f2d5e;">' + fmtD(endDate) + '</span></div>' +
             '</div></div>' +
-            '<div><div style="font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;margin-bottom:7px;">Scope Classification</div>' +
-            '<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:14px;border-left:3px solid #475569;">' +
-            '<div style="font-size:2rem;font-weight:900;color:#1e293b;line-height:1;">' + scopeCat + '</div>' +
-            '<div><div style="font-size:.78rem;font-weight:600;color:#1e293b;">' + scopeTotal + ' scope points</div>' +
-            '<div style="font-size:.71rem;color:#64748b;">FTE Tier · IT Complexity · Data Sensitivity</div></div>' +
-            '</div></div>' +
-            '<div style="background:#eef2f8;border:1px solid #c8d6ea;border-radius:8px;padding:10px 14px;font-size:.77rem;color:#0f2d5e;">' +
+            '</div>' +
+            '<div style="background:#eef2f8;padding:12px 18px;font-size:.77rem;color:#0f2d5e;">' +
             '<strong>&#10003; Ready to send.</strong> Confirming will save all intake data, send the kick-off package to the agency contact, and advance the pre-assessment tracker.' +
             '</div></div>';
           var modal = document.getElementById('kickoff-modal');
@@ -467,6 +482,19 @@
 
       <!-- CSF ASSESSMENT SECTION -->
       <section class="section" id="csf" aria-hidden="true">
+
+        <!-- Assessment Complete Banner (hidden until finalized) -->
+        <div id="csf-complete-banner" style="display:none;align-items:center;justify-content:space-between;gap:16px;background:linear-gradient(135deg,#052e16,#166534);color:#fff;border-radius:10px;padding:14px 20px;margin-bottom:18px;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="font-size:1.4rem;">&#10003;</div>
+            <div>
+              <div style="font-weight:700;font-size:.88rem;letter-spacing:.01em;">CSF Assessment Finalized</div>
+              <div style="font-size:.72rem;opacity:.8;" id="csf-banner-stamp">Assessment locked and ready for SAR generation.</div>
+            </div>
+          </div>
+          <button onclick="var btn=document.querySelector('.nav-item[onclick*=\'risk\']');if(btn)showSection('risk',btn);" style="background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);color:#fff;border-radius:8px;padding:8px 18px;cursor:pointer;font-size:.78rem;font-weight:700;white-space:nowrap;">Review Findings &amp; SAR &#8594;</button>
+        </div>
+
         <div class="page-header">
           <h1>NIST CSF 2.0 Assessment &#8212; SRTM Workbook</h1>
           <p>Conduct the full NIST CSF 2.0 assessment aligned with the ANCHOR framework. Each control has assessment procedures with EXAMINE / INTERVIEW / TEST methods, implementation status, result scoring, and evidence mapping.</p>
@@ -510,7 +538,13 @@
           <div style="background:#e5e7eb; border-radius:6px; height:8px; overflow:hidden; margin-top:12px;">
             <div id="srtm-progress-bar" style="width:0%; height:100%; background:linear-gradient(90deg,var(--primary),var(--accent)); border-radius:6px; transition:width .4s;"></div>
           </div>
-          <div id="srtm-progress-text" style="font-size:.72rem; color:var(--text-muted); margin-top:6px; text-align:right;">0 of 23 controls assessed (0%)</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;">
+            <div id="srtm-save-status" style="font-size:.7rem;color:#16a34a;font-weight:600;"></div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div id="srtm-progress-text" style="font-size:.72rem;color:var(--text-muted);">0 of 23 controls assessed (0%)</div>
+              <button onclick="(function(){_saveSrtmState();var n=new Date();document.getElementById('srtm-save-status').textContent='Saved at '+n.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});setTimeout(function(){var e=document.getElementById('srtm-save-status');if(e)e.textContent='';},4000);})()" style="padding:4px 14px;background:#0f2d5e;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:.72rem;font-weight:700;white-space:nowrap;">Save Progress</button>
+            </div>
+          </div>
         </div>
 
         <!-- Additional Findings (inline during assessment) -->
@@ -733,6 +767,54 @@
             </div>
           </div>
         </div>
+
+        <!-- Finalize Assessment Bar -->
+        <div style="margin-top:20px;padding:16px 20px;background:linear-gradient(135deg,#f0f4ff,#e8edf5);border:1.5px solid #c7d4e8;border-radius:10px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+          <div>
+            <div style="font-weight:700;color:#0f2d5e;font-size:.88rem;margin-bottom:3px;">Ready to finalize the assessment?</div>
+            <div style="font-size:.74rem;color:#64748b;">Once all controls are scored, finalize to lock the assessment, generate findings, and proceed to SAR.</div>
+          </div>
+          <button onclick="finalizeAssessment()" style="background:linear-gradient(135deg,#7c2d12,#c2410c);color:#fff;border:none;border-radius:8px;padding:10px 24px;cursor:pointer;font-size:.82rem;font-weight:700;white-space:nowrap;letter-spacing:.02em;">Finalize &amp; Submit Assessment &#8594;</button>
+        </div>
+
+        <!-- Finalize Modal Overlay -->
+        <div id="csf-fin-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9000;align-items:center;justify-content:center;padding:20px;">
+          <div style="background:#fff;border-radius:14px;max-width:520px;width:100%;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3);">
+            <div style="background:linear-gradient(135deg,#7c2d12,#c2410c);padding:22px 24px;color:#fff;display:flex;align-items:center;gap:14px;">
+              <div style="width:44px;height:44px;background:rgba(255,255,255,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;">&#10003;</div>
+              <div>
+                <div style="font-size:1.05rem;font-weight:800;letter-spacing:.01em;">Assessment Finalized</div>
+                <div style="font-size:.74rem;opacity:.8;margin-top:2px;" id="csf-fin-stamp"></div>
+              </div>
+            </div>
+            <div style="padding:22px 24px;">
+              <p style="font-size:.82rem;color:#475569;margin-bottom:16px;line-height:1.6;">The NIST CSF 2.0 assessment for <strong>DPSCS</strong> has been locked. Findings have been compiled and risk scores calculated. The assessment is ready for SAR generation and delivery to OSM.</p>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;">
+                <div style="text-align:center;padding:10px 8px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
+                  <div style="font-size:1.3rem;font-weight:800;color:#0f2d5e;" id="csf-fin-total">23</div>
+                  <div style="font-size:.65rem;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">Assessed</div>
+                </div>
+                <div style="text-align:center;padding:10px 8px;background:#f0fdf4;border-radius:8px;border:1px solid #bbf7d0;">
+                  <div style="font-size:1.3rem;font-weight:800;color:#16a34a;" id="csf-fin-met">0</div>
+                  <div style="font-size:.65rem;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">MET</div>
+                </div>
+                <div style="text-align:center;padding:10px 8px;background:#fef2f2;border-radius:8px;border:1px solid #fecaca;">
+                  <div style="font-size:1.3rem;font-weight:800;color:#dc2626;" id="csf-fin-notmet">0</div>
+                  <div style="font-size:.65rem;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">NOT MET</div>
+                </div>
+                <div style="text-align:center;padding:10px 8px;background:#eff6ff;border-radius:8px;border:1px solid #bfdbfe;">
+                  <div style="font-size:1.3rem;font-weight:800;color:#1d4ed8;" id="csf-fin-cmmi">—</div>
+                  <div style="font-size:.65rem;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">Avg CMMI</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;">
+                <button onclick="closeCsfFinModal()" style="padding:9px 20px;border:1.5px solid #e2e8f0;background:#fff;color:#475569;border-radius:8px;cursor:pointer;font-size:.8rem;font-weight:600;">Close</button>
+                <button onclick="goToFindingsFromCsf()" style="padding:9px 20px;background:linear-gradient(135deg,#7c2d12,#c2410c);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.8rem;font-weight:700;">Review Findings &amp; SAR &#8594;</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </section>
 
       <!-- EVIDENCE COLLECTION SECTION -->
@@ -888,11 +970,11 @@
         <div class="card">
           <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
             <div class="card-title" style="margin-bottom:0;">Risk Register — Preliminary Findings</div>
-            <button onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.textContent=this.textContent.includes('Show')?'▲ Hide Methodology':'▼ Show Methodology';" style="font-size:.72rem;padding:4px 10px;border:1px solid #cbd5e1;border-radius:6px;background:#f8fafc;color:#475569;cursor:pointer;font-weight:600;">▼ Show Methodology</button>
+            <button onclick="this.parentElement.nextElementSibling.style.display=this.parentElement.nextElementSibling.style.display==='none'?'block':'none';this.textContent=this.textContent.includes('Show')?'▲ Hide Methodology':'▼ Show Methodology';" style="font-size:.72rem;padding:4px 10px;border:1px solid #cbd5e1;border-radius:6px;background:#f8fafc;color:#475569;cursor:pointer;font-weight:600;">▼ Show Methodology</button>
           </div>
           <div style="display:none;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;margin-bottom:14px;font-size:.75rem;">
-            <div style="font-weight:700;color:#1e3a5f;margin-bottom:10px;">How Risk Scores Are Calculated</div>
-            <div style="color:#475569;margin-bottom:10px;line-height:1.6;">Findings are derived from controls scored <strong>NOT MET</strong> during the NIST CSF 2.0 assessment. Each finding is assigned a <strong>Likelihood</strong> (based on the CMMI maturity level of the failing control) and an <strong>Impact</strong> (based on data sensitivity and mission criticality). The risk score is then calculated as:<br><strong style="color:#1e3a5f;">Score = Likelihood Weight × Impact Weight</strong></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;"><div style="font-weight:700;color:#1e3a5f;">How Risk Scores Are Calculated</div><span style="font-size:.65rem;background:#e8edf5;color:#0f2d5e;padding:2px 9px;border-radius:4px;font-weight:700;border:1px solid #c7d4e8;letter-spacing:.03em;">ESG-Aligned Scoring</span></div>
+            <div style="color:#475569;margin-bottom:10px;line-height:1.6;">Findings are derived from controls scored <strong>NOT MET</strong> during the NIST CSF 2.0 assessment. <strong>Likelihood</strong> is derived from the control's CMMI maturity score — a lower CMMI level means weaker control implementation, which means higher probability of exploit. <strong>Impact</strong> reflects data sensitivity and mission criticality of the affected system. Score is calculated as:<br><strong style="color:#1e3a5f;">Score = Likelihood Weight × Impact Weight</strong><br><span style="font-size:.68rem;color:#64748b;">Scoring criteria are validated per Assurit's Evaluation Standards Guide (ESG) before delivery to OSM.</span></div>
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
               <div>
                 <div style="font-weight:700;color:#1e3a5f;margin-bottom:6px;font-size:.72rem;">CMMI Score → Likelihood</div>
@@ -936,7 +1018,19 @@
                 </div>
               </div>
             </div>
-            <div style="margin-top:10px;padding-top:10px;border-top:1px solid #e2e8f0;color:#64748b;font-size:.7rem;font-style:italic;">Example: GV.RM-01 (Risk management not documented) scored CMMI 1 → Likelihood: High (4). Agency manages correctional facility PII and inmate records → Impact: Critical (5). Score = 4 × 5 = <strong>20</strong> → <strong style="color:#dc2626;">P1</strong></div>
+            <div style="margin-top:10px;padding-top:10px;border-top:1px solid #e2e8f0;">
+              <div style="font-weight:700;color:#1e3a5f;font-size:.72rem;margin-bottom:8px;">Step-by-Step Example: GV.RM-01 (Risk Management Not Documented)</div>
+              <div style="display:flex;flex-direction:column;gap:5px;">
+                <div style="display:flex;align-items:flex-start;gap:8px;"><div style="min-width:18px;height:18px;background:#0f2d5e;color:#fff;border-radius:50%;font-size:.6rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div><div style="color:#475569;font-size:.7rem;line-height:1.5;"><strong>Control Identified</strong> — GV.RM-01 scored NOT MET: no formal risk management policy or documented risk register at DPSCS</div></div>
+                <div style="display:flex;align-items:flex-start;gap:8px;"><div style="min-width:18px;height:18px;background:#0f2d5e;color:#fff;border-radius:50%;font-size:.6rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div><div style="color:#475569;font-size:.7rem;line-height:1.5;"><strong>Evidence Reviewed</strong> — No approved risk management plan, no periodic risk assessments, no documented risk tolerance found in audit evidence package</div></div>
+                <div style="display:flex;align-items:flex-start;gap:8px;"><div style="min-width:18px;height:18px;background:#0f2d5e;color:#fff;border-radius:50%;font-size:.6rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div><div style="color:#475569;font-size:.7rem;line-height:1.5;"><strong>CMMI Level Set</strong> — ESG criteria confirm <strong>CMMI 1 (Initial)</strong>: risk activities occur ad hoc with no repeatable, documented process</div></div>
+                <div style="display:flex;align-items:flex-start;gap:8px;"><div style="min-width:18px;height:18px;background:#0f2d5e;color:#fff;border-radius:50%;font-size:.6rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</div><div style="color:#475569;font-size:.7rem;line-height:1.5;"><strong>Agency Context</strong> — DPSCS manages correctional facility PII, CJIS criminal justice data, and inmate health records → data classified as <strong>Critical</strong></div></div>
+                <div style="display:flex;align-items:flex-start;gap:8px;"><div style="min-width:18px;height:18px;background:#0f2d5e;color:#fff;border-radius:50%;font-size:.6rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">5</div><div style="color:#475569;font-size:.7rem;line-height:1.5;"><strong>Likelihood Assigned</strong> — CMMI 1 = weaker control = higher exploit probability → <strong style="color:#ea580c;">Likelihood: High (Weight = 4)</strong></div></div>
+                <div style="display:flex;align-items:flex-start;gap:8px;"><div style="min-width:18px;height:18px;background:#0f2d5e;color:#fff;border-radius:50%;font-size:.6rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">6</div><div style="color:#475569;font-size:.7rem;line-height:1.5;"><strong>Impact Assigned</strong> — CJIS/PII/inmate health data exposure = Critical → <strong style="color:#dc2626;">Impact: Critical (Weight = 5)</strong></div></div>
+                <div style="display:flex;align-items:flex-start;gap:8px;"><div style="min-width:18px;height:18px;background:#0f2d5e;color:#fff;border-radius:50%;font-size:.6rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">7</div><div style="color:#475569;font-size:.7rem;line-height:1.5;"><strong>Score Calculated</strong> — 4 × 5 = <strong>20</strong> → <strong style="color:#dc2626;">P1 Critical</strong> — escalated to POA&amp;M with 30-day remediation target</div></div>
+              </div>
+              <div style="margin-top:6px;font-size:.65rem;color:#94a3b8;font-style:italic;">Scoring validated by FRTA senior reviewer before delivery to OSM.</div>
+            </div>
           </div>
           <div class="table-wrap">
             <table>
@@ -1135,7 +1229,7 @@
               <div class="card-title">Assessment Framework</div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
                 <div style="padding:14px;background:#f1f5f9;border-radius:8px;border-left:4px solid #1e3a5f;"><div style="font-weight:700;color:#1e3a5f;margin-bottom:6px;">NIST CSF 2.0</div><div style="font-size:.83rem;color:#374151;">Primary assessment framework. Evaluates cybersecurity posture across six functions: Govern, Identify, Protect, Detect, Respond, Recover.</div></div>
-                <div style="padding:14px;background:#f1f5f9;border-radius:8px;border-left:4px solid #7c3aed;"><div style="font-weight:700;color:#7c3aed;margin-bottom:6px;">ANCHOR CMMI Overlay</div><div style="font-size:.83rem;color:#374151;">5-level maturity scoring (0=Non-Existent to 5=Optimized) applied per control to measure implementation depth and consistency.</div></div>
+                <div style="padding:14px;background:#f1f5f9;border-radius:8px;border-left:4px solid #0f2d5e;"><div style="font-weight:700;color:#0f2d5e;margin-bottom:6px;">ANCHOR CMMI Overlay</div><div style="font-size:.83rem;color:#374151;">5-level maturity scoring (0=Non-Existent to 5=Optimized) applied per control to measure implementation depth and consistency.</div></div>
               </div>
               <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
                 <div style="padding:14px;border:2px solid #1e40af;border-radius:8px;text-align:center;"><div style="font-size:1.4rem;margin-bottom:6px;">&#128196;</div><div style="font-weight:700;color:#1e40af;margin-bottom:6px;">EXAMINE</div><div style="font-size:.8rem;color:#374151;">Policy review, configuration inspection, system documentation, logs and reports analysis</div></div>
@@ -1276,7 +1370,7 @@
       <!-- ARTIFACT MODAL -->
   <div id="artifact-modal" style="display:none; position:fixed; inset:0; background:rgba(15,30,60,.6); z-index:10000; align-items:center; justify-content:center; padding:20px;">
     <div style="background:#fff; border-radius:14px; max-width:580px; width:100%; max-height:80vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,.3);">
-      <div style="background:linear-gradient(135deg,#1e40af,#3b82f6); color:#fff; padding:18px 22px; border-radius:14px 14px 0 0; display:flex; justify-content:space-between; align-items:center;">
+      <div style="background:#0f172a; color:#fff; padding:18px 22px; border-radius:14px 14px 0 0; display:flex; justify-content:space-between; align-items:center;">
         <div>
           <div style="font-size:.62rem; font-weight:600; text-transform:uppercase; letter-spacing:.06em; opacity:.75; margin-bottom:3px;">Evidence Inventory</div>
           <div style="font-size:1rem; font-weight:700;" id="artifact-modal-title">Submitted Evidence</div>
@@ -1318,7 +1412,7 @@
         ? '<span style="background:#dcfce7;color:#16a34a;padding:2px 9px;border-radius:10px;font-size:.73rem;font-weight:700;">&#10003; Evidence Provided</span>'
         : '<span style="background:#fee2e2;color:#dc2626;padding:2px 9px;border-radius:10px;font-size:.73rem;font-weight:700;">&#10007; No Evidence Submitted</span>';
       document.getElementById('finding-detail-content').innerHTML =
-        '<div style="background:linear-gradient(135deg,#1e40af,#3b82f6);color:#fff;padding:18px 22px;border-radius:14px 14px 0 0;display:flex;justify-content:space-between;align-items:center;">' +
+        '<div style="background:#0f172a;color:#fff;padding:18px 22px;border-radius:14px 14px 0 0;display:flex;justify-content:space-between;align-items:center;">' +
           '<div><div style="font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;opacity:.75;margin-bottom:3px;">Finding Detail</div>' +
           '<div style="font-size:1.1rem;font-weight:800;">' + f.id + ' — ' + f.control + '</div>' +
           '<div style="font-size:.85rem;opacity:.88;margin-top:3px;">' + f.title + '</div></div>' +
@@ -1334,9 +1428,9 @@
           '</div>' +
           '<div style="display:grid;gap:12px;">' +
             '<div style="padding:12px;background:#f8fafc;border-radius:8px;border-left:3px solid #64748b;"><div style="font-size:.7rem;font-weight:700;text-transform:uppercase;color:#64748b;margin-bottom:4px;">Observation</div><div style="font-size:.85rem;color:#1e293b;line-height:1.55;">' + f.observation + '</div></div>' +
-            '<div style="padding:12px;background:#fff7ed;border-radius:8px;border-left:3px solid #ea580c;"><div style="font-size:.7rem;font-weight:700;text-transform:uppercase;color:#ea580c;margin-bottom:4px;">Impact</div><div style="font-size:.85rem;color:#1e293b;line-height:1.55;">' + f.impact + '</div></div>' +
-            '<div style="padding:12px;background:#f0fdf4;border-radius:8px;border-left:3px solid #16a34a;"><div style="font-size:.7rem;font-weight:700;text-transform:uppercase;color:#16a34a;margin-bottom:4px;">Recommended Remediation</div><div style="font-size:.85rem;color:#1e293b;line-height:1.55;">' + f.remediation + '</div></div>' +
-            '<div style="padding:12px;background:#eff6ff;border-radius:8px;border-left:3px solid #3b82f6;"><div style="font-size:.7rem;font-weight:700;text-transform:uppercase;color:#3b82f6;margin-bottom:4px;">Evidence References</div><div style="font-size:.85rem;color:#1e293b;">' + f.evidence + '</div></div>' +
+            '<div style="padding:12px;background:#fff5f5;border-radius:8px;border-left:3px solid #dc2626;"><div style="font-size:.7rem;font-weight:700;text-transform:uppercase;color:#991b1b;margin-bottom:4px;">Impact</div><div style="font-size:.85rem;color:#1e293b;line-height:1.55;">' + f.impact + '</div></div>' +
+            '<div style="padding:12px;background:#f0f9ff;border-radius:8px;border-left:3px solid #0f2d5e;"><div style="font-size:.7rem;font-weight:700;text-transform:uppercase;color:#0f2d5e;margin-bottom:4px;">Recommended Remediation</div><div style="font-size:.85rem;color:#1e293b;line-height:1.55;">' + f.remediation + '</div></div>' +
+            '<div style="padding:12px;background:#f8fafc;border-radius:8px;border-left:3px solid #64748b;"><div style="font-size:.7rem;font-weight:700;text-transform:uppercase;color:#475569;margin-bottom:4px;">Evidence References</div><div style="font-size:.85rem;color:#1e293b;">' + f.evidence + '</div></div>' +
           '</div>' +
         '</div>' +
         '<div style="padding:10px 22px 16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;">' +
@@ -1372,6 +1466,7 @@
         el.setAttribute('aria-expanded', 'true');
       }
       if (window.agencyAssessment) { window.agencyAssessment.initializeSection(id); }
+      sessionStorage.setItem('activeSection', id);
     }
 
     function notify(msg) {
@@ -1669,7 +1764,7 @@
         <div class="srtm-ctrl-body" id="sbody-${ctrl.id.replace(/\./g,'-')}">
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;">
             <div class="srtm-field"><label>Overall Assessment Result</label><select data-write-only="true" onchange="updateCtrlResult('${ctrl.id}',this.value)"><option value="">&#8212; Select &#8212;</option><option value="MET">MET</option><option value="NOT MET">NOT MET</option><option value="N/A">N/A</option></select></div>
-            <div class="srtm-field"><label>CMMI Maturity Level (0&#8211;5)</label><select data-write-only="true" onchange="updateCtrlCmmi('${ctrl.id}',this.value)"><option value="">&#8212; Select &#8212;</option><option value="0">0 &#8212; Nonexistent</option><option value="1">1 &#8212; Performed</option><option value="2">2 &#8212; Managed</option><option value="3">3 &#8212; Defined</option><option value="4">4 &#8212; Measured</option><option value="5">5 &#8212; Optimized</option></select></div>
+            <div class="srtm-field"><label>CMMI Maturity Level (0&#8211;5)</label><select data-write-only="true" onchange="updateCtrlCmmi('${ctrl.id}',this.value)"><option value="">&#8212; Select &#8212;</option><option value="0">0 &#8212; Nonexistent</option><option value="1">1 &#8212; Performed</option><option value="2">2 &#8212; Managed</option><option value="3">3 &#8212; Defined</option><option value="4">4 &#8212; Measured</option><option value="5">5 &#8212; Optimized</option><option value="na">N/A</option></select></div>
           </div>
           <div id="na-just-${ctrl.id.replace(/\./g,'-')}" style="display:none; margin-bottom:14px; padding:10px 14px; background:#fef9c3; border:1.5px solid #fde047; border-radius:7px;">
             <label style="font-size:.73rem; font-weight:700; color:#92400e; display:block; margin-bottom:6px;">N/A Justification <span style="color:#dc2626;">*</span> — Required when marking a control N/A</label>
@@ -1677,6 +1772,10 @@
           </div>
           <div style="font-size:.75rem; font-weight:700; color:var(--primary); margin-bottom:8px;">Assessment Procedures (${ctrl.procs.length})</div>
           ${procHtml}
+          <div style="margin-top:16px;padding-top:12px;border-top:1px solid #e2e8f0;display:flex;align-items:center;justify-content:flex-end;gap:10px;">
+            <div id="ctrl-confirm-msg-${ctrl.id.replace(/\./g,'-')}" style="font-size:.73rem;font-weight:600;"></div>
+            <button onclick="confirmCtrlReview('${ctrl.id}')" style="padding:7px 20px;background:#0f2d5e;color:#fff;border:none;border-radius:7px;cursor:pointer;font-size:.82rem;font-weight:700;">Confirm &amp; Save Control</button>
+          </div>
         </div>
       </div>`;
     }
@@ -1751,7 +1850,41 @@
       if(el) { el.classList.remove('met','not-met','na','unscored'); el.classList.add(value==='MET'?'met':value==='NOT MET'?'not-met':value==='N/A'?'na':'unscored'); }
       if(pill) { pill.className='srtm-pill '+(value==='MET'?'srtm-pill-met':value==='NOT MET'?'srtm-pill-notmet':value==='N/A'?'srtm-pill-na':'srtm-pill-unscored'); pill.textContent=value||'Unscored'; }
       if(naJustDiv) naJustDiv.style.display = value==='N/A' ? 'block' : 'none';
+      if(value==='N/A') { var _cs=el&&el.querySelector('select[onchange*="updateCtrlCmmi"]'); if(_cs){_cs.value='na';} if(srtmState[ctrlId]) srtmState[ctrlId].cmmi='na'; }
       _saveSrtmState();
+      updateSrtmScoring();
+    }
+
+    function confirmCtrlReview(ctrlId) {
+      var st = srtmState[ctrlId];
+      var safe = ctrlId.replace(/\./g,'-');
+      var msgEl = document.getElementById('ctrl-confirm-msg-' + safe);
+      if (!st || !st.result) {
+        if(msgEl) { msgEl.textContent = 'Set Overall Assessment Result first.'; msgEl.style.color='#dc2626'; setTimeout(function(){if(msgEl)msgEl.textContent='';},2500); }
+        return;
+      }
+      _saveSrtmState();
+      // Add reviewed badge to control header pills area
+      var ctrlEl = document.getElementById('srtm-' + safe);
+      if (ctrlEl && !document.getElementById('rbadge-' + safe)) {
+        var pills = ctrlEl.querySelector('.srtm-ctrl-pills');
+        if (pills) {
+          var badge = document.createElement('div');
+          badge.id = 'rbadge-' + safe;
+          badge.style.cssText = 'font-size:.65rem;font-weight:700;color:#16a34a;background:#dcfce7;padding:2px 8px;border-radius:4px;border:1px solid #86efac;margin-left:4px;';
+          badge.textContent = '\u2713 Reviewed';
+          pills.appendChild(badge);
+        }
+      }
+      // Flash success message then collapse
+      if(msgEl) { msgEl.textContent = '\u2713 Saved'; msgEl.style.color='#16a34a'; }
+      setTimeout(function() {
+        if(msgEl) msgEl.textContent = '';
+        var body = document.getElementById('sbody-' + safe);
+        if (body && body.classList.contains('open')) toggleSrtmCtrl(ctrlId);
+        var saveStatus = document.getElementById('srtm-save-status');
+        if (saveStatus) { var n = new Date(); saveStatus.textContent = '\u2713 ' + ctrlId + ' saved at ' + n.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}); setTimeout(function(){if(saveStatus)saveStatus.textContent='';},3000); }
+      }, 600);
       updateSrtmScoring();
     }
 
@@ -2034,6 +2167,30 @@
 
     function exportSrtm() { notify('SRTM exported: DPSCS_NIST_CSF_SRTM_Assessment.xlsx \u2014 All controls, procedures, observations, and evidence included.'); }
 
+    function finalizeAssessment() {
+      var met = parseInt((document.getElementById('s2-pct-met')||{}).textContent||'0')||0;
+      var notMet = parseInt((document.getElementById('s2-pct-notmet')||{}).textContent||'0')||0;
+      var na = parseInt((document.getElementById('s2-pct-na')||{}).textContent||'0')||0;
+      var cmmi = (document.getElementById('s2-ring-score')||{}).textContent||'—';
+      var total = met + notMet + na;
+      var now = new Date();
+      var stamp = now.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})+' at '+now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+      document.getElementById('csf-fin-stamp').textContent = stamp;
+      document.getElementById('csf-fin-total').textContent = total || '23';
+      document.getElementById('csf-fin-met').textContent = met;
+      document.getElementById('csf-fin-notmet').textContent = notMet;
+      document.getElementById('csf-fin-cmmi').textContent = cmmi !== '—' ? cmmi : '2.1';
+      document.getElementById('csf-fin-modal').style.display = 'flex';
+    }
+    function closeCsfFinModal() { document.getElementById('csf-fin-modal').style.display = 'none'; }
+    function goToFindingsFromCsf() {
+      closeCsfFinModal();
+      var banner = document.getElementById('csf-complete-banner');
+      if (banner) banner.style.display = 'flex';
+      var btn = document.querySelector('.nav-item[onclick*="\'risk\'"]');
+      if (btn) showSection('risk', btn);
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
       initAgencyCharts();
       // Initialize interview scheduler
@@ -2045,6 +2202,16 @@
           {id:'INT-004', name:'S. Rivera', role:'Network Administrator', email:'', date:'2026-04-23', time:'13:00', controls:'ID.AM-01, PR.PS-01, DE.CM-01', status:'Scheduled', notes:''}
         ]);
       }
+      setTimeout(function() {
+        var navType = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0] || {}).type;
+        if (navType !== 'reload') { sessionStorage.removeItem('activeSection'); return; }
+        try { var _sess = JSON.parse(localStorage.getItem('anchor_session') || '{}'); if (_sess.role === 'agency_rep') return; } catch(e) {}
+        var _saved = sessionStorage.getItem('activeSection');
+        if (_saved && _saved !== 'questionnaire' && document.getElementById(_saved)) {
+          var _btn = document.querySelector('.nav-item[onclick*="\'' + _saved + '\'"]');
+          if (_btn && _btn.style.display !== 'none') showSection(_saved, _btn);
+        }
+      }, 200);
     });
 
     // ── Agency Rep Evidence Submission ────────────────────────────────────────
