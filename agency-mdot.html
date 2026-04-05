@@ -1043,8 +1043,8 @@
         </div>
 
         <div class="grid-4" style="margin-bottom:12px;">
-          <div class="stat-card accent"><div class="stat-label">Overall CMMI</div><div class="stat-value">2.5</div><div class="stat-sub">Target: 3.0</div></div>
-          <div class="stat-card red"><div class="stat-label">Critical Risks</div><div class="stat-value">4</div><div class="stat-sub">Immediate action</div></div>
+          <div class="stat-card accent" id="risk-stat-cmmi" style="cursor:pointer;" onclick="navigateTo('risk', null, 'risk-register-tbody');"><div class="stat-label">Overall CMMI</div><div class="stat-value">2.5</div><div class="stat-sub">Target: 3.0</div></div>
+          <div class="stat-card red" id="risk-stat-p1" style="cursor:pointer;" onclick="navigateTo('risk', null, 'risk-register-tbody');"><div class="stat-label">Critical Risks</div><div class="stat-value">4</div><div class="stat-sub">Immediate action</div></div>
           <div class="stat-card"><div class="stat-label">High Risks</div><div class="stat-value">9</div><div class="stat-sub">30-day remediation</div></div>
           <div class="stat-card green"><div class="stat-label">Controls Assessed</div><div class="stat-value">72</div><div class="stat-sub">of 106 total</div></div>
         </div>
@@ -1065,13 +1065,13 @@
           <div class="table-wrap">
             <table>
               <thead><tr><th>NIST CSF Function</th><th>Domain</th><th>CMMI Score</th><th>Maturity Level</th><th>Target</th><th>Gap</th></tr></thead>
-              <tbody>
-                <tr><td><span class="fn-tag fn-govern">GOVERN</span></td><td>Governance &amp; Risk Strategy</td><td><strong>2.4</strong></td><td>Managed</td><td>4.0</td><td style="color:var(--danger);font-weight:700;">-1.6</td></tr>
-                <tr><td><span class="fn-tag fn-identify">IDENTIFY</span></td><td>Asset &amp; Risk Management</td><td><strong>2.8</strong></td><td>Managed</td><td>3.0</td><td style="color:var(--warn);font-weight:700;">-0.2</td></tr>
-                <tr><td><span class="fn-tag fn-protect">PROTECT</span></td><td>Access Control &amp; Training</td><td><strong>3.1</strong></td><td>Defined</td><td>4.0</td><td style="color:var(--warn);font-weight:700;">-0.9</td></tr>
-                <tr><td><span class="fn-tag fn-detect">DETECT</span></td><td>Monitoring &amp; Detection</td><td><strong>2.2</strong></td><td>Managed</td><td>4.0</td><td style="color:var(--danger);font-weight:700;">-1.8</td></tr>
-                <tr><td><span class="fn-tag fn-respond">RESPOND</span></td><td>Incident Response</td><td><strong>2.6</strong></td><td>Managed</td><td>3.0</td><td style="color:var(--warn);font-weight:700;">-0.4</td></tr>
-                <tr><td><span class="fn-tag fn-recover">RECOVER</span></td><td>Recovery Planning</td><td><strong>2.0</strong></td><td>Managed</td><td>3.0</td><td style="color:var(--danger);font-weight:700;">-1.0</td></tr>
+              <tbody id="cmmi-fn-tbody">
+                <tr style="cursor:pointer;" onclick="navigateTo('csf', 'GOVERN');"><td><span class="fn-tag fn-govern">GOVERN</span></td><td>Governance &amp; Risk Strategy</td><td><strong>2.4</strong></td><td>Managed</td><td>4.0</td><td style="color:var(--danger);font-weight:700;">-1.6</td></tr>
+                <tr style="cursor:pointer;" onclick="navigateTo('csf', 'IDENTIFY');"><td><span class="fn-tag fn-identify">IDENTIFY</span></td><td>Asset &amp; Risk Management</td><td><strong>2.8</strong></td><td>Managed</td><td>3.0</td><td style="color:var(--warn);font-weight:700;">-0.2</td></tr>
+                <tr style="cursor:pointer;" onclick="navigateTo('csf', 'PROTECT');"><td><span class="fn-tag fn-protect">PROTECT</span></td><td>Access Control &amp; Training</td><td><strong>3.1</strong></td><td>Defined</td><td>4.0</td><td style="color:var(--warn);font-weight:700;">-0.9</td></tr>
+                <tr style="cursor:pointer;" onclick="navigateTo('csf', 'DETECT');"><td><span class="fn-tag fn-detect">DETECT</span></td><td>Monitoring &amp; Detection</td><td><strong>2.2</strong></td><td>Managed</td><td>4.0</td><td style="color:var(--danger);font-weight:700;">-1.8</td></tr>
+                <tr style="cursor:pointer;" onclick="navigateTo('csf', 'RESPOND');"><td><span class="fn-tag fn-respond">RESPOND</span></td><td>Incident Response</td><td><strong>2.6</strong></td><td>Managed</td><td>3.0</td><td style="color:var(--warn);font-weight:700;">-0.4</td></tr>
+                <tr style="cursor:pointer;" onclick="navigateTo('csf', 'RECOVER');"><td><span class="fn-tag fn-recover">RECOVER</span></td><td>Recovery Planning</td><td><strong>2.0</strong></td><td>Managed</td><td>3.0</td><td style="color:var(--danger);font-weight:700;">-1.0</td></tr>
               </tbody>
             </table>
           </div>
@@ -1146,8 +1146,8 @@
             <table>
               <thead><tr><th>Risk ID</th><th>Finding</th><th>NIST Function</th><th>Likelihood</th><th>Impact</th><th>Score</th><th>Priority</th></tr></thead>
               <tbody id="risk-register-tbody">
-                <tr><td>R-001</td><td>No SIEM or continuous monitoring capability <span style="font-size:.68rem;color:#94a3b8;">DE.CM-01</span></td><td><span class="fn-tag fn-detect">DETECT</span></td><td>High</td><td>Critical</td><td><span class="badge badge-red">20</span></td><td><strong>P1</strong></td></tr>
-                <tr><td>R-002</td><td>Identity and credential management controls insufficient <span style="font-size:.68rem;color:#94a3b8;">PR.AA-01</span></td><td><span class="fn-tag fn-protect">PROTECT</span></td><td>High</td><td>Critical</td><td><span class="badge badge-red">20</span></td><td><strong>P1</strong></td></tr>
+                <tr style="cursor:pointer;" onclick="navigateTo('csf', 'DETECT');"><td>R-001</td><td>No SIEM or continuous monitoring capability <span style="font-size:.68rem;color:#1e40af;font-weight:600;">DE.CM-01</span></td><td><span class="fn-tag fn-detect">DETECT</span></td><td>High</td><td>Critical</td><td><span class="badge badge-red">20</span></td><td><strong>P1</strong></td></tr>
+                <tr style="cursor:pointer;" onclick="navigateTo('csf', 'PROTECT');"><td>R-002</td><td>Identity and credential management controls insufficient <span style="font-size:.68rem;color:#1e40af;font-weight:600;">PR.AA-01</span></td><td><span class="fn-tag fn-protect">PROTECT</span></td><td>High</td><td>Critical</td><td><span class="badge badge-red">20</span></td><td><strong>P1</strong></td></tr>
               </tbody>
             </table>
           </div>
