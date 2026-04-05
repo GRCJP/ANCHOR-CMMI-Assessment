@@ -2224,6 +2224,13 @@
       document.getElementById('csf-fin-met').textContent = met;
       document.getElementById('csf-fin-notmet').textContent = notMet;
       document.getElementById('csf-fin-cmmi').textContent = cmmi !== '—' ? cmmi : '2.1';
+      // Write CMMI score back to localStorage
+      var key = window.AGENCY_KEY || 'dpscs';
+      var stored = JSON.parse(localStorage.getItem('assessment_' + key) || '{}');
+      stored.cmmiScore = cmmi !== '—' ? cmmi : '2.1';
+      stored.status = 'Complete';
+      stored.endDate = new Date().toISOString();
+      localStorage.setItem('assessment_' + key, JSON.stringify(stored));
       document.getElementById('csf-fin-modal').style.display = 'flex';
     }
     function closeCsfFinModal() { document.getElementById('csf-fin-modal').style.display = 'none'; }
@@ -2492,10 +2499,10 @@
             <p style="font-size:.85rem;margin:0 0 10px;color:#374151;">Assurit Consulting Group conducted a comprehensive cybersecurity assessment of the Maryland Dept. of Public Safety &amp; Correctional Services (DPSCS) enterprise IT environment. The assessment applied the NIST Cybersecurity Framework (CSF) 2.0 as the primary evaluation framework, with controls mapped to NIST SP 800-53 Rev 5. Maturity scoring utilized the CMMI 0-5 scale.</p>
             <p style="font-size:.85rem;margin:0 0 18px;color:#374151;">DPSCS achieved an overall maturity score of <strong>1.8 / 5.0</strong>, indicating a Performed maturity level. 18 control(s) were assessed as NOT MET, requiring remediation. 5 control(s) MET requirements. 23 total controls assessed across 6 CSF functions. Key challenges include integration of physical security systems with enterprise IT controls, legacy correctional management systems, and limited cybersecurity staffing relative to the agency's operational footprint across 25+ facilities statewide.</p>
             <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
-              <div style="border:1px solid #e2e8f0;border-radius:8px;padding:16px;text-align:center;background:#f8fafc;"><div style="font-size:1.6rem;font-weight:800;color:#1e3a5f;">1.8</div><div style="font-size:.72rem;color:#64748b;margin-top:4px;">CMMI Score</div></div>
-              <div style="border:1px solid #e2e8f0;border-radius:8px;padding:16px;text-align:center;background:#f8fafc;"><div style="font-size:1.6rem;font-weight:800;color:#1e3a5f;">23</div><div style="font-size:.72rem;color:#64748b;margin-top:4px;">Total Controls</div></div>
-              <div style="border:1px solid #e2e8f0;border-radius:8px;padding:16px;text-align:center;background:#f8fafc;"><div style="font-size:1.6rem;font-weight:800;color:#16a34a;">5</div><div style="font-size:.72rem;color:#64748b;margin-top:4px;">Controls MET</div></div>
-              <div style="border:1px solid #e2e8f0;border-radius:8px;padding:16px;text-align:center;background:#f8fafc;"><div style="font-size:1.6rem;font-weight:800;color:#dc2626;">18</div><div style="font-size:.72rem;color:#64748b;margin-top:4px;">Controls NOT MET</div></div>
+              <div style="border:1px solid #e2e8f0;border-radius:8px;padding:16px;text-align:center;background:#f8fafc;"><div style="font-size:1.6rem;font-weight:800;color:#1e3a5f;" id="sar-modal-cmmi">1.8</div><div style="font-size:.72rem;color:#64748b;margin-top:4px;">CMMI Score</div></div>
+              <div style="border:1px solid #e2e8f0;border-radius:8px;padding:16px;text-align:center;background:#f8fafc;"><div style="font-size:1.6rem;font-weight:800;color:#1e3a5f;" id="sar-modal-total">23</div><div style="font-size:.72rem;color:#64748b;margin-top:4px;">Total Controls</div></div>
+              <div style="border:1px solid #e2e8f0;border-radius:8px;padding:16px;text-align:center;background:#f8fafc;"><div style="font-size:1.6rem;font-weight:800;color:#16a34a;" id="sar-modal-met">5</div><div style="font-size:.72rem;color:#64748b;margin-top:4px;">Controls MET</div></div>
+              <div style="border:1px solid #e2e8f0;border-radius:8px;padding:16px;text-align:center;background:#f8fafc;"><div style="font-size:1.6rem;font-weight:800;color:#dc2626;" id="sar-modal-notmet">18</div><div style="font-size:.72rem;color:#64748b;margin-top:4px;">Controls NOT MET</div></div>
             </div>
           </div>
           <!-- 2. Scope & Methodology -->
@@ -2515,7 +2522,7 @@
                 <th style="padding:8px 10px;text-align:center;border:1px solid #1e3a5f;">Avg CMMI</th>
                 <th style="padding:8px 10px;text-align:center;border:1px solid #1e3a5f;">Score %</th>
               </tr></thead>
-              <tbody id="sar-fn-summary-tbody">
+              <tbody id="sar-modal-fn-tbody">
                 <tr style="background:#f8fafc;"><td style="padding:7px 10px;border:1px solid #e2e8f0;font-weight:700;">GOVERN</td><td style="padding:7px 10px;border:1px solid #e2e8f0;text-align:center;">5</td><td style="padding:7px 10px;border:1px solid #e2e8f0;text-align:center;color:#16a34a;font-weight:700;">1</td><td style="padding:7px 10px;border:1px solid #e2e8f0;text-align:center;color:#dc2626;font-weight:700;">4</td><td style="padding:7px 10px;border:1px solid #e2e8f0;text-align:center;font-weight:700;">1.4</td><td style="padding:7px 10px;border:1px solid #e2e8f0;text-align:center;">20%</td></tr>
                 <tr><td style="padding:7px 10px;border:1px solid #e2e8f0;font-weight:700;">IDENTIFY</td><td style="padding:7px 10px;border:1px solid #e2e8f0;text-align:center;">4</td><td style="padding:7px 10px;border:1px solid #e2e8f0;text-align:center;color:#16a34a;font-weight:700;">1</td><td style="padding:7px 10px;border:1px solid #e2e8f0;text-align:center;color:#dc2626;font-weight:700;">3</td><td style="padding:7px 10px;border:1px solid #e2e8f0;text-align:center;font-weight:700;">1.8</td><td style="padding:7px 10px;border:1px solid #e2e8f0;text-align:center;">25%</td></tr>
                 <tr style="background:#f8fafc;"><td style="padding:7px 10px;border:1px solid #e2e8f0;font-weight:700;">PROTECT</td><td style="padding:7px 10px;border:1px solid #e2e8f0;text-align:center;">5</td><td style="padding:7px 10px;border:1px solid #e2e8f0;text-align:center;color:#16a34a;font-weight:700;">2</td><td style="padding:7px 10px;border:1px solid #e2e8f0;text-align:center;color:#dc2626;font-weight:700;">3</td><td style="padding:7px 10px;border:1px solid #e2e8f0;text-align:center;font-weight:700;">2.0</td><td style="padding:7px 10px;border:1px solid #e2e8f0;text-align:center;">40%</td></tr>
@@ -2536,7 +2543,7 @@
                 <th style="padding:8px 10px;text-align:center;border:1px solid #1e3a5f;">CMMI</th>
                 <th style="padding:8px 10px;text-align:left;border:1px solid #1e3a5f;">Observation</th>
               </tr></thead>
-              <tbody id="sar-findings-tbody">
+              <tbody id="sar-modal-findings-tbody">
                 <tr style="background:#fff8f8;"><td style="padding:6px 10px;border:1px solid #e2e8f0;font-weight:700;font-family:monospace;font-size:.8rem;">DE.CM-01</td><td style="padding:6px 10px;border:1px solid #e2e8f0;">Network Monitoring</td><td style="padding:6px 10px;border:1px solid #e2e8f0;font-weight:700;">DETECT</td><td style="padding:6px 10px;border:1px solid #e2e8f0;text-align:center;font-weight:700;">ML1</td><td style="padding:6px 10px;border:1px solid #e2e8f0;">No centralized SIEM; facility networks not aggregated or analyzed</td></tr>
                 <tr><td style="padding:6px 10px;border:1px solid #e2e8f0;font-weight:700;font-family:monospace;font-size:.8rem;">PR.AA-01</td><td style="padding:6px 10px;border:1px solid #e2e8f0;">Identity &amp; Credential Mgmt</td><td style="padding:6px 10px;border:1px solid #e2e8f0;font-weight:700;">PROTECT</td><td style="padding:6px 10px;border:1px solid #e2e8f0;text-align:center;font-weight:700;">ML1</td><td style="padding:6px 10px;border:1px solid #e2e8f0;">Physical access systems not integrated with enterprise IAM; no unified audit trail</td></tr>
                 <tr style="background:#fff8f8;"><td style="padding:6px 10px;border:1px solid #e2e8f0;font-weight:700;font-family:monospace;font-size:.8rem;">ID.AM-01</td><td style="padding:6px 10px;border:1px solid #e2e8f0;">Hardware Asset Inventory</td><td style="padding:6px 10px;border:1px solid #e2e8f0;font-weight:700;">IDENTIFY</td><td style="padding:6px 10px;border:1px solid #e2e8f0;text-align:center;font-weight:700;">ML1</td><td style="padding:6px 10px;border:1px solid #e2e8f0;">Legacy systems (OBSCIS, WMS) not in inventory; no decommission plan</td></tr>
@@ -2797,7 +2804,63 @@
       }
     });
 
+    function populateSarModal() {
+      var key = window.AGENCY_KEY || 'dpscs';
+      var srtm = JSON.parse(localStorage.getItem('anchor_srtm_' + key) || '{}');
+      var fnStats = computeFnStats(srtm, SRTM_DATA);
+
+      // Update executive summary stats
+      var statEls = ['sar-modal-cmmi', 'sar-modal-total', 'sar-modal-met', 'sar-modal-notmet'];
+      var statVals = [fnStats.overall.cmmi, fnStats.overall.total, fnStats.overall.met, fnStats.overall.notMet];
+      statEls.forEach(function(id, i) {
+        var el = document.getElementById(id);
+        if (el) el.textContent = statVals[i];
+      });
+
+      // Update Section 3 maturity table (regenerate tbody)
+      var fnTableId = 'sar-modal-fn-tbody';
+      var fnTable = document.getElementById(fnTableId);
+      if (fnTable) {
+        var cmmiColors = ['#6b7280','#dc2626','#ea580c','#d97706','#16a34a','#0d9488'];
+        fnTable.innerHTML = Object.entries(fnStats).filter(function(e){ return e[0] !== 'overall'; }).map(function(e) {
+          var fn = e[0]; var s = e[1];
+          var avg = s.cmmiCnt > 0 ? (s.cmmiSum / s.cmmiCnt).toFixed(1) : '—';
+          var ml = s.cmmiCnt > 0 ? Math.min(5, Math.floor(s.cmmiSum / s.cmmiCnt)) : 0;
+          var pct = s.total > 0 ? Math.round((s.met + s.notMet + s.na) / s.total * 100) : 0;
+          return '<tr' + (Object.entries(fnStats).indexOf(e) % 2 === 0 ? ' style="background:#f8fafc;"' : '') + '><td style="padding:7px 10px;border:1px solid #e2e8f0;font-weight:700;">' + fn + '</td>' +
+            '<td style="padding:7px 10px;border:1px solid #e2e8f0;text-align:center;">' + s.total + '</td>' +
+            '<td style="padding:7px 10px;border:1px solid #e2e8f0;text-align:center;color:#16a34a;font-weight:700;">' + s.met + '</td>' +
+            '<td style="padding:7px 10px;border:1px solid #e2e8f0;text-align:center;color:#dc2626;font-weight:700;">' + s.notMet + '</td>' +
+            '<td style="padding:7px 10px;border:1px solid #e2e8f0;text-align:center;font-weight:700;">' + avg + '</td>' +
+            '<td style="padding:7px 10px;border:1px solid #e2e8f0;text-align:center;">' + pct + '%</td></tr>';
+        }).join('');
+      }
+
+      // Update Section 4 findings table
+      var findTableId = 'sar-modal-findings-tbody';
+      var findTable = document.getElementById(findTableId);
+      if (findTable) {
+        var allFindings = [];
+        Object.entries(fnStats).forEach(function(e) {
+          if (e[0] === 'overall') return;
+          e[1].notMetCtrls.forEach(function(c) {
+            allFindings.push({ id: c.id, name: c.name, fn: e[0], cmmi: c.cmmi, obs: c.obs });
+          });
+        });
+        findTable.innerHTML = allFindings.length === 0
+          ? '<tr><td colspan="5" style="text-align:center;color:#64748b;padding:20px;">All controls MET — no findings.</td></tr>'
+          : allFindings.map(function(f) {
+              return '<tr' + (allFindings.indexOf(f) % 2 === 0 ? ' style="background:#fff8f8;"' : '') + '><td style="padding:6px 10px;border:1px solid #e2e8f0;font-weight:700;font-family:monospace;font-size:.8rem;">' + f.id + '</td>' +
+                '<td style="padding:6px 10px;border:1px solid #e2e8f0;">' + f.name + '</td>' +
+                '<td style="padding:6px 10px;border:1px solid #e2e8f0;font-weight:700;">' + f.fn + '</td>' +
+                '<td style="padding:6px 10px;border:1px solid #e2e8f0;text-align:center;font-weight:700;">ML' + f.cmmi + '</td>' +
+                '<td style="padding:6px 10px;border:1px solid #e2e8f0;">' + (f.obs || '—') + '</td></tr>';
+            }).join('');
+      }
+    }
+
     function generateSarReport() {
+      populateSarModal();
       document.getElementById('sar-modal-dpscs').style.display = 'block';
       document.body.style.overflow = 'hidden';
     }
