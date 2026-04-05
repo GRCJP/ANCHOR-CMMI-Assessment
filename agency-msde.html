@@ -1107,10 +1107,10 @@
         </div>
 
         <div class="grid-4" style="margin-bottom:20px;">
-          <div class="stat-card"><div class="stat-label">Total POA&amp;M Items</div><div class="stat-value">18</div><div class="stat-sub">From SAR findings</div></div>
-          <div class="stat-card green"><div class="stat-label">Complete</div><div class="stat-value">4</div><div class="stat-sub">22% closed</div></div>
-          <div class="stat-card accent"><div class="stat-label">In Progress</div><div class="stat-value">11</div><div class="stat-sub">Actively remediated</div></div>
-          <div class="stat-card red"><div class="stat-label">Overdue</div><div class="stat-value">0</div><div class="stat-sub">On track</div></div>
+          <div class="stat-card"><div class="stat-label">Total POA&amp;M Items</div><div class="stat-value" id="poam-stat-total">18</div><div class="stat-sub">From SAR findings</div></div>
+          <div class="stat-card green"><div class="stat-label">Complete</div><div class="stat-value" id="poam-stat-complete">4</div><div class="stat-sub">22% closed</div></div>
+          <div class="stat-card accent"><div class="stat-label">In Progress</div><div class="stat-value" id="poam-stat-inprogress">11</div><div class="stat-sub">Actively remediated</div></div>
+          <div class="stat-card red"><div class="stat-label">Overdue</div><div class="stat-value" id="poam-stat-overdue">0</div><div class="stat-sub">On track</div></div>
         </div>
 
         <div class="card">
@@ -1118,7 +1118,7 @@
           <div class="table-wrap">
             <table>
               <thead><tr><th>POA&amp;M ID</th><th>Finding</th><th>Owner</th><th>Priority</th><th>Due Date</th><th>Status</th><th>% Complete</th><th>Actions</th></tr></thead>
-              <tbody>
+              <tbody id="poam-tracker-tbody">
                 <tr><td>PM-001</td><td>F-001: DE.CM-01 — No SIEM deployed</td><td>B. Osei (IT Director)</td><td><span class="badge badge-red">Critical</span></td><td>Jun 30, 2026</td><td><span class="badge badge-blue">In Progress</span></td><td>25%</td><td><button class="btn btn-outline" style="padding:3px 10px;font-size:.75rem;" onclick="openPoamDetail('PM-001')">View Details</button></td></tr>
                 <tr><td>PM-002</td><td>F-002: ID.AM-05 — PII classification incomplete</td><td>P. Hall (CISO)</td><td><span class="badge badge-red">Critical</span></td><td>May 31, 2026</td><td><span class="badge badge-blue">In Progress</span></td><td>60%</td><td><button class="btn btn-outline" style="padding:3px 10px;font-size:.75rem;" onclick="openPoamDetail('PM-002')">View Details</button></td></tr>
                 <tr><td>PM-003</td><td>F-003: RS.RP-01 — IR plan untested</td><td>P. Hall (CISO)</td><td><span class="badge badge-red">Critical</span></td><td>May 15, 2026</td><td><span class="badge badge-green">Complete</span></td><td>100%</td><td><button class="btn btn-outline" style="padding:3px 10px;font-size:.75rem;" onclick="openPoamDetail('PM-003')">View Details</button></td></tr>
@@ -3082,12 +3082,56 @@
       }
     }
 
-    // Hook into showSection to update risk and sar when tabs are activated
+    // Render POA&M table from live SRTM data
+    function renderPoamTable() {
+      var key = window.AGENCY_KEY || 'msde';
+      var poamItems = buildPoamFromSrtm(key);
+
+      // Update stat cards
+      var complete = poamItems.filter(function(p) { return p.status === 'Complete'; }).length;
+      var inprogress = poamItems.filter(function(p) { return p.status === 'In Progress'; }).length;
+      var overdue = poamItems.filter(function(p) { return p.status === 'Overdue'; }).length;
+
+      var els = {
+        'poam-stat-total': poamItems.length,
+        'poam-stat-complete': complete,
+        'poam-stat-inprogress': inprogress,
+        'poam-stat-overdue': overdue
+      };
+      Object.keys(els).forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.textContent = els[id];
+      });
+
+      // Regenerate table rows
+      var tbody = document.getElementById('poam-tracker-tbody');
+      if (tbody) {
+        if (poamItems.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#64748b;padding:20px;">No POA&M items. Mark controls as NOT MET in CSF Assessment to generate.</td></tr>';
+        } else {
+          tbody.innerHTML = poamItems.map(function(item) {
+            var statusBadge = item.status === 'Complete' ? 'badge-green' : item.status === 'Overdue' ? 'badge-red' : 'badge-blue';
+            var priorityBadge = item.priority === 'CRITICAL' ? 'badge-red' : item.priority === 'HIGH' ? 'badge-orange' : 'badge-yellow';
+            return '<tr><td><strong>' + item.id + '</strong></td>' +
+              '<td>' + item.controlName + ' <span style="color:#94a3b8;font-size:.75rem;">(' + item.controlId + ')</span></td>' +
+              '<td>' + item.owner + '</td>' +
+              '<td><span class="badge ' + priorityBadge + '">' + item.priority + '</span></td>' +
+              '<td>' + item.dueDate + '</td>' +
+              '<td><span class="badge ' + statusBadge + '">' + item.status + '</span></td>' +
+              '<td>' + item.pct + '%</td>' +
+              '<td><button class="btn btn-outline" style="padding:3px 10px;font-size:.75rem;" onclick="openPoamDetail(\'' + item.id + '\')">View Details</button></td></tr>';
+          }).join('');
+        }
+      }
+    }
+
+    // Hook into showSection to update risk, sar, and poam when tabs are activated
     var _origShowSection = window.showSection;
     window.showSection = function(id, btn) {
       if (_origShowSection) _origShowSection(id, btn);
       if (id === 'risk') { setTimeout(updateRiskFromSRTM, 50); }
       if (id === 'sar') { setTimeout(updateSarFromSrtm, 50); }
+      if (id === 'poam') { setTimeout(renderPoamTable, 50); }
     };
     // Also run on page load if risk is initially active
     document.addEventListener('DOMContentLoaded', function() {

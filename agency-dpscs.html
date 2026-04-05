@@ -1107,15 +1107,22 @@
         </div>
 
         <div class="grid-4" style="margin-bottom:20px;">
-          <div class="stat-card"><div class="stat-label">Total POA&amp;M Items</div><div class="stat-value">0</div><div class="stat-sub">Pending assessment</div></div>
-          <div class="stat-card green"><div class="stat-label">Complete</div><div class="stat-value">0</div><div class="stat-sub">0% closed</div></div>
-          <div class="stat-card accent"><div class="stat-label">In Progress</div><div class="stat-value">0</div><div class="stat-sub">Not yet started</div></div>
-          <div class="stat-card red"><div class="stat-label">Overdue</div><div class="stat-value">0</div><div class="stat-sub">None identified</div></div>
+          <div class="stat-card"><div class="stat-label">Total POA&amp;M Items</div><div class="stat-value" id="poam-stat-total">0</div><div class="stat-sub">Pending assessment</div></div>
+          <div class="stat-card green"><div class="stat-label">Complete</div><div class="stat-value" id="poam-stat-complete">0</div><div class="stat-sub">0% closed</div></div>
+          <div class="stat-card accent"><div class="stat-label">In Progress</div><div class="stat-value" id="poam-stat-inprogress">0</div><div class="stat-sub">Not yet started</div></div>
+          <div class="stat-card red"><div class="stat-label">Overdue</div><div class="stat-value" id="poam-stat-overdue">0</div><div class="stat-sub">None identified</div></div>
         </div>
 
         <div class="card">
           <div class="card-title">POA&amp;M Tracker</div>
-          <div class="info-box">POA&amp;M items will be populated upon completion of the CSF Assessment phase.</div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>POA&amp;M ID</th><th>Finding</th><th>Owner</th><th>Priority</th><th>Due Date</th><th>Status</th><th>% Complete</th><th>Actions</th></tr></thead>
+              <tbody id="poam-tracker-tbody">
+                <tr><td colspan="8" style="text-align:center;color:#64748b;padding:20px;">POA&amp;M items will be populated upon completion of the CSF Assessment phase.</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
 
@@ -1504,6 +1511,7 @@
         targetSection.setAttribute('aria-hidden', 'false');
         if(id==='csf') initSrtm();
         if(id==='risk' || id==='sar') setTimeout(initAgencyCharts, 50);
+        if(id==='poam') setTimeout(renderPoamTable, 50);
       }
       if (el) {
         el.classList.add('active');
@@ -2873,6 +2881,47 @@
       });
     });
   
+    // ── Render POA&M Table from SRTM ──────────────────────────────────────
+    function renderPoamTable() {
+      var key = window.AGENCY_KEY || 'dpscs';
+      var poamItems = buildPoamFromSrtm(key);
+
+      var complete = poamItems.filter(function(p) { return p.status === 'Complete'; }).length;
+      var inprogress = poamItems.filter(function(p) { return p.status === 'In Progress'; }).length;
+      var overdue = poamItems.filter(function(p) { return p.status === 'Overdue'; }).length;
+
+      var els = {
+        'poam-stat-total': poamItems.length,
+        'poam-stat-complete': complete,
+        'poam-stat-inprogress': inprogress,
+        'poam-stat-overdue': overdue
+      };
+      Object.keys(els).forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.textContent = els[id];
+      });
+
+      var tbody = document.getElementById('poam-tracker-tbody');
+      if (tbody) {
+        if (poamItems.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#64748b;padding:20px;">No POA&M items. Mark controls as NOT MET in CSF Assessment to generate.</td></tr>';
+        } else {
+          tbody.innerHTML = poamItems.map(function(item) {
+            var statusBadge = item.status === 'Complete' ? 'badge-green' : item.status === 'Overdue' ? 'badge-red' : 'badge-blue';
+            var priorityBadge = item.priority === 'CRITICAL' ? 'badge-red' : item.priority === 'HIGH' ? 'badge-orange' : 'badge-yellow';
+            return '<tr><td><strong>' + item.id + '</strong></td>' +
+              '<td>' + item.controlName + ' <span style="color:#94a3b8;font-size:.75rem;">(' + item.controlId + ')</span></td>' +
+              '<td>' + item.owner + '</td>' +
+              '<td><span class="badge ' + priorityBadge + '">' + item.priority + '</span></td>' +
+              '<td>' + item.dueDate + '</td>' +
+              '<td><span class="badge ' + statusBadge + '">' + item.status + '</span></td>' +
+              '<td>' + item.pct + '%</td>' +
+              '<td><button class="btn btn-outline" style="padding:3px 10px;font-size:.75rem;" onclick="openPoamDetail(\'' + item.id + '\')">View Details</button></td></tr>';
+          }).join('');
+        }
+      }
+    }
+
     // ── POA&M Detail Modal ──────────────────────────────────────────────────
     const POAM_DATA_DPSCS = {
       'PM-001': {

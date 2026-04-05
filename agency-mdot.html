@@ -1175,10 +1175,10 @@
         </div>
 
         <div class="grid-4" style="margin-bottom:20px;">
-          <div class="stat-card"><div class="stat-label">Total POA&amp;M Items</div><div class="stat-value">23</div><div class="stat-sub">Across all findings</div></div>
-          <div class="stat-card green"><div class="stat-label">Complete</div><div class="stat-value">5</div><div class="stat-sub">22% closed</div></div>
-          <div class="stat-card accent"><div class="stat-label">In Progress</div><div class="stat-value">12</div><div class="stat-sub">Actively remediated</div></div>
-          <div class="stat-card red"><div class="stat-label">Overdue</div><div class="stat-value">3</div><div class="stat-sub">Escalation required</div></div>
+          <div class="stat-card"><div class="stat-label">Total POA&amp;M Items</div><div class="stat-value" id="poam-stat-total">0</div><div class="stat-sub">Pending assessment</div></div>
+          <div class="stat-card green"><div class="stat-label">Complete</div><div class="stat-value" id="poam-stat-complete">0</div><div class="stat-sub">0% closed</div></div>
+          <div class="stat-card accent"><div class="stat-label">In Progress</div><div class="stat-value" id="poam-stat-inprogress">0</div><div class="stat-sub">Not yet started</div></div>
+          <div class="stat-card red"><div class="stat-label">Overdue</div><div class="stat-value" id="poam-stat-overdue">0</div><div class="stat-sub">None identified</div></div>
         </div>
 
         <div class="card">
@@ -1186,13 +1186,8 @@
           <div class="table-wrap">
             <table>
               <thead><tr><th>POA&amp;M ID</th><th>Finding</th><th>Owner</th><th>Priority</th><th>Due Date</th><th>Status</th><th>% Complete</th><th>Actions</th></tr></thead>
-              <tbody>
-                <tr><td>PM-001</td><td>F-001: DE.CM-01 — No SIEM deployed</td><td>M. Webb (IT Director)</td><td><span class="badge badge-red">Critical</span></td><td>Jul 15, 2026</td><td><span class="badge badge-blue">In Progress</span></td><td>35%</td><td><button class="btn btn-outline" style="padding:3px 10px;font-size:.75rem;" onclick="openPoamDetail('PM-001')">View Details</button></td></tr>
-                <tr><td>PM-002</td><td>F-002: PR.AA-01 — MFA not enforced</td><td>D. Cruz (SOC Manager)</td><td><span class="badge badge-red">Critical</span></td><td>Jun 30, 2026</td><td><span class="badge badge-blue">In Progress</span></td><td>70%</td><td><button class="btn btn-outline" style="padding:3px 10px;font-size:.75rem;" onclick="openPoamDetail('PM-002')">View Details</button></td></tr>
-                <tr><td>PM-003</td><td>F-003: ID.AM-01 — CMDB incomplete</td><td>T. Nguyen (Network Admin)</td><td><span class="badge badge-red">Critical</span></td><td>Jun 15, 2026</td><td><span class="badge badge-blue">In Progress</span></td><td>45%</td><td><button class="btn btn-outline" style="padding:3px 10px;font-size:.75rem;" onclick="openPoamDetail('PM-003')">View Details</button></td></tr>
-                <tr><td>PM-004</td><td>F-004: RS.MA-01 — IR plan untested</td><td>D. Cruz (SOC Manager)</td><td><span class="badge badge-orange">High</span></td><td>Jul 30, 2026</td><td><span class="badge badge-blue">In Progress</span></td><td>10%</td><td><button class="btn btn-outline" style="padding:3px 10px;font-size:.75rem;" onclick="openPoamDetail('PM-004')">View Details</button></td></tr>
-                <tr><td>PM-005</td><td>F-005: PR.PS-01 — Patch cycle 97 days</td><td>T. Nguyen (Network Admin)</td><td><span class="badge badge-orange">High</span></td><td>Jun 30, 2026</td><td><span class="badge badge-blue">In Progress</span></td><td>20%</td><td><button class="btn btn-outline" style="padding:3px 10px;font-size:.75rem;" onclick="openPoamDetail('PM-005')">View Details</button></td></tr>
-                <tr><td>PM-006</td><td>F-006: GV.SC-01 — No TPRM program</td><td>L. Harmon (CISO)</td><td><span class="badge badge-orange">High</span></td><td>Aug 15, 2026</td><td><span class="badge badge-gray">Not Started</span></td><td>0%</td><td><button class="btn btn-outline" style="padding:3px 10px;font-size:.75rem;" onclick="openPoamDetail('PM-006')">View Details</button></td></tr>
+              <tbody id="poam-tracker-tbody">
+                <tr><td colspan="8" style="text-align:center;color:#64748b;padding:20px;">POA&amp;M items will be populated upon completion of the CSF Assessment phase.</td></tr>
               </tbody>
             </table>
           </div>
@@ -1569,6 +1564,7 @@
         console.log('Agency section activated:', id);
         if(id==='csf') initSrtm();
         if(id==='risk' || id==='sar') setTimeout(initAgencyCharts, 50);
+        if(id==='poam') setTimeout(renderPoamTable, 50);
       }
 
       // Update nav item
@@ -3332,6 +3328,47 @@
       }
     });
   
+    // ── Render POA&M Table from SRTM ──────────────────────────────────────
+    function renderPoamTable() {
+      var key = window.AGENCY_KEY || 'mdot';
+      var poamItems = buildPoamFromSrtm(key);
+
+      var complete = poamItems.filter(function(p) { return p.status === 'Complete'; }).length;
+      var inprogress = poamItems.filter(function(p) { return p.status === 'In Progress'; }).length;
+      var overdue = poamItems.filter(function(p) { return p.status === 'Overdue'; }).length;
+
+      var els = {
+        'poam-stat-total': poamItems.length,
+        'poam-stat-complete': complete,
+        'poam-stat-inprogress': inprogress,
+        'poam-stat-overdue': overdue
+      };
+      Object.keys(els).forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.textContent = els[id];
+      });
+
+      var tbody = document.getElementById('poam-tracker-tbody');
+      if (tbody) {
+        if (poamItems.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#64748b;padding:20px;">No POA&M items. Mark controls as NOT MET in CSF Assessment to generate.</td></tr>';
+        } else {
+          tbody.innerHTML = poamItems.map(function(item) {
+            var statusBadge = item.status === 'Complete' ? 'badge-green' : item.status === 'Overdue' ? 'badge-red' : 'badge-blue';
+            var priorityBadge = item.priority === 'CRITICAL' ? 'badge-red' : item.priority === 'HIGH' ? 'badge-orange' : 'badge-yellow';
+            return '<tr><td><strong>' + item.id + '</strong></td>' +
+              '<td>' + item.controlName + ' <span style="color:#94a3b8;font-size:.75rem;">(' + item.controlId + ')</span></td>' +
+              '<td>' + item.owner + '</td>' +
+              '<td><span class="badge ' + priorityBadge + '">' + item.priority + '</span></td>' +
+              '<td>' + item.dueDate + '</td>' +
+              '<td><span class="badge ' + statusBadge + '">' + item.status + '</span></td>' +
+              '<td>' + item.pct + '%</td>' +
+              '<td><button class="btn btn-outline" style="padding:3px 10px;font-size:.75rem;" onclick="openPoamDetail(\'' + item.id + '\')">View Details</button></td></tr>';
+          }).join('');
+        }
+      }
+    }
+
     // ── POA&M Detail Modal ──────────────────────────────────────────────────
     const POAM_DATA_MDOT = {
       'PM-001': {

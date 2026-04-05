@@ -733,3 +733,53 @@ function downloadCSV(filename, rows) {
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 }
+
+/**
+ * Build POA&M items from NOT MET controls in SRTM data
+ * @param {string} agencyKey - Agency key (msde, dpscs, mdot)
+ * @returns {Array} Array of POA&M items with auto-generated metadata
+ */
+function buildPoamFromSrtm(agencyKey) {
+  var srtm = JSON.parse(localStorage.getItem('anchor_srtm_' + agencyKey) || '{}');
+  var fnStats = computeFnStats(srtm, SRTM_DATA);
+  var poamItems = [];
+  var pmId = 1;
+
+  Object.entries(fnStats).forEach(function(e) {
+    if (e[0] === 'overall') return;
+    e[1].notMetCtrls.forEach(function(c) {
+      var cmmi = Number(c.cmmi);
+      var priority = cmmi <= 1 ? 'CRITICAL' : cmmi === 2 ? 'HIGH' : 'MEDIUM';
+      var daysToAdd = priority === 'CRITICAL' ? 30 : priority === 'HIGH' ? 60 : 90;
+      var dueDate = new Date();
+      dueDate.setDate(dueDate.getDate() + daysToAdd);
+      var dueDateStr = dueDate.toISOString().split('T')[0];
+      var owner = e[0] === 'GOVERN' || e[0] === 'RESPOND' ? 'CISO' : 'IT Director';
+      var pmStr = 'PM-' + String(pmId).padStart(3, '0');
+      pmId++;
+
+      poamItems.push({
+        id: pmStr,
+        controlId: c.id,
+        controlName: c.name,
+        fn: e[0],
+        priority: priority,
+        owner: owner,
+        dueDate: dueDateStr,
+        status: 'Not Started',
+        pct: 0
+      });
+    });
+  });
+
+  // Merge with saved POA&M data (for status/pct overrides)
+  var savedPoam = JSON.parse(localStorage.getItem('anchor_poam_' + agencyKey) || '{}');
+  poamItems.forEach(function(item) {
+    if (savedPoam[item.id]) {
+      item.status = savedPoam[item.id].status || item.status;
+      item.pct = savedPoam[item.id].pct || item.pct;
+    }
+  });
+
+  return poamItems;
+}
