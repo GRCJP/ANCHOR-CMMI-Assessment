@@ -2969,7 +2969,7 @@
         var rid='R-'+String(i+1).padStart(3,'0');
         var lhColor=f.likelihood.label==='Critical'?'#dc2626':f.likelihood.label==='High'?'#ea580c':f.likelihood.label==='Medium'?'#d97706':'#16a34a';
         var imColor=f.impact.label==='Critical'?'#dc2626':f.impact.label==='High'?'#ea580c':f.impact.label==='Medium'?'#d97706':'#16a34a';
-        return '<tr><td>'+rid+'</td><td>'+f.name+' <span style="font-size:.68rem;color:#94a3b8;">'+f.id+'</span></td>'+
+        return '<tr style="cursor:pointer;" onclick="navigateTo(\'csf\', \'' + f.fn + '\');"><td>'+rid+'</td><td>'+f.name+' <span style="font-size:.68rem;color:#1e40af;font-weight:600;">'+f.id+'</span></td>'+
           '<td><span class="fn-tag '+fnTagClass(f.fn)+'">'+f.fn+'</span></td>'+
           '<td style="color:'+lhColor+';font-weight:600;">'+f.likelihood.label+'</td>'+
           '<td style="color:'+imColor+';font-weight:600;">'+f.impact.label+'</td>'+
