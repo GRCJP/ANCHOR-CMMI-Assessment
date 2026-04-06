@@ -205,7 +205,7 @@
         <div class="grid-4" style="margin-bottom:20px;">
           <div class="stat-card accent"><div class="stat-label">Avg Statewide Maturity</div><div class="stat-value" id="stat-maturity">2.9</div><div class="stat-sub">Up from 2.1 (Program Baseline)</div></div>
           <div class="stat-card green"><div class="stat-label">Critical Findings Closed</div><div class="stat-value" id="stat-findings">38</div><div class="stat-sub">Across <span id="stat-finding-agencies">23</span> completed agencies</div></div>
-          <div class="stat-card" style="cursor:pointer;" onclick="notify('POA&amp;M items tracked across all assessed agencies — drill into individual agency assessments for details')" title="POA&amp;M items tracked across all assessed agencies"><div class="stat-label">POA&amp;M Items Tracked</div><div class="stat-value">30</div><div class="stat-sub">Across all agencies &mdash; click for info</div></div>
+          <div class="stat-card" style="cursor:pointer;" onclick="notify('POA&amp;M items tracked across all assessed agencies — drill into individual agency assessments for details')" title="POA&amp;M items tracked across all assessed agencies"><div class="stat-label">POA&amp;M Items Tracked</div><div class="stat-value" id="stat-poam-tracked">30</div><div class="stat-sub">Across all agencies &mdash; click for info</div></div>
           <div class="stat-card"><div class="stat-label">Avg Days to SAR</div><div class="stat-value">41</div><div class="stat-sub">Large: 63 · Med: 42 · Small: 21</div></div>
         </div>
 
@@ -390,9 +390,9 @@
         <div id="sc-statewide-view">
         <div class="grid-4" style="margin-bottom:20px;">
           <div class="stat-card accent"><div class="stat-label">Avg Statewide Maturity</div><div class="stat-value" id="sc-kpi-maturity">2.9</div><div class="stat-sub">CMMI 0-5 · Up from 2.1 (Program Baseline)</div></div>
-          <div class="stat-card red"><div class="stat-label">Critical Control Gaps</div><div class="stat-value">47</div><div class="stat-sub">Across <span id="sc-kpi-complete-count">23</span> completed agencies</div></div>
+          <div class="stat-card red"><div class="stat-label">Critical Control Gaps</div><div class="stat-value" id="sc-kpi-ctrl-gaps">47</div><div class="stat-sub">Across <span id="sc-kpi-complete-count">23</span> completed agencies</div></div>
           <div class="stat-card green"><div class="stat-label">Agencies at CMMI ≥ 3.0</div><div class="stat-value" id="sc-kpi-at-target">8</div><div class="stat-sub">Meeting DoIT target baseline</div></div>
-          <div class="stat-card"><div class="stat-label">Open POA&amp;M Items</div><div class="stat-value">30</div><div class="stat-sub">Tracked across all agencies</div></div>
+          <div class="stat-card"><div class="stat-label">Open POA&amp;M Items</div><div class="stat-value" id="sc-kpi-open-poam">30</div><div class="stat-sub">Tracked across all agencies</div></div>
         </div>
 
         <!-- Metric 1 + Metric 4 -->
@@ -2908,6 +2908,27 @@
       msde:  3.4
     };
 
+    function computeSrtmStats(agencyKey) {
+      try {
+        const raw = localStorage.getItem('anchor_srtm_' + agencyKey);
+        if (!raw) return null;
+        const srtm = JSON.parse(raw);
+        if (!srtm || typeof srtm !== 'object') return null;
+        let met = 0, notMet = 0, na = 0, cmmiSum = 0, cmmiCount = 0;
+        Object.values(srtm).forEach(ctrl => {
+          const result = (ctrl.result || '').toUpperCase();
+          if (result === 'MET')         met++;
+          else if (result === 'NOT MET') notMet++;
+          else if (result === 'N/A')     na++;
+          const score = parseFloat(ctrl.cmmiScore || ctrl.cmmi || 0);
+          if (score > 0) { cmmiSum += score; cmmiCount++; }
+        });
+        const totalControls = met + notMet + na;
+        const avgCmmi = cmmiCount > 0 ? parseFloat((cmmiSum / cmmiCount).toFixed(1)) : 0;
+        return { totalControls, met, notMet, na, avgCmmi, poamCount: notMet };
+      } catch (e) { return null; }
+    }
+
     function updateDashboardStats() {
       const allAgencies = getAllAgencies();
       const agencyIds   = Object.keys(allAgencies);
@@ -2916,6 +2937,7 @@
       let complete = 0, inProgress = 0, scheduled = 0, unresponsive = 0;
       let totalMaturity = 0, maturityCount = 0;
       let atTarget = 0;
+      let totalFindings = 0, totalPoam = 0;
 
       // Size-tier counters for progress bars
       const sizeTotals    = { Large: 0, Medium: 0, Small: 0 };
@@ -2946,14 +2968,22 @@
           if (days > 14) unresponsive++;
         }
 
-        // Maturity — prefer stored cmmiScore, fall back to AGENCY_MATURITY lookup
-        const mat = parseFloat(stored.cmmiScore || stored.maturityScore || AGENCY_MATURITY[id] || 0);
+        // Maturity — prefer live SRTM, then stored cmmiScore, fall back to AGENCY_MATURITY lookup
+        const srtmStats = computeSrtmStats(id);
+        const mat = srtmStats
+          ? srtmStats.avgCmmi
+          : parseFloat(stored.cmmiScore || stored.maturityScore || AGENCY_MATURITY[id] || 0);
         if (mat > 0) {
           totalMaturity += mat;
           maturityCount++;
           if (mat >= 3.0) atTarget++;
           const bucket = Math.min(5, Math.floor(mat));
           matDist[bucket]++;
+        }
+        // Accumulate findings/poam from SRTM when available
+        if (srtmStats) {
+          totalFindings += srtmStats.notMet;
+          totalPoam     += srtmStats.poamCount;
         }
 
         // Size tier
@@ -2977,13 +3007,18 @@
       if (el('stat-scheduled'))    el('stat-scheduled').textContent     = scheduled;
       if (el('stat-unresponsive')) el('stat-unresponsive').textContent  = unresponsive;
       if (el('stat-maturity'))     el('stat-maturity').textContent      = avgMaturity;
-      if (el('stat-findings'))     el('stat-findings').textContent      = complete * 2; // ~2 closed findings per completed agency
+      const displayFindings = totalFindings > 0 ? totalFindings : 38;
+      const displayPoam     = totalPoam     > 0 ? totalPoam     : 30;
+      if (el('stat-findings'))         el('stat-findings').textContent         = displayFindings;
+      if (el('stat-poam-tracked'))     el('stat-poam-tracked').textContent     = displayPoam;
       if (el('stat-finding-agencies')) el('stat-finding-agencies').textContent = complete;
 
       // ── Compliance KPIs ─────────────────────────────────────────────────
       if (el('sc-kpi-maturity'))       el('sc-kpi-maturity').textContent       = avgMaturity;
       if (el('sc-kpi-complete-count')) el('sc-kpi-complete-count').textContent = complete;
       if (el('sc-kpi-at-target'))      el('sc-kpi-at-target').textContent      = atTarget;
+      if (el('sc-kpi-ctrl-gaps'))      el('sc-kpi-ctrl-gaps').textContent      = displayFindings;
+      if (el('sc-kpi-open-poam'))      el('sc-kpi-open-poam').textContent      = displayPoam;
 
       // ── Progress bars ────────────────────────────────────────────────────
       function setBar(barId, labelId, done, tot) {
